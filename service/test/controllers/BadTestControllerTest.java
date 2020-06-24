@@ -12,9 +12,9 @@ import play.mvc.Result;
 public class BadTestControllerTest extends TestHelper {
   @Test
   public void testPostClientExceptionPasses() {
-    //    Map<String, String> reqMap = new WeakHashMap<>();
-    //    reqMap.put("req", "data");
-    Result result = performTest("/exception", "POST", null, headerMap);
+    Map<String, String> reqMap = new WeakHashMap<>();
+    reqMap.put("request", "data");
+    Result result = performTest("/exception", "POST", reqMap, headerMap);
     assertEquals(Response.Status.fromStatusCode(500).getStatusCode(), getResponseStatus(result));
   }
 
