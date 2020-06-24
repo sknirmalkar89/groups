@@ -19,33 +19,30 @@ node('build-slave') {
                 checkout scm
                 commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
-                build_tag = branch_name + "_" + commit_hash
+                build_tag = branch_name + "_" + commit_hash + "_" + env.BUILD_NUMBER
                 println(ANSI_BOLD + ANSI_YELLOW + "github_release_tag not specified, using the latest commit hash: " + commit_hash + ANSI_NORMAL)
             } else {
                 def scmVars = checkout scm
                 checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$params.github_release_tag"]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
-                build_tag = params.github_release_tag
+                build_tag = params.github_release_tag + "_" + env.BUILD_NUMBER
                 println(ANSI_BOLD + ANSI_YELLOW + "github_release_tag specified, building from tag: " + params.github_release_tag + ANSI_NORMAL)
             }
             echo "build_tag: " + build_tag
 
             stage('Build') {
-		currentDir = sh(returnStdout: true, script: 'pwd').trim()
                 env.NODE_ENV = "build"
                 print "Environment will be : ${env.NODE_ENV}"
-                sh('git submodule update --init')
-                sh('git submodule update --init --recursive --remote')
                 sh 'git log -1'
-	
-		sh "cd $currentDir"
-		// Build the dependencies for sunbird user-org service
-                sh 'mvn clean install'
+                sh 'cat service/conf/routes | grep v2'
+                sh 'mvn clean install -U -DskipTests=true '
+
+            }
+            stage('Unit Tests') {	
+                sh "mvn test -DfailIfNoTests=false"	
             }
             stage('Package') {
-		// Create a deployment package
-                dir('play-service') {
+                dir('service') {
                     sh 'mvn play2:dist'
-		    sh 'cp target/play-service-1.0.0-dist.zip ../'
                 }
                 sh('chmod 777 ./build.sh')
                 sh("./build.sh ${build_tag} ${env.NODE_NAME} ${hub_org}")
