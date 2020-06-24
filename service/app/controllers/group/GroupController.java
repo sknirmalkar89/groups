@@ -9,15 +9,14 @@ import play.mvc.Result;
 
 public class GroupController extends BaseController {
 
-  public CompletionStage<Result> createGroup(Http.Request httpRequest) {
-    CompletionStage<Result> response =
-        handleRequest(
-            httpRequest,
-            request -> {
-              Request req = (Request) request;
-              return null;
-            },
-            ActorOperations.CREATE_GROUP.getValue());
-    return response;
+  @Override
+  protected boolean validate(Request request) {
+    return true;
+  }
+
+  public CompletionStage<Result> createGroup(Http.Request req) {
+    Request request = createSBRequest(req);
+    request.setOperation(ActorOperations.CREATE_GROUP.getValue());
+    return handleRequest(request);
   }
 }

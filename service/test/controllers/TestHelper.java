@@ -1,27 +1,36 @@
 package controllers;
 
-import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import org.apache.commons.lang3.StringUtils;
+import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.WithApplication;
+import play.test.Helpers;
+import utils.JsonKey;
 
-/**
- * This a helper class for All the Controllers Test
- *
- * @author anmolgupta
- */
-public class TestHelper extends WithApplication {
+/** This a helper class for All the Controllers Test */
+public class TestHelper {
+  // One and only app
+  private static Application app = Helpers.fakeApplication();
 
-  private ObjectMapper mapperObj = new ObjectMapper();
+  // Let test cases create one if needed. This will be private.
+  private final ObjectMapper mapperObj = new ObjectMapper();
+
+  // Only for derivations
+  protected Map<String, String> headerMap;
+
+  public TestHelper() {
+    headerMap = new WeakHashMap<>();
+    headerMap.put(JsonKey.VER, "1.0");
+    headerMap.put(JsonKey.ID, "api.test.id");
+  }
 
   /**
    * This method will perform a request call.
@@ -42,7 +51,7 @@ public class TestHelper extends WithApplication {
       req = new Http.RequestBuilder().uri(url).method(method);
     }
     req.header("Content-Type", "application/json");
-    Result result = route(fakeApplication(), req);
+    Result result = route(app, req);
     return result;
   }
 
@@ -72,27 +81,5 @@ public class TestHelper extends WithApplication {
    */
   public int getResponseStatus(Result result) {
     return result.status();
-  }
-
-  /**
-   * This method will return the headerMap required for Apis.
-   *
-   * @return
-   */
-  public Map<String, String[]> getHeaderMap() {
-    Map<String, String[]> headerMap = new HashMap<>();
-    headerMap.put("x-authenticated-user-token", new String[] {"Some authenticated user ID"});
-    headerMap.put("Authorization", new String[] {"Bearer ...."});
-    headerMap.put("Content-Type", new String[] {"application/json"});
-    return headerMap;
-  }
-
-  public Map<String, String[]> getUserHeaderMap() {
-    Map<String, String[]> headerMap = new HashMap<>();
-    headerMap.put("x-authenticated-user-token", new String[] {"Some authenticated user ID"});
-    headerMap.put("Authorization", new String[] {"Bearer ...."});
-    headerMap.put("Accept", new String[] {"application/json"});
-    headerMap.put("Content-Type", new String[] {"application/json"});
-    return headerMap;
   }
 }

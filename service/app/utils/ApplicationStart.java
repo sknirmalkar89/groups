@@ -12,8 +12,6 @@ import play.api.inject.ApplicationLifecycle;
 /**
  * This class will be called after on application startup. only one instance of this class will be
  * created. StartModule class has responsibility to eager load this class.
- *
- * @author manzarul
  */
 @Singleton
 public class ApplicationStart {

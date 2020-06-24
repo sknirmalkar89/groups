@@ -2,11 +2,7 @@ package org.sunbird.response;
 
 import java.io.Serializable;
 
-/**
- * This class will contains response envelop.
- *
- * @author Manzarul
- */
+/** This class will contains response envelop. */
 public class ResponseParams implements Serializable {
 
   private static final long serialVersionUID = 6772142067149203497L;

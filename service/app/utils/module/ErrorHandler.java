@@ -18,11 +18,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-/**
- * This class will be called when exception is not handle by application.
- *
- * @author manzarul
- */
+/** This class will be called when exception is not handle by application. */
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
   Logger logger = LoggerFactory.getLogger(ErrorHandler.class);

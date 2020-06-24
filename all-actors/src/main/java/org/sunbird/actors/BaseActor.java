@@ -1,22 +1,23 @@
-package org.sunbird;
+package org.sunbird.actors;
 
 import akka.actor.UntypedAbstractActor;
 import akka.event.DiagnosticLoggingAdapter;
 import akka.event.Logging;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
-import org.sunbird.message.IResponseMessage;
+import org.sunbird.ActorServiceException;
+import org.sunbird.BaseException;
+import org.sunbird.BaseLogger;
 import org.sunbird.message.Localizer;
-import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
+import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
 
-/** @author Amit Kumar */
 public abstract class BaseActor extends UntypedAbstractActor {
 
-  public final DiagnosticLoggingAdapter logger = Logging.getLogger(this);
+  final DiagnosticLoggingAdapter logger = Logging.getLogger(this);
 
   public abstract void onReceive(Request request) throws Throwable;
 
@@ -24,30 +25,32 @@ public abstract class BaseActor extends UntypedAbstractActor {
 
   @Override
   public void onReceive(Object message) throws Throwable {
+    Map<String, Object> trace = new HashMap<>();
     if (message instanceof Request) {
       Request request = (Request) message;
       String operation = request.getOperation();
-      Map<String, Object> mdc = new HashMap<>();
-      String requestId = request.getRequestId();
-      if (null == requestId) {
-        requestId = UUID.randomUUID().toString();
+
+      if (request.getHeaders().containsKey(JsonKey.REQUEST_MESSAGE_ID)) {
+        ArrayList<String> requestIds =
+            (ArrayList<String>) request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID);
+        trace.put(JsonKey.REQUEST_MESSAGE_ID, requestIds.get(0));
+        logger.setMDC(trace);
+        // set mdc for non actors
+        new BaseLogger().setReqId(logger.getMDC());
       }
-      mdc.put(JsonKey.REQ_ID, requestId);
-      logger.setMDC(mdc);
-      // set mdc for non Actor
-      new BaseLogger().setReqId(logger.getMDC());
       try {
-        logger.info("Started : operation {}", operation);
+        startTrace(operation);
         onReceive(request);
-        logger.info("Ended : operation {}", operation);
+        endTrace(operation);
       } catch (Exception e) {
-        logger.error("Exception : operation {} : message : {} {}", operation, e.getMessage(), e);
+        logger.error("{} : message : {} {}", operation, e.getMessage(), e);
         onReceiveException(operation, e);
       } finally {
         logger.clearMDC();
       }
     } else {
-      logger.info(" onReceive called with invalid type of request.");
+      Response res = (Response) message;
+      logger.info(" onReceive called with invalid type of request " + res.getId());
     }
   }
 
@@ -79,11 +82,7 @@ public abstract class BaseActor extends UntypedAbstractActor {
      * TODO Need to replace null reference from getLocalized method and replace with requested
      * local.
      */
-    BaseException exception =
-        new ActorServiceException.InvalidOperationName(
-            IResponseMessage.INVALID_OPERATION_NAME,
-            getLocalizedMessage(IResponseMessage.INVALID_OPERATION_NAME, null),
-            ResponseCode.CLIENT_ERROR.getCode());
+    BaseException exception = new ActorServiceException.InvalidOperationName(null);
     sender().tell(exception, self());
   }
 
@@ -113,8 +112,7 @@ public abstract class BaseActor extends UntypedAbstractActor {
    * @param tag
    */
   public void startTrace(String tag) {
-    logger.info(
-        String.format("%s:%s:started at %s", this.getClass().getSimpleName(), tag, getTimeStamp()));
+    logger.info(String.format("%s started at %s", tag, getTimeStamp()));
   }
 
   /**
@@ -123,7 +121,6 @@ public abstract class BaseActor extends UntypedAbstractActor {
    * @param tag
    */
   public void endTrace(String tag) {
-    logger.info(
-        String.format("%s:%s:ended at %s", this.getClass().getSimpleName(), tag, getTimeStamp()));
+    logger.info(String.format("%s ended at %s", tag, getTimeStamp()));
   }
 }
