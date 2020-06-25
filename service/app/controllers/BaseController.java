@@ -16,6 +16,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.ActorServiceException;
 import org.sunbird.Application;
+import org.sunbird.BaseException;
 import org.sunbird.request.Request;
 import org.sunbird.response.ResponseFactory;
 import play.libs.Json;
@@ -43,7 +44,7 @@ public class BaseController extends Controller {
     return Application.getInstance().getActorRef(operation);
   }
 
-  protected boolean validate(Request request) {
+  protected boolean validate(Request request) throws BaseException {
     // All controllers can validate this.
     return false;
   }
