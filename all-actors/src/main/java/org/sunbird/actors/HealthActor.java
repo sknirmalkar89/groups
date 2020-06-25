@@ -1,4 +1,4 @@
-package org.sunbird;
+package org.sunbird.actors;
 
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.request.Request;
@@ -6,7 +6,7 @@ import org.sunbird.response.Response;
 
 @ActorConfig(
   tasks = {"health"},
-  dispatcher = "",
+  dispatcher = "user-dispatcher",
   asyncTasks = {}
 )
 public class HealthActor extends BaseActor {

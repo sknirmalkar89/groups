@@ -1,6 +1,5 @@
-package org.sunbird.actor;
+package org.sunbird.actors;
 
-import org.sunbird.BaseActor;
 import org.sunbird.BaseException;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.models.Group;

@@ -1,10 +1,9 @@
-package actor;
+package org.sunbird.actors;
 
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import java.time.Duration;
@@ -16,7 +15,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.BaseException;
-import org.sunbird.actor.GroupActor;
+import org.sunbird.message.Localizer;
 import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
@@ -25,26 +24,17 @@ import org.sunbird.service.impl.GroupServiceImpl;
 import org.sunbird.util.JsonKey;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GroupService.class, GroupServiceImpl.class})
+@PrepareForTest({GroupService.class, GroupServiceImpl.class, Localizer.class})
 @PowerMockIgnore({"javax.management.*"})
-public class GroupActorTest {
-  static ActorSystem system;
+public class GroupActorTest extends BaseActorTest {
+
   private final Props props = Props.create(GroupActor.class);
   private static GroupService groupService;
 
-  @BeforeClass
-  public static void setup() {
-    system = ActorSystem.create("system");
-  }
-
-  @AfterClass
-  public static void teardown() {
-    TestKit.shutdownActorSystem(system);
-    system = null;
-  }
-
   @Before
   public void beforeEachTest() {
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
     PowerMockito.mockStatic(GroupServiceImpl.class);
     groupService = mock(GroupServiceImpl.class);
     when(GroupServiceImpl.getInstance()).thenReturn(groupService);

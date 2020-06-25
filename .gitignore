@@ -19,3 +19,10 @@ RUNNING_PID
 /bin/
 /logs
 /*.DS_Store
+*.zip
+.idea/*
+all-actors/all-actors.iml
+play-seed-wo-router.iml
+sb-actor/sb-actor.iml
+sb-utils/sb-utils.iml
+

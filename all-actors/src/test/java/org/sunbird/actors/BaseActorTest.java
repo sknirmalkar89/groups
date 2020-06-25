@@ -1,4 +1,4 @@
-package actor;
+package org.sunbird.actors;
 
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;

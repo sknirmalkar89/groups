@@ -4,11 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This is a common response class for all the layer. All layer will send same response object.
- *
- * @author Manzarul
- */
+/** This is a common response class for all the layer. All layer will send same response object. */
 public class Response implements Serializable, Cloneable {
 
   private static final long serialVersionUID = -3773253896160786443L;

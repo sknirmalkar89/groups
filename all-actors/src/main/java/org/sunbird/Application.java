@@ -6,11 +6,7 @@ import java.util.List;
 import org.sunbird.actor.core.ActorCache;
 import org.sunbird.actor.core.ActorService;
 
-/**
- * this class is used to instantiate the actor system and open saber.
- *
- * @author Amit Kumar
- */
+/** this class is used to instantiate the actor system. */
 public class Application {
   private static final String actorSystemName = "thisActorSystem";
   private static Application instance = new Application();

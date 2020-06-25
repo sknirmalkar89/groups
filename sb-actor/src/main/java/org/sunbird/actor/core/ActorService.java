@@ -13,11 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 
-/**
- * This class contains method to instantiate actor system and actors.
- *
- * @author Amit Kumar
- */
+/** This class contains method to instantiate actor system and actors. */
 public class ActorService {
 
   private static ActorSystem system;
