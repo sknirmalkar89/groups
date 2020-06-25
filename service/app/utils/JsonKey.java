@@ -28,4 +28,5 @@ public interface JsonKey {
   String ERRORS = "errors";
   String SUCCESS = "success";
   String API_VERSION = "v1";
+  String NAME = "name";
 }

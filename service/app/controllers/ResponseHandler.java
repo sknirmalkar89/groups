@@ -1,5 +1,6 @@
 package controllers;
 
+import org.apache.http.HttpStatus;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.response.ResponseFactory;
@@ -13,15 +14,28 @@ import play.mvc.Results;
  */
 public class ResponseHandler {
 
+  private ResponseHandler() {}
   /**
    * This method will handle all the failure response of Api calls.
    *
    * @param exception
    * @return
    */
-  private static Result handleFailureResponse(Object exception, Request request) {
+  public static Result handleFailureResponse(Object exception, Request request) {
+    Result result;
     Response response = ResponseFactory.getFailureMessage(exception, request);
-    return Results.internalServerError(Json.toJson(response));
+    switch (response.getResponseCode()) {
+      case HttpStatus.SC_BAD_REQUEST:
+        result = Results.badRequest(Json.toJson(response));
+        break;
+      case HttpStatus.SC_UNAUTHORIZED:
+        result = Results.unauthorized(Json.toJson(response));
+        break;
+      default:
+        result = Results.internalServerError(Json.toJson(response));
+        break;
+    }
+    return result;
   }
 
   /**

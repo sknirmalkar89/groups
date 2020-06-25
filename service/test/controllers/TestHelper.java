@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.apache.commons.lang3.StringUtils;
+import org.powermock.api.mockito.PowerMockito;
 import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
@@ -20,6 +21,8 @@ public class TestHelper {
   // One and only app
   private static Application app = Helpers.fakeApplication();
 
+  protected org.sunbird.Application sbApp;
+
   // Let test cases create one if needed. This will be private.
   private final ObjectMapper mapperObj = new ObjectMapper();
 
@@ -30,6 +33,7 @@ public class TestHelper {
     headerMap = new WeakHashMap<>();
     headerMap.put(JsonKey.VER, "1.0");
     headerMap.put(JsonKey.ID, "api.test.id");
+    headerMap.put(JsonKey.REQUEST_MESSAGE_ID, this.getClass().getSimpleName());
   }
 
   /**
@@ -53,6 +57,13 @@ public class TestHelper {
     req.header("Content-Type", "application/json");
     Result result = route(app, req);
     return result;
+  }
+
+  public final void setupMock() {
+    sbApp = PowerMockito.mock(org.sunbird.Application.class);
+    PowerMockito.mockStatic(org.sunbird.Application.class);
+    PowerMockito.when(org.sunbird.Application.getInstance()).thenReturn(sbApp);
+    sbApp.init();
   }
 
   /**

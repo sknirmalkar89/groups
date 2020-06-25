@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 import org.sunbird.Application;
 import org.sunbird.BaseException;
 import org.sunbird.util.DBUtil;
-import play.api.Environment;
 import play.api.inject.ApplicationLifecycle;
 
 /**
@@ -15,20 +14,16 @@ import play.api.inject.ApplicationLifecycle;
  */
 @Singleton
 public class ApplicationStart {
-
   /**
    * All one time initialization which required during server startup will fall here.
    *
    * @param lifecycle ApplicationLifecycle
-   * @param environment Environment
    */
   @Inject
-  public ApplicationStart(ApplicationLifecycle lifecycle, Environment environment)
-      throws BaseException {
+  public ApplicationStart(ApplicationLifecycle lifecycle) throws BaseException {
     // instantiate actor system and initialize all the actors
     Application.getInstance().init();
     checkCassandraConnections();
-
     // Shut-down hook
     lifecycle.addStopHook(
         () -> {

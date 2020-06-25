@@ -20,7 +20,7 @@ public class Request implements Serializable {
   private Map<String, Object> request = new WeakHashMap<>();
   private Map<String, Object> headers = new WeakHashMap<>();
 
-  private Integer timeout; // in seconds
+  private int timeout; // in seconds
 
   protected Map<String, Object> context = new WeakHashMap<>();
   protected String path;
@@ -122,11 +122,11 @@ public class Request implements Serializable {
     if (this.params.getMsgid() == null && requestId != null) this.params.setMsgid(requestId);
   }
 
-  public Integer getTimeout() {
+  public int getTimeout() {
     return timeout;
   }
 
-  public void setTimeout(Integer timeout) throws BaseException {
+  public void setTimeout(int timeout) throws BaseException {
     this.timeout = timeout;
   }
 

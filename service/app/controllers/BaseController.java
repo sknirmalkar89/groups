@@ -18,12 +18,12 @@ import org.sunbird.ActorServiceException;
 import org.sunbird.Application;
 import org.sunbird.BaseException;
 import org.sunbird.request.Request;
-import org.sunbird.response.ResponseFactory;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
+import validators.IRequestValidator;
 
 /**
  * This controller we can use for writing some common method to handel api request.
@@ -36,17 +36,20 @@ public class BaseController extends Controller {
   private static final int WAIT_TIME_VALUE = 30;
   protected ObjectMapper mapper = new ObjectMapper();
 
-  public Integer getTimeout() {
-    return WAIT_TIME_VALUE;
+  public int getTimeout(Request request) {
+    int timeout = WAIT_TIME_VALUE;
+    if (request != null && request.getTimeout() != null) {
+      timeout = request.getTimeout();
+    }
+    return timeout;
   }
 
   protected ActorRef getActorRef(String operation) {
     return Application.getInstance().getActorRef(operation);
   }
 
-  protected boolean validate(Request request) throws BaseException {
+  protected void validate(Request request, IRequestValidator validator) throws BaseException {
     // All controllers can validate this.
-    return false;
   }
 
   /**
@@ -57,15 +60,14 @@ public class BaseController extends Controller {
    * @param request
    * @return
    */
-  public CompletionStage<Result> handleRequest(Request request) {
+  public CompletionStage<Result> handleRequest(
+      Request request, IRequestValidator iRequestValidator) {
     try {
-      validate(request);
+      validate(request, iRequestValidator);
       return invoke(request);
     } catch (Exception ex) {
       return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-          .thenApply(
-              result ->
-                  internalServerError(Json.toJson(ResponseFactory.getFailureMessage(ex, request))));
+          .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
     }
   }
 
@@ -74,9 +76,9 @@ public class BaseController extends Controller {
    *
    * @param request
    * @return CompletionStage<Result>
-   * @throws Exception
+   * @throws BaseException
    */
-  public CompletionStage<Result> invoke(Request request) throws Exception {
+  public CompletionStage<Result> invoke(Request request) throws BaseException {
     if (request == null) {
       handleResponse(new ActorServiceException.InvalidRequestData(), request);
     }
@@ -88,12 +90,11 @@ public class BaseController extends Controller {
             return handleResponse(object, request);
           }
         };
-    long timeout = request.getTimeout() != null ? request.getTimeout() : getTimeout();
-    Timeout t = new Timeout(timeout, TimeUnit.SECONDS);
+    Timeout timeout = new Timeout(getTimeout(request), TimeUnit.SECONDS);
 
     ActorRef actorRef = getActorRef(request.getOperation());
     if (actorRef != null) {
-      Future<Object> future = Patterns.ask(actorRef, request, t);
+      Future<Object> future = Patterns.ask(actorRef, request, timeout);
       return FutureConverters.toJava(future).thenApplyAsync(fn);
     } else {
       return CompletableFuture.supplyAsync(
@@ -102,10 +103,9 @@ public class BaseController extends Controller {
   }
 
   public Request createSBRequest(play.mvc.Http.Request httpReq) {
-    Request request = null;
     // Copy body
     JsonNode requestData = httpReq.body().asJson();
-    if (requestData.isMissingNode()) {
+    if (requestData == null || requestData.isMissingNode()) {
       requestData = JsonNodeFactory.instance.objectNode();
     }
 
@@ -113,7 +113,7 @@ public class BaseController extends Controller {
     ObjectNode headerData = Json.mapper().valueToTree(httpReq.getHeaders().toMap());
     ((ObjectNode) requestData).set("headers", headerData);
 
-    request = Json.fromJson(requestData, Request.class);
+    Request request = Json.fromJson(requestData, Request.class);
     request.setPath(httpReq.path());
 
     return request;

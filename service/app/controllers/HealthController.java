@@ -1,9 +1,11 @@
 package controllers;
 
 import java.util.concurrent.CompletionStage;
+import org.sunbird.BaseException;
 import org.sunbird.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
+import validators.IRequestValidator;
 
 /** This controller class will responsible to check health of the services. */
 public class HealthController extends BaseController {
@@ -11,8 +13,10 @@ public class HealthController extends BaseController {
   private static final String service = "service";
 
   @Override
-  protected boolean validate(Request request) {
-    return true;
+  protected void validate(Request request, IRequestValidator validator) throws BaseException {
+    if (validator != null) {
+      validator.validate(request);
+    }
   }
 
   /**
@@ -20,9 +24,9 @@ public class HealthController extends BaseController {
    *
    * @return a CompletableFuture of success response
    */
-  public CompletionStage<Result> getHealth() {
+  public CompletionStage<Result> getHealth() throws BaseException {
     Request req = new Request("health"); // Get API
-    return handleRequest(req);
+    return handleRequest(req, null);
   }
 
   /**
@@ -30,10 +34,11 @@ public class HealthController extends BaseController {
    *
    * @return a CompletableFuture of success response
    */
-  public CompletionStage<Result> getServiceHealth(String serviceName, Http.Request req) {
+  public CompletionStage<Result> getServiceHealth(String serviceName, Http.Request req)
+      throws BaseException {
     Request request = createSBRequest(req);
     request.getContext().put("service", serviceName);
     request.setOperation("health");
-    return handleRequest(request);
+    return handleRequest(request, null);
   }
 }

@@ -14,7 +14,37 @@ public class GroupControllerTest extends TestHelper {
   public void testCreateGroupPasses() {
     Map<String, Object> reqMap = new HashMap<>();
     reqMap.put("name", "group");
-    Result result = performTest("/v1/group/create", "POST", reqMap, headerMap);
+    Map<String, Object> request = new HashMap<>();
+    request.put("request", reqMap);
+    Result result = performTest("/v1/group/create", "POST", request, headerMap);
     assertTrue(getResponseStatus(result) == Response.Status.OK.getStatusCode());
+  }
+
+  @Test
+  public void testMandatoryParamGroupName() {
+    Map<String, Object> reqMap = new HashMap<>();
+    reqMap.put("description", "group");
+    Map<String, Object> request = new HashMap<>();
+    request.put("request", reqMap);
+    Result result = performTest("/v1/group/create", "POST", request, headerMap);
+    assertTrue(getResponseStatus(result) == Response.Status.BAD_REQUEST.getStatusCode());
+  }
+
+  @Test
+  public void testGroupNameType() {
+    Map<String, Object> reqMap = new HashMap<>();
+    reqMap.put("name", 123);
+    Map<String, Object> request = new HashMap<>();
+    request.put("request", reqMap);
+    Result result = performTest("/v1/group/create", "POST", request, headerMap);
+    assertTrue(getResponseStatus(result) == Response.Status.BAD_REQUEST.getStatusCode());
+  }
+
+  @Test
+  public void testCreateGroupWithEmptyRequestObject() {
+    Map<String, Object> request = new HashMap<>();
+    request.put("name", "groupName");
+    Result result = performTest("/v1/group/create", "POST", request, headerMap);
+    assertTrue(getResponseStatus(result) == Response.Status.BAD_REQUEST.getStatusCode());
   }
 }

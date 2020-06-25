@@ -2,9 +2,7 @@ package org.sunbird.response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.BaseException;
-import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
-import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
 
 public class ResponseFactory {
@@ -27,11 +25,8 @@ public class ResponseFactory {
     if (exception instanceof BaseException) {
       BaseException ex = (BaseException) exception;
       response.put(msgKeyStr, ex.getMessage());
-      response.setResponseCode(ResponseCode.CLIENT_ERROR.getCode());
-      return response;
+      response.setResponseCode(ex.getResponseCode());
     }
-    response.setResponseCode(ResponseCode.SERVER_ERROR.getCode());
-    response.put(msgKeyStr, localizerObject.getMessage(IResponseMessage.INTERNAL_ERROR, null));
     return response;
   }
 
