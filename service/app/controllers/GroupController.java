@@ -1,6 +1,5 @@
-package controllers.group;
+package controllers;
 
-import controllers.BaseController;
 import java.util.concurrent.CompletionStage;
 import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
