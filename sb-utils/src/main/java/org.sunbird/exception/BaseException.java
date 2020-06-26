@@ -67,4 +67,10 @@ public class BaseException extends Exception {
     this.message = message;
     this.responseCode = responseCode;
   }
+
+  public BaseException(String code, String message) {
+    super();
+    this.code = code;
+    this.message = message;
+  }
 }
