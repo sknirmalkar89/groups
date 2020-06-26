@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.sunbird.BaseException;
+import org.sunbird.exception.BaseException;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request implements Serializable {

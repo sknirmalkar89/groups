@@ -14,16 +14,16 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
-import org.sunbird.ActorServiceException;
 import org.sunbird.Application;
-import org.sunbird.BaseException;
+import org.sunbird.exception.ActorServiceException;
+import org.sunbird.exception.BaseException;
+import org.sunbird.exception.ValidationException;
 import org.sunbird.request.Request;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
-import validators.IRequestValidator;
 
 /**
  * This controller we can use for writing some common method to handel api request.
@@ -38,7 +38,7 @@ public class BaseController extends Controller {
 
   public int getTimeout(Request request) {
     int timeout = WAIT_TIME_VALUE;
-    if (request != null && request.getTimeout() != null) {
+    if (request != null && request.getTimeout() > 0) {
       timeout = request.getTimeout();
     }
     return timeout;
@@ -48,8 +48,9 @@ public class BaseController extends Controller {
     return Application.getInstance().getActorRef(operation);
   }
 
-  protected void validate(Request request, IRequestValidator validator) throws BaseException {
+  protected boolean validate(Request request) throws BaseException {
     // All controllers can validate this.
+    return false;
   }
 
   /**
@@ -60,10 +61,9 @@ public class BaseController extends Controller {
    * @param request
    * @return
    */
-  public CompletionStage<Result> handleRequest(
-      Request request, IRequestValidator iRequestValidator) {
+  public CompletionStage<Result> handleRequest(Request request) {
     try {
-      validate(request, iRequestValidator);
+      validate(request);
       return invoke(request);
     } catch (Exception ex) {
       return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
@@ -80,7 +80,7 @@ public class BaseController extends Controller {
    */
   public CompletionStage<Result> invoke(Request request) throws BaseException {
     if (request == null) {
-      handleResponse(new ActorServiceException.InvalidRequestData(), request);
+      handleResponse(new ValidationException.InvalidRequestData(), request);
     }
 
     Function<Object, Result> fn =

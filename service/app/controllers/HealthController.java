@@ -1,23 +1,15 @@
 package controllers;
 
 import java.util.concurrent.CompletionStage;
-import org.sunbird.BaseException;
+import org.sunbird.exception.BaseException;
 import org.sunbird.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
-import validators.IRequestValidator;
 
 /** This controller class will responsible to check health of the services. */
 public class HealthController extends BaseController {
   // Service name must be "service" for the DevOps monitoring.
   private static final String service = "service";
-
-  @Override
-  protected void validate(Request request, IRequestValidator validator) throws BaseException {
-    if (validator != null) {
-      validator.validate(request);
-    }
-  }
 
   /**
    * This action method is responsible for checking Health.
@@ -26,7 +18,7 @@ public class HealthController extends BaseController {
    */
   public CompletionStage<Result> getHealth() throws BaseException {
     Request req = new Request("health"); // Get API
-    return handleRequest(req, null);
+    return handleRequest(req);
   }
 
   /**
@@ -39,6 +31,6 @@ public class HealthController extends BaseController {
     Request request = createSBRequest(req);
     request.getContext().put("service", serviceName);
     request.setOperation("health");
-    return handleRequest(request, null);
+    return handleRequest(request);
   }
 }

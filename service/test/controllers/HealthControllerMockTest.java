@@ -11,6 +11,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.sunbird.exception.BaseException;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.Await;
@@ -21,7 +22,7 @@ import scala.concurrent.Await;
 public class HealthControllerMockTest extends TestHelper {
 
   @Test
-  public void testOnServerHandlerPasses() {
+  public void testOnServerHandlerPasses() throws BaseException {
     setupMock();
     HealthController healthController = Mockito.mock(HealthController.class);
     PowerMockito.when(healthController.createSBRequest(Mockito.any(Http.Request.class)))
