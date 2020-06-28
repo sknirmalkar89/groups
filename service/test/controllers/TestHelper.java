@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.powermock.api.mockito.PowerMockito;
+import org.sunbird.exception.BaseException;
 import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
@@ -59,7 +60,7 @@ public class TestHelper {
     return result;
   }
 
-  public final void setupMock() {
+  public final void setupMock() throws BaseException {
     sbApp = PowerMockito.mock(org.sunbird.Application.class);
     PowerMockito.mockStatic(org.sunbird.Application.class);
     PowerMockito.when(org.sunbird.Application.getInstance()).thenReturn(sbApp);

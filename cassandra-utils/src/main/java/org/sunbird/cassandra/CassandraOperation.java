@@ -5,7 +5,7 @@ import com.datastax.driver.core.ResultSet;
 import com.google.common.util.concurrent.FutureCallback;
 import java.util.List;
 import java.util.Map;
-import org.sunbird.BaseException;
+import org.sunbird.exception.BaseException;
 import org.sunbird.response.Response;
 
 /**

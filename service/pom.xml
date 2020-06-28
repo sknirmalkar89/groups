@@ -4,12 +4,12 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.sunbird</groupId>
-        <artifactId>sunbird-groups</artifactId>
+        <artifactId>group-service</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>group-service</artifactId>
-    <name>group-service</name>
+    <artifactId>service</artifactId>
+    <name>play-service</name>
     <version>1.0.0</version>
     <packaging>play2</packaging>
 
@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.sunbird</groupId>
-            <artifactId>all-actors</artifactId>
+            <artifactId>group-actors</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -228,6 +228,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.4</version>
                 <executions>
                     <execution>
                         <id>findbug</id>

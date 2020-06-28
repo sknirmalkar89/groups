@@ -1,7 +1,7 @@
 package org.sunbird.response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sunbird.BaseException;
+import org.sunbird.exception.BaseException;
 import org.sunbird.message.Localizer;
 import org.sunbird.request.Request;
 

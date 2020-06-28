@@ -3,12 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>sunbird-groups</artifactId>
+        <artifactId>group-service</artifactId>
         <groupId>org.sunbird</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cassandra-utils</artifactId>
+    <version>1.0.0</version>
     <properties>
         <version.compiler.plugin>2.3.1</version.compiler.plugin>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -76,7 +77,7 @@
         <dependency>
             <groupId>org.sunbird</groupId>
             <artifactId>sb-utils</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

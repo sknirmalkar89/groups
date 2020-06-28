@@ -1,6 +1,6 @@
 package utils;
 
-import org.sunbird.BaseException;
+import org.sunbird.exception.BaseException;
 
 @FunctionalInterface
 public interface RequestValidatorFunction<T, R> {

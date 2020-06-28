@@ -4,8 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.sunbird.Application;
-import org.sunbird.BaseException;
-import org.sunbird.util.DBUtil;
+import org.sunbird.exception.BaseException;
 import play.api.inject.ApplicationLifecycle;
 
 /**
@@ -23,15 +22,10 @@ public class ApplicationStart {
   public ApplicationStart(ApplicationLifecycle lifecycle) throws BaseException {
     // instantiate actor system and initialize all the actors
     Application.getInstance().init();
-    checkCassandraConnections();
     // Shut-down hook
     lifecycle.addStopHook(
         () -> {
           return CompletableFuture.completedFuture(null);
         });
-  }
-
-  private static void checkCassandraConnections() throws BaseException {
-    DBUtil.checkCassandraDbConnections();
   }
 }
