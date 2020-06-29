@@ -10,7 +10,7 @@ import org.sunbird.util.DBUtil;
 
 /** this class is used to instantiate the actor system. */
 public class Application {
-  private static final String actorSystemName = "thisActorSystem";
+  private static final String actorSystemName = "GroupActor";
   private static Application instance = new Application();
 
   // private constructor restricted to this class itself

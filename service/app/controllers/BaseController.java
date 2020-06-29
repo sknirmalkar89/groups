@@ -41,6 +41,7 @@ public class BaseController extends Controller {
     if (request != null && request.getTimeout() > 0) {
       timeout = request.getTimeout();
     }
+
     return timeout;
   }
 

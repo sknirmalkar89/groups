@@ -38,5 +38,6 @@
         <module>sb-actor</module>
         <module>service</module>
         <module>cassandra-utils</module>
+        <module>sb-telemetry-utils</module>
     </modules>
 </project>

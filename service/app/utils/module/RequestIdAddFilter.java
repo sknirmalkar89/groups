@@ -32,21 +32,20 @@ public class RequestIdAddFilter extends Filter {
         requestIdHeader.isPresent() ? requestIdHeader.get() : UUID.randomUUID().toString();
     requestHeader.getHeaders().addHeader(JsonKey.REQUEST_MESSAGE_ID, reqId);
 
-    return nextFilter
-        .apply(requestHeader)
-        .thenApply(
-            result -> {
-              long endTime = System.currentTimeMillis();
-              long requestTime = endTime - startTime;
-
-              log.info(
-                  "{} {} took {}ms and returned {}",
-                  requestHeader.method(),
-                  requestHeader.uri(),
-                  requestTime,
-                  result.status());
-
-              return result.withHeader("Request-Time", "" + requestTime);
-            });
+    return nextFilter.apply(requestHeader);
   }
+  /*   private void sendTelemetry() {
+      List<Map<String, Object>> correlatedObject = new ArrayList<>();
+      Map<String, Object> targetObject;
+      String userId = (String) badge.get(JsonKey.USER_ID);
+      targetObject = TelemetryUtil.generateTargetObject(userId, JsonKey.USER, JsonKey.UPDATE, null);
+      TelemetryUtil.generateCorrelatedObject(
+              (String) badge.get(BadgingJsonKey.ASSERTION_ID),
+              BadgingJsonKey.BADGE_ASSERTION,
+              null,
+              correlatedObject);
+      TelemetryUtil.generateCorrelatedObject(userId, JsonKey.USER, null, correlatedObject);
+      TelemetryUtil.telemetryProcessingCall(
+              request.getRequest(), targetObject, correlatedObject, request.getContext());
+  }*/
 }
