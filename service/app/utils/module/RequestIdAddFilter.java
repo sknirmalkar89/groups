@@ -32,21 +32,6 @@ public class RequestIdAddFilter extends Filter {
         requestIdHeader.isPresent() ? requestIdHeader.get() : UUID.randomUUID().toString();
     requestHeader.getHeaders().addHeader(JsonKey.REQUEST_MESSAGE_ID, reqId);
 
-    return nextFilter
-        .apply(requestHeader)
-        .thenApply(
-            result -> {
-              long endTime = System.currentTimeMillis();
-              long requestTime = endTime - startTime;
-
-              log.info(
-                  "{} {} took {}ms and returned {}",
-                  requestHeader.method(),
-                  requestHeader.uri(),
-                  requestTime,
-                  result.status());
-
-              return result.withHeader("Request-Time", "" + requestTime);
-            });
+    return nextFilter.apply(requestHeader);
   }
 }

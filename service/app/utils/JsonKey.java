@@ -29,4 +29,13 @@ public interface JsonKey {
   String SUCCESS = "success";
   String API_VERSION = "v1";
   String NAME = "name";
+  String URL = "url";
+  String LOG_TYPE = "logType";
+  String DURATION = "duration";
+  String STATUS = "status";
+  String INFO = "info";
+  String CONTEXT = "context";
+  String TELEMETRY_EVENT_TYPE = "telemetryEventType";
+  String PARAMS = "params";
+  String API_ACCESS = "api_access";
 }
