@@ -34,18 +34,4 @@ public class RequestIdAddFilter extends Filter {
 
     return nextFilter.apply(requestHeader);
   }
-  /*   private void sendTelemetry() {
-      List<Map<String, Object>> correlatedObject = new ArrayList<>();
-      Map<String, Object> targetObject;
-      String userId = (String) badge.get(JsonKey.USER_ID);
-      targetObject = TelemetryUtil.generateTargetObject(userId, JsonKey.USER, JsonKey.UPDATE, null);
-      TelemetryUtil.generateCorrelatedObject(
-              (String) badge.get(BadgingJsonKey.ASSERTION_ID),
-              BadgingJsonKey.BADGE_ASSERTION,
-              null,
-              correlatedObject);
-      TelemetryUtil.generateCorrelatedObject(userId, JsonKey.USER, null, correlatedObject);
-      TelemetryUtil.telemetryProcessingCall(
-              request.getRequest(), targetObject, correlatedObject, request.getContext());
-  }*/
 }
