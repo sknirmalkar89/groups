@@ -33,7 +33,6 @@ node('build-slave') {
                 env.NODE_ENV = "build"
                 print "Environment will be : ${env.NODE_ENV}"
                 sh 'git log -1'
-                sh 'cat service/conf/routes | grep v2'
                 sh 'mvn clean install -U -DskipTests=true '
 
             }
