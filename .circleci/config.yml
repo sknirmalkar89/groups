@@ -21,7 +21,7 @@ jobs:
           paths: ~/.m2
       - store_artifacts:
           path: service/target/group-service-1.0.0-dist.zip
-          destination: "/tmp/group-service_${commit_hash}.zip"
+          destination: "/tmp/group-service.zip"
 
 workflows:
   version: 2.1
