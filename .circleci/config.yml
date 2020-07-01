@@ -10,7 +10,7 @@ jobs:
           key: groups-dependency-cache-{{ checksum "pom.xml" }}
       - run:
           name: Build the code
-          command: mvn clean install
+          command: mvn clean install -U -DskipTests=true
       - save_cache:
           key: groups-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
