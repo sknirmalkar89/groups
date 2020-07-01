@@ -29,10 +29,6 @@
         <sbt-compiler.plugin.version>1.0.0</sbt-compiler.plugin.version>
         <scala.major.version>2.11</scala.major.version>
         <scala.version>2.11.8</scala.version>
-
-	    <sonar.projectKey>project-sunbird_groups-service</sonar.projectKey>
-	    <sonar.organization>project-sunbird</sonar.organization>
-	    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <modules>
