@@ -1,0 +1,22 @@
+version: 2.1
+jobs:
+  build:
+    steps:
+      - checkout
+      - restore_cache:
+          key: groups-dependency-cache-{{ checksum "pom.xml" }}
+      - run: mvn clean install -U -DskipTests=true
+      - run: cd service && mvn play2:dist
+      - save_cache:
+          key: groups-dependency-cache-{{ checksum "pom.xml" }}
+          paths: ~/.m2
+      - run:
+         name: Analyze on SonarCloud
+         command: mvn verify -DskipTests sonar:sonar -Dsonar.projectKey=project-sunbird_sunbird-lms-service -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/service/target/site/jacoco/jacoco.xml
+
+
+workflows:
+  version: 2.1
+  workflow:
+    jobs:
+      - build
