@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
 
 public abstract class BaseActorTest {
@@ -31,5 +32,10 @@ public abstract class BaseActorTest {
     List<String> reqIds = new ArrayList<>();
     reqIds.add("71ef3311-ac58-49a1-872b-7cf28159de83");
     headerMap.put(JsonKey.REQUEST_MESSAGE_ID, reqIds);
+  }
+
+  public static Response getCassandraResponse() {
+    Response response = new Response();
+    return response;
   }
 }
