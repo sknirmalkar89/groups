@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8-jdk
+        environment:
+          commit_hash: "${CIRCLE_SHA1}"
     working_directory: ~/project
     steps:
       - checkout
@@ -19,7 +21,7 @@ jobs:
           paths: ~/.m2
       - store_artifacts:
           path: service/target/group-service-1.0.0-dist.zip
-          destination: "/tmp/group-service_${CIRCLE_SHA1}.zip"
+          destination: "/tmp/group-service_${commit_hash}.zip"
 
 workflows:
   version: 2.1
