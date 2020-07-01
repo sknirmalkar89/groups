@@ -22,7 +22,9 @@ jobs:
       - store_artifacts:
           path: service/target/group-service-1.0.0-dist.zip
           destination: "/tmp/group-service.zip"
-
+      - run:
+          name: sonar
+          command: mvn verify -DskipTests sonar:sonar -Dsonar.projectKey=project-sunbird_groups-service -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/service/target/site/jacoco/jacoco.xml
 workflows:
   version: 2.1
   workflow:
