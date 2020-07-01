@@ -19,7 +19,7 @@ jobs:
           paths: ~/.m2
       - store_artifacts:
           path: service/target/group-service-1.0.0-dist.zip
-          destination: /tmp/group-service.zip
+          destination: "/tmp/group-service_${CIRCLE_SHA1}.zip"
 
 workflows:
   version: 2.1
