@@ -43,4 +43,15 @@ public class ValidationUtil {
       throw new ValidationException.MandatoryParamMissing(key);
     }
   }
+
+  public static void validateMandatoryFieldsMissing(
+      Request request, List<String> mandatoryFieldLists) throws BaseException {
+    Map<String, Object> reqMap = request.getRequest();
+
+    for (String param : mandatoryFieldLists) {
+      if (!reqMap.containsKey(param)) {
+        throw new ValidationException.MandatoryParamMissing(param);
+      }
+    }
+  }
 }
