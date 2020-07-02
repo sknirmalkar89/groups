@@ -3,7 +3,6 @@ package org.sunbird.util;
 /**
  * This interface will contains all the constants that's used throughout this application.
  *
- * @author Manzarul
  */
 public interface JsonKey {
 
@@ -28,12 +27,21 @@ public interface JsonKey {
   String ATTRIBUTE = "attribute";
   String ERRORS = "errors";
   String SUCCESS = "success";
-  String GROUP_ID = "groupId";
+  String API_VERSION = "v1";
   String REQ_ID = "reqId";
   String USER_DB = "user_db";
   String SUNBIRD_CASSANDRA_IP = "sunbird_cassandra_host";
   String SUNBIRD = "sunbird";
-  String API_VERSION = "v1";
+  String GROUP_ID = "groupId";
   String GROUP_DESC = "description";
   String GROUP_NAME = "name";
+  String URL = "url";
+  String LOG_TYPE = "logType";
+  String DURATION = "duration";
+  String STATUS = "status";
+  String INFO = "info";
+  String CONTEXT = "context";
+  String TELEMETRY_EVENT_TYPE = "telemetryEventType";
+  String PARAMS = "params";
+  String API_ACCESS = "api_access";
 }

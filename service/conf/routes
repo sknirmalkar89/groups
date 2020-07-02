@@ -11,3 +11,4 @@ GET  /:service/health                      @controllers.HealthController.getServ
 # Group management APIs
 POST	/v1/group/create				            @controllers.CreateGroupController.createGroup(request: play.mvc.Http.Request)
 # POST	/v1/group/update				            @controllers.UpdateGroupController.updateGroup()
+GET	/v1/group/read/:groupId				            @controllers.ReadGroupController.readGroup(groupId: String, request: play.mvc.Http.Request)

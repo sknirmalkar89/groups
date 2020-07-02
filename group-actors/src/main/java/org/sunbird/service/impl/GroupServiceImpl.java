@@ -5,6 +5,7 @@ import org.sunbird.dao.GroupDao;
 import org.sunbird.dao.impl.GroupDaoImpl;
 import org.sunbird.exception.BaseException;
 import org.sunbird.models.Group;
+import org.sunbird.response.Response;
 import org.sunbird.service.GroupService;
 
 public class GroupServiceImpl implements GroupService {
@@ -25,4 +26,11 @@ public class GroupServiceImpl implements GroupService {
     String groupId = groupDao.createGroup(groupObj);
     return groupId;
   }
+
+  @Override
+  public Response readGroup(String groupId) throws BaseException{
+    Response responseObj = groupDao.readGroup(groupId);
+    return responseObj;
+  }
+
 }

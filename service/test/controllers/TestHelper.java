@@ -10,12 +10,12 @@ import java.util.WeakHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.sunbird.exception.BaseException;
+import org.sunbird.util.JsonKey;
 import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import utils.JsonKey;
 
 /** This a helper class for All the Controllers Test */
 public class TestHelper {

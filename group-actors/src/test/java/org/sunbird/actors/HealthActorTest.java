@@ -30,6 +30,7 @@ public class HealthActorTest extends BaseActorTest {
         final ActorRef subject = system.actorOf(props);
         final TestKit probe = new TestKit(system);
         Request reqObj = new Request();
+        reqObj.setHeaders(headerMap);
         reqObj.setOperation("healthy");
         subject.tell(reqObj, getRef());
         Response response = expectMsgClass(Duration.ofSeconds(10), Response.class);

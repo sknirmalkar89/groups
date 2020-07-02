@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
 import org.sunbird.response.Response;
+import org.sunbird.util.JsonKey;
 import play.mvc.Result;
-import utils.JsonKey;
 
 public class BaseControllerTest extends TestHelper {
   Localizer localizer = Localizer.getInstance();

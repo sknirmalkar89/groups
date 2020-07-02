@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
 import org.sunbird.request.Request;
-import utils.JsonKey;
+import org.sunbird.util.JsonKey;
 
 public class GroupCreateRequestValidator implements IRequestValidator {
 
@@ -17,7 +17,7 @@ public class GroupCreateRequestValidator implements IRequestValidator {
         "GroupCreateRequestValidator:started validating the request with request"
             + request.getRequest());
     ValidationUtil.validateRequestObject(request);
-    ValidationUtil.validateMandatoryParamsOfStringType(request, Lists.newArrayList(JsonKey.NAME));
+    ValidationUtil.validateMandatoryParamsOfStringType(request, Lists.newArrayList(JsonKey.GROUP_NAME));
     return true;
   }
 }

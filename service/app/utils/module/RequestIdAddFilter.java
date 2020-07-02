@@ -8,10 +8,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunbird.util.JsonKey;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
-import utils.JsonKey;
 
 public class RequestIdAddFilter extends Filter {
   private static final Logger log = LoggerFactory.getLogger(RequestIdAddFilter.class);
@@ -32,21 +32,6 @@ public class RequestIdAddFilter extends Filter {
         requestIdHeader.isPresent() ? requestIdHeader.get() : UUID.randomUUID().toString();
     requestHeader.getHeaders().addHeader(JsonKey.REQUEST_MESSAGE_ID, reqId);
 
-    return nextFilter
-        .apply(requestHeader)
-        .thenApply(
-            result -> {
-              long endTime = System.currentTimeMillis();
-              long requestTime = endTime - startTime;
-
-              log.info(
-                  "{} {} took {}ms and returned {}",
-                  requestHeader.method(),
-                  requestHeader.uri(),
-                  requestTime,
-                  result.status());
-
-              return result.withHeader("Request-Time", "" + requestTime);
-            });
+    return nextFilter.apply(requestHeader);
   }
 }
