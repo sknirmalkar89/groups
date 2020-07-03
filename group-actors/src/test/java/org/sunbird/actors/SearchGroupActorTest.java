@@ -39,7 +39,7 @@ public class SearchGroupActorTest extends BaseActorTest {
   public static CassandraOperation cassandraOperation;
 
   @Before
-  public void beforeEachTest() {
+  public void setUp() {
     PowerMockito.mockStatic(Localizer.class);
     when(Localizer.getInstance()).thenReturn(null);
 
