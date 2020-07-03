@@ -36,9 +36,6 @@ node('build-slave') {
                 sh 'mvn clean install -U -DskipTests=true '
 
             }
-            stage('Unit Tests') {	
-               sh "mvn test -DfailIfNoTests=false"	
-            }
             stage('Package') {
                 dir('service') {
                     sh 'mvn play2:dist'
