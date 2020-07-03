@@ -49,7 +49,7 @@ public class SearchGroupActorTest extends BaseActorTest {
   }
 
   @Test
-  public void searchByEmptyFiltersReturnEmptyGroups() {
+  public void searchByEmptyFiltersReturnSuccessResponse() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
