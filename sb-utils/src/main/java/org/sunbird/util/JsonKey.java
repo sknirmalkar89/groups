@@ -43,6 +43,5 @@ public interface JsonKey {
   String API_ACCESS = "api_access";
   String USER_ID = "userId";
   String FILTERS = "filters";
-  String COUNT = "count";
   String GROUP = "group";
 }
