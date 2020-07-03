@@ -37,6 +37,13 @@ public class GroupServiceImpl implements GroupService {
     return responseObj;
   }
 
+  /**
+   * This method will read group details based on userId and return all group details as success
+   * response or throw ProjectCommonException.
+   *
+   * @param searchFilter .
+   * @return dbGroupDetails.
+   */
   @Override
   public List<Map<String, Object>> readGroupDetails(Map<String, Object> searchFilter)
       throws BaseException {
@@ -49,6 +56,8 @@ public class GroupServiceImpl implements GroupService {
     }
     return dbGroupDetails;
   }
+
+  // list all groups
 
   private List<Map<String, Object>> getAllGroups() throws BaseException {
 

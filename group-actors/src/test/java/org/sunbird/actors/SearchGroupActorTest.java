@@ -33,7 +33,7 @@ import org.sunbird.util.JsonKey;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Localizer.class, ServiceFactory.class})
 @PowerMockIgnore({"javax.management.*"})
-public class SearchGroupActorTest extends org.sunbird.actors.BaseActorTest {
+public class SearchGroupActorTest extends BaseActorTest {
 
   private final Props props = Props.create(org.sunbird.actors.SearchGroupActor.class);
   public static CassandraOperation cassandraOperation;
@@ -49,7 +49,7 @@ public class SearchGroupActorTest extends org.sunbird.actors.BaseActorTest {
   }
 
   @Test
-  public void testSearchGroup() {
+  public void searchByEmptyFiltersReturnEmptyGroups() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
@@ -70,7 +70,7 @@ public class SearchGroupActorTest extends org.sunbird.actors.BaseActorTest {
   }
 
   @Test
-  public void testSearchGroupResultTest() {
+  public void searchByEmptyFiltersReturnAllGroups() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
@@ -89,14 +89,13 @@ public class SearchGroupActorTest extends org.sunbird.actors.BaseActorTest {
     Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map<String, Object> resultMap = res.getResult();
-    Assert.assertTrue((Integer) resultMap.get(JsonKey.COUNT) == 2);
     List<Map<String, Object>> groups = (List<Map<String, Object>>) resultMap.get(JsonKey.GROUP);
     Assert.assertTrue(groups.size() == 2);
     Assert.assertTrue(groups.get(0).get("name").equals("TestGroup1"));
   }
 
   @Test
-  public void testSearchGroupThrowBaseException() {
+  public void searchByEmptyFiltersThrowBaseException() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
