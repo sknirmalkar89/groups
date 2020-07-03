@@ -60,7 +60,7 @@ public class SearchGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FILTERS, filters);
     try {
       when(cassandraOperation.getAllRecords(Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(getCassandraResponse());
+          .thenReturn(getSearchResultResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
