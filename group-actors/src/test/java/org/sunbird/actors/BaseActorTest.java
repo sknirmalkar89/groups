@@ -22,17 +22,6 @@ public abstract class BaseActorTest {
     setReqId();
   }
 
-  //  public static void  mockLocalizer(){
-  //    PowerMockito.mockStatic(Localizer.class);
-  //    when(Localizer.getInstance()).thenReturn(null);
-  //  }
-  //
-  //  public void mockCassandra(){
-  //    PowerMockito.mockStatic(ServiceFactory.class);
-  //    cassandraOperation = mock(CassandraOperationImpl.class);
-  //    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
-  //  }
-
   @AfterClass
   public static void teardown() {
     TestKit.shutdownActorSystem(system);
