@@ -46,10 +46,12 @@ public interface GroupDao {
   Response readGroups(List<UUID> groupIds) throws BaseException;
 
   /**
-   * This method will read group based on Id and return response Object as success response or throw
-   * ProjectCommonException.
+   * TODO:To be removed Later
    *
-   * @param GroupFields
+   * <p>This method will read group based on Id and return response Object as success response or
+   * throw ProjectCommonException.
+   *
+   * @param
    * @return responseObj with Group Details.
    */
   Response readAllGroups() throws BaseException;

@@ -12,5 +12,5 @@ public interface GroupService {
 
   Response readGroup(String groupId) throws BaseException;
 
-  List<Map<String, Object>> readGroupDetails(Map<String, Object> searchFilter) throws BaseException;
+  List<Map<String, Object>> searchGroup(Map<String, Object> searchFilter) throws BaseException;
 }

@@ -1,6 +1,7 @@
 package validators;
 
 import com.google.common.collect.Lists;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
@@ -17,8 +18,8 @@ public class GroupSearchRequestValidator implements validators.IRequestValidator
         "GroupSearchRequestValidator:started validating the request with request"
             + request.getRequest());
     validators.ValidationUtil.validateRequestObject(request);
-    validators.ValidationUtil.validateMandatoryFieldsMissing(
-        request, Lists.newArrayList(JsonKey.FILTERS));
+    validators.ValidationUtil.validateMandatoryParamsWithType(
+        request, Lists.newArrayList(JsonKey.FILTERS), Map.class, false);
     return true;
   }
 }

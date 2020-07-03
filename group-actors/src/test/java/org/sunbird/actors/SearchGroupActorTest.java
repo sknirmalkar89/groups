@@ -39,7 +39,7 @@ public class SearchGroupActorTest extends BaseActorTest {
   public static CassandraOperation cassandraOperation;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     PowerMockito.mockStatic(Localizer.class);
     when(Localizer.getInstance()).thenReturn(null);
 
@@ -72,6 +72,7 @@ public class SearchGroupActorTest extends BaseActorTest {
   @Test
   public void searchByEmptyFiltersReturnAllGroups() {
     TestKit probe = new TestKit(system);
+
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
     reqObj.setHeaders(headerMap);
@@ -90,13 +91,14 @@ public class SearchGroupActorTest extends BaseActorTest {
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map<String, Object> resultMap = res.getResult();
     List<Map<String, Object>> groups = (List<Map<String, Object>>) resultMap.get(JsonKey.GROUP);
-    Assert.assertTrue(groups.size() == 2);
-    Assert.assertTrue(groups.get(0).get("name").equals("TestGroup1"));
+    Assert.assertEquals(2, groups.size());
+    Assert.assertEquals("TestGroup1", groups.get(0).get("name"));
   }
 
   @Test
   public void searchByEmptyFiltersThrowBaseException() {
     TestKit probe = new TestKit(system);
+
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
     reqObj.setHeaders(headerMap);

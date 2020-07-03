@@ -38,29 +38,32 @@ public class GroupServiceImpl implements GroupService {
   }
 
   /**
-   * This method will read group details based on userId and return all group details as success
-   * response or throw ProjectCommonException.
+   * This method will search group details based on filters and return all group details as success
+   * response or throw BaseException.
    *
    * @param searchFilter .
    * @return dbGroupDetails.
    */
   @Override
-  public List<Map<String, Object>> readGroupDetails(Map<String, Object> searchFilter)
+  public List<Map<String, Object>> searchGroup(Map<String, Object> searchFilter)
       throws BaseException {
     String userId = (String) searchFilter.get(JsonKey.USER_ID);
     List<Map<String, Object>> dbGroupDetails = new ArrayList<>();
     if (null != userId) {
-
+      // TODO: Fix Me
     } else {
-      // Todo will be removed later
+      // TODO: will be removed later
       dbGroupDetails = getAllGroups();
     }
     return dbGroupDetails;
   }
 
-  // Todo remove later as we will not need
-  // list all groups
-
+  /**
+   * Get All groups TODO: To be removed later
+   *
+   * @return
+   * @throws BaseException
+   */
   private List<Map<String, Object>> getAllGroups() throws BaseException {
 
     Response response = groupDao.readAllGroups();

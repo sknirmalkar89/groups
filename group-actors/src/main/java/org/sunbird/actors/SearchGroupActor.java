@@ -23,7 +23,7 @@ public class SearchGroupActor extends org.sunbird.actors.BaseActor {
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
     switch (operation) {
-      case "searchGroup": // create Group
+      case "searchGroup":
         searchGroup(request);
         break;
 
@@ -33,21 +33,18 @@ public class SearchGroupActor extends org.sunbird.actors.BaseActor {
   }
 
   /**
-   * This method will create group in cassandra.
+   * This method will search group related information.
    *
-   * @param actorMessage
+   * @param request
    */
   private void searchGroup(Request request) throws BaseException {
     logger.info("SearchGroup method call");
-    Response response = new Response();
     Map<String, Object> searchQueryMap = request.getRequest();
     Map<String, Object> filterMap = (Map<String, Object>) searchQueryMap.get(JsonKey.FILTERS);
-    List<Map<String, Object>> groupDetails = groupService.readGroupDetails(filterMap);
+    List<Map<String, Object>> groupDetails = groupService.searchGroup(filterMap);
     Map<String, Object> result = new HashMap<>();
     result.put(JsonKey.GROUP, groupDetails);
-    response.putAll(result);
-    response.setResponseCode(ResponseCode.OK.getCode());
-
+    Response response = new Response(result, ResponseCode.OK.getCode());
     sender().tell(response, self());
   }
 }
