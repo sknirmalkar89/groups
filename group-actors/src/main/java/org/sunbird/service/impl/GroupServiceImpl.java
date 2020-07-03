@@ -52,11 +52,13 @@ public class GroupServiceImpl implements GroupService {
     if (null != userId) {
 
     } else {
+      // Todo will be removed later
       dbGroupDetails = getAllGroups();
     }
     return dbGroupDetails;
   }
 
+  // Todo remove later as we will not need
   // list all groups
 
   private List<Map<String, Object>> getAllGroups() throws BaseException {

@@ -44,7 +44,6 @@ public class SearchGroupActor extends org.sunbird.actors.BaseActor {
     Map<String, Object> filterMap = (Map<String, Object>) searchQueryMap.get(JsonKey.FILTERS);
     List<Map<String, Object>> groupDetails = groupService.readGroupDetails(filterMap);
     Map<String, Object> result = new HashMap<>();
-    result.put(JsonKey.COUNT, groupDetails.size());
     result.put(JsonKey.GROUP, groupDetails);
     response.putAll(result);
     response.setResponseCode(ResponseCode.OK.getCode());
