@@ -48,4 +48,6 @@ public interface JsonKey {
   String TELEMETRY_EVENT_TYPE = "telemetryEventType";
   String PARAMS = "params";
   String API_ACCESS = "api_access";
+  String FILTERS = "filters";
+  String GROUP = "group";
 }

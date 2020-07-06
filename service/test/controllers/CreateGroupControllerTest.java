@@ -30,6 +30,7 @@ public class CreateGroupControllerTest extends BaseApplicationTest {
     member.put(JsonKey.ROLE, JsonKey.MEMBER);
     member.put(JsonKey.STATUS, JsonKey.ACTIVE);
     member.put(JsonKey.USER_ID, "userID");
+    members.add(member);
     reqMap.put(JsonKey.MEMBERS, members);
     request.put("request", reqMap);
     Result result = performTest("/v1/group/create", "POST", request);
