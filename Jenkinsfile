@@ -32,7 +32,7 @@ node('build-slave') {
             stage('Build') {
                 env.NODE_ENV = "build"
                 print "Environment will be : ${env.NODE_ENV}"
-                sh 'git log -2'
+                sh 'git log -1'
                 sh 'mvn clean install -U -DskipTests=true '
 
             }
