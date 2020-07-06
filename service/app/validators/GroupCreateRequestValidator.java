@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
@@ -33,7 +34,7 @@ public class GroupCreateRequestValidator implements IRequestValidator {
     paramValue.put(JsonKey.ROLE, Lists.newArrayList(JsonKey.ADMIN, JsonKey.MEMBER));
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) request.getRequest().get(JsonKey.MEMBERS);
-    if (memberList != null && !memberList.isEmpty()) {
+    if (CollectionUtils.isNotEmpty(memberList)) {
       for (Map<String, Object> member : memberList) {
         ValidationUtil.validateParamValue(
             member, Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE), paramValue);

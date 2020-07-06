@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
 import org.sunbird.models.Group;
@@ -55,7 +56,7 @@ public class CreateGroupActor extends BaseActor {
     // adding members to group
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.MEMBERS);
-    if (!memberList.isEmpty()) {
+    if (CollectionUtils.isNotEmpty(memberList)) {
       List<Member> members =
           memberList
               .stream()
