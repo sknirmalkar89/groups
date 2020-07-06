@@ -7,6 +7,8 @@ import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import com.datastax.driver.core.ResultSet;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +60,10 @@ public class CreateGroupActorTest extends BaseActorTest {
             Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
         .thenReturn(MockCassandra.getCreateGroupResponse(reqObj));
 
+    when(cassandraOperation.batchInsert(
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+        .thenReturn(MockCassandra.addMembersToGroup(reqObj));
+
     // check record is inserted by querying EmbeddedCassandra
     ResultSet resultSet = EmbeddedCassandra.session.execute(EmbeddedCassandra.selectStatement);
     Response response = CassandraUtil.createResponse(resultSet);
@@ -83,6 +89,13 @@ public class CreateGroupActorTest extends BaseActorTest {
     reqObj.setOperation(ActorOperations.CREATE_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup Name");
     reqObj.getRequest().put(JsonKey.GROUP_DESC, "TestGroup Description");
+    List<Map<String, Object>> members = new ArrayList<>();
+    Map<String, Object> member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID");
+    member.put(JsonKey.STATUS, "active");
+    member.put(JsonKey.ROLE, "member");
+    members.add(member);
+    reqObj.getRequest().put(JsonKey.MEMBERS, members);
     reqObj.getRequest().put(JsonKey.ID, UUID.randomUUID().toString());
     return reqObj;
   }

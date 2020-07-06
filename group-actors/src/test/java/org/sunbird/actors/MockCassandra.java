@@ -5,6 +5,8 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
+import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.powermock.api.mockito.PowerMockito;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
@@ -41,6 +43,22 @@ public class MockCassandra {
             request.getRequest().get(JsonKey.ID),
             request.getRequest().get(JsonKey.GROUP_NAME),
             request.getRequest().get(JsonKey.GROUP_DESC)));
+    Response response = new Response();
+    response.put(Constants.RESPONSE, Constants.SUCCESS);
+    return response;
+  }
+
+  public static Response addMembersToGroup(Request request) {
+    List<Map<String, Object>> memberList =
+        (List<Map<String, Object>>) request.getRequest().get(JsonKey.MEMBERS);
+    for (Map<String, Object> member : memberList) {
+      EmbeddedCassandra.session.execute(
+          EmbeddedCassandra.insertMemberStatement.bind(
+              request.getRequest().get(JsonKey.ID),
+              member.get(JsonKey.USER_ID),
+              member.get(JsonKey.ROLE),
+              member.get(JsonKey.STATUS)));
+    }
     Response response = new Response();
     response.put(Constants.RESPONSE, Constants.SUCCESS);
     return response;

@@ -14,9 +14,12 @@ public class EmbeddedCassandra {
 
   static final String KEYSPACE = "sunbird";
   static final String GROUP_TABLE = "group";
+  static final String MEMBER_TABLE = "group_member";
   static Session session;
   static BoundStatement insertStatement;
   static BoundStatement selectStatement;
+  static BoundStatement insertMemberStatement;
+
   private static CQLDataLoader dataLoader;
 
   public static void setUp() throws Exception {
@@ -44,9 +47,18 @@ public class EmbeddedCassandra {
     PreparedStatement selectGroupQuery =
         session.prepare(QueryBuilder.select().all().from(KEYSPACE, GROUP_TABLE));
 
+    PreparedStatement insertMemberQuery =
+        session.prepare(
+            QueryBuilder.insertInto(KEYSPACE, MEMBER_TABLE)
+                .value(JsonKey.GROUP_ID, QueryBuilder.bindMarker())
+                .value(JsonKey.USER_ID, QueryBuilder.bindMarker())
+                .value(JsonKey.ROLE, QueryBuilder.bindMarker())
+                .value(JsonKey.STATUS, QueryBuilder.bindMarker()));
+
     // link prepared statements to boundstatements
     insertStatement = new BoundStatement(insertGroupQuery);
     selectStatement = new BoundStatement(selectGroupQuery);
+    insertMemberStatement = new BoundStatement(insertMemberQuery);
   }
 
   public static void close() throws Exception {
