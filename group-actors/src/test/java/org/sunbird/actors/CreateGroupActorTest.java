@@ -53,16 +53,28 @@ public class CreateGroupActorTest extends BaseActorTest {
     when(Localizer.getInstance()).thenReturn(null);
 
     // mock CassandraOperation
-    CassandraOperationImpl cassandraOperation = MockCassandra.mockCassandraOperation();
+    CassandraOperationImpl cassandraOperation = CassandraMocker.mockCassandraOperation();
 
     // when inserting record to cassandra insert record in to EmbeddedCassandra
     when(cassandraOperation.insertRecord(
             Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
-        .thenReturn(MockCassandra.getCreateGroupResponse(reqObj));
+        .thenReturn(CassandraMocker.getCreateGroupResponse(reqObj));
 
     when(cassandraOperation.batchInsert(
             Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
-        .thenReturn(MockCassandra.addMembersToGroup(reqObj));
+        .thenReturn(CassandraMocker.addMembersToGroup(reqObj));
+
+    List<Map<String, Object>> members =
+        (List<Map<String, Object>>) reqObj.getRequest().get(JsonKey.MEMBERS);
+
+    when(cassandraOperation.updateAddSetRecord(
+            Mockito.anyString(),
+            Mockito.anyString(),
+            Mockito.anyMap(),
+            Mockito.anyString(),
+            Mockito.anyObject()))
+        .thenReturn(
+            CassandraMocker.updateUserGroup(members, (String) reqObj.getRequest().get(JsonKey.ID)));
 
     // check record is inserted by querying EmbeddedCassandra
     ResultSet resultSet = EmbeddedCassandra.session.execute(EmbeddedCassandra.selectStatement);
@@ -70,6 +82,20 @@ public class CreateGroupActorTest extends BaseActorTest {
     List<Map<String, Object>> groupList =
         (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
     Assert.assertEquals(reqObj.get(JsonKey.GROUP_NAME), groupList.get(0).get(JsonKey.GROUP_NAME));
+
+    // check members are added
+    ResultSet groupMember =
+        EmbeddedCassandra.session.execute(
+            EmbeddedCassandra.selectGroupMemberStatement.bind(
+                members.get(0).get(JsonKey.USER_ID),
+                members.get(0).get(JsonKey.ROLE),
+                reqObj.getRequest().get(JsonKey.ID)));
+    System.out.println(groupMember.wasApplied());
+    Response memberRes = CassandraUtil.createResponse(groupMember);
+    List<Map<String, Object>> memberList =
+        (List<Map<String, Object>>) memberRes.getResult().get(JsonKey.RESPONSE);
+    System.out.println(memberList);
+    Assert.assertEquals(reqObj.get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
   }
 
   @Test

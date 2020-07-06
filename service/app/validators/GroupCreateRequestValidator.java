@@ -33,7 +33,7 @@ public class GroupCreateRequestValidator implements IRequestValidator {
     paramValue.put(JsonKey.ROLE, Lists.newArrayList(JsonKey.ADMIN, JsonKey.MEMBER));
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) request.getRequest().get(JsonKey.MEMBERS);
-    if (!memberList.isEmpty()) {
+    if (memberList != null && !memberList.isEmpty()) {
       for (Map<String, Object> member : memberList) {
         ValidationUtil.validateParamValue(
             member, Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE), paramValue);

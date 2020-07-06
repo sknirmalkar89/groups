@@ -5,6 +5,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -16,7 +17,7 @@ import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
 
-public class MockCassandra {
+public class CassandraMocker {
 
   public static CassandraOperationImpl mockCassandraOperation() throws Exception {
     EmbeddedCassandra.setUp();
@@ -59,6 +60,20 @@ public class MockCassandra {
               member.get(JsonKey.ROLE),
               member.get(JsonKey.STATUS)));
     }
+    Response response = new Response();
+    response.put(Constants.RESPONSE, Constants.SUCCESS);
+    return response;
+  }
+
+  public static Response updateUserGroup(List<Map<String, Object>> members, String groupId) {
+    for (Map<String, Object> member : members) {
+      EmbeddedCassandra.session.execute(
+          EmbeddedCassandra.updateUserGroupStatement
+              .bind()
+              .setSet(JsonKey.GROUP_ID, ImmutableSet.of(groupId))
+              .setString(JsonKey.USER_ID, (String) member.get(JsonKey.USER_ID)));
+    }
+
     Response response = new Response();
     response.put(Constants.RESPONSE, Constants.SUCCESS);
     return response;
