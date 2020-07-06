@@ -16,7 +16,7 @@ import org.sunbird.util.JsonKey;
   tasks = {"searchGroup"},
   asyncTasks = {}
 )
-public class SearchGroupActor extends org.sunbird.actors.BaseActor {
+public class SearchGroupActor extends BaseActor {
   private GroupService groupService = GroupServiceImpl.getInstance();
 
   @Override
