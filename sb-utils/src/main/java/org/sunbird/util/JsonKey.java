@@ -1,9 +1,6 @@
 package org.sunbird.util;
 
-/**
- * This interface will contains all the constants that's used throughout this application.
- *
- */
+/** This interface will contains all the constants that's used throughout this application. */
 public interface JsonKey {
 
   String CLASS = "class";
@@ -35,6 +32,13 @@ public interface JsonKey {
   String GROUP_ID = "groupId";
   String GROUP_DESC = "description";
   String GROUP_NAME = "name";
+  String MEMBERS = "members";
+  String MEMBER = "member";
+  String USER_ID = "userId";
+  String ROLE = "role";
+  String ADMIN = "admin";
+  String ACTIVE = "active";
+  String INACTIVE = "inactive";
   String URL = "url";
   String LOG_TYPE = "logType";
   String DURATION = "duration";

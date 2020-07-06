@@ -1,12 +1,19 @@
 package org.sunbird.actors;
 
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
 import org.sunbird.models.Group;
+import org.sunbird.models.Member;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.service.GroupService;
+import org.sunbird.service.MemberService;
 import org.sunbird.service.impl.GroupServiceImpl;
+import org.sunbird.service.impl.MemberServiceImpl;
 import org.sunbird.util.JsonKey;
 
 @ActorConfig(
@@ -16,6 +23,7 @@ import org.sunbird.util.JsonKey;
 public class CreateGroupActor extends BaseActor {
 
   private GroupService groupService = GroupServiceImpl.getInstance();
+  private MemberService memberService = MemberServiceImpl.getInstance();
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -43,8 +51,35 @@ public class CreateGroupActor extends BaseActor {
     group.setName((String) actorMessage.getRequest().get(JsonKey.GROUP_NAME));
     group.setDescription((String) actorMessage.getRequest().get(JsonKey.GROUP_DESC));
     String groupId = groupService.createGroup(group);
+
+    // adding members to group
+    List<Map<String, Object>> memberList =
+        (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.MEMBERS);
+    if (!memberList.isEmpty()) {
+      List<Member> members =
+          memberList
+              .stream()
+              .map(data -> getMemberModel(data, groupId))
+              .collect(Collectors.toList());
+      if (!members.isEmpty()) {
+        logger.info("adding members to the group: {} stated", group.getName());
+        Response addMemberRes = memberService.addMembers(members);
+        logger.info("Adding members to the group ended : {}", addMemberRes.getResult());
+      }
+    }
+
     Response response = new Response();
     response.put(JsonKey.GROUP_ID, groupId);
     sender().tell(response, self());
+  }
+
+  private Member getMemberModel(Map<String, Object> data, String groupId) {
+    Member member = new Member();
+    member.setGroupId(groupId);
+    member.setRole((String) data.get(JsonKey.ROLE));
+    member.setStatus((String) data.get(JsonKey.STATUS));
+    member.setUserId((String) data.get(JsonKey.USER_ID));
+    member.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+    return member;
   }
 }
