@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Map;
-import org.sunbird.util.JsonKey;
 
 /** @desc POJO class for Group */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,7 +16,7 @@ public class Group implements Serializable {
   private String id;
   private String name;
   private String description;
-  private String status = JsonKey.ACTIVE;
+  private String status;
   private String membershipType;
   private Map<String, String> activities;
   private Timestamp createdOn;
