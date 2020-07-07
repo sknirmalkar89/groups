@@ -66,7 +66,6 @@ public class EmbeddedCassandra {
                 .with(QueryBuilder.addAll(JsonKey.GROUP_ID, bindMarker()))
                 .where(eq(JsonKey.USER_ID, bindMarker()))
                 .getQueryString());
-    System.out.println(updateUserGroupQuery.toString());
 
     PreparedStatement selectGroupMemberQuery =
         session.prepare(

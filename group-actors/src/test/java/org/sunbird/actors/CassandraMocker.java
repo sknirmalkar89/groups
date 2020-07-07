@@ -19,9 +19,12 @@ import org.sunbird.util.JsonKey;
 
 public class CassandraMocker {
 
-  public static CassandraOperationImpl mockCassandraOperation() throws Exception {
+  public static void setUpEmbeddedCassandra() throws Exception {
     EmbeddedCassandra.setUp();
     EmbeddedCassandra.createStatements();
+  }
+
+  public static CassandraOperationImpl mockCassandraOperation() {
     CassandraOperationImpl cassandraOperation;
     // mock cassandra
     PowerMockito.mockStatic(ServiceFactory.class);
@@ -49,6 +52,7 @@ public class CassandraMocker {
     return response;
   }
 
+  // add members to group-member table
   public static Response addMembersToGroup(Request request) {
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) request.getRequest().get(JsonKey.MEMBERS);
@@ -65,6 +69,7 @@ public class CassandraMocker {
     return response;
   }
 
+  // update user_group table
   public static Response updateUserGroup(List<Map<String, Object>> members, String groupId) {
     for (Map<String, Object> member : members) {
       EmbeddedCassandra.session.execute(

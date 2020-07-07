@@ -52,6 +52,8 @@ public class CreateGroupActorTest extends BaseActorTest {
     PowerMockito.mockStatic(Localizer.class);
     when(Localizer.getInstance()).thenReturn(null);
 
+    CassandraMocker.setUpEmbeddedCassandra();
+
     // mock CassandraOperation
     CassandraOperationImpl cassandraOperation = CassandraMocker.mockCassandraOperation();
 
@@ -83,7 +85,7 @@ public class CreateGroupActorTest extends BaseActorTest {
         (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
     Assert.assertEquals(reqObj.get(JsonKey.GROUP_NAME), groupList.get(0).get(JsonKey.GROUP_NAME));
 
-    // check members are added
+    // check members are inserted successfully or not
     ResultSet groupMember =
         EmbeddedCassandra.session.execute(
             EmbeddedCassandra.selectGroupMemberStatement.bind(
@@ -94,7 +96,6 @@ public class CreateGroupActorTest extends BaseActorTest {
     Response memberRes = CassandraUtil.createResponse(groupMember);
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) memberRes.getResult().get(JsonKey.RESPONSE);
-    System.out.println(memberList);
     Assert.assertEquals(reqObj.get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
   }
 
