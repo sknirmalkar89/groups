@@ -13,7 +13,7 @@ import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.GroupResponse;
-import org.sunbird.models.Member;
+import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.service.GroupService;
 import org.sunbird.service.MemberService;
@@ -53,7 +53,7 @@ public class GroupServiceImpl implements GroupService {
 
         Map<String, Object> dbResGroup = dbGroupDetails.get(0);
 
-        List<Member> members =
+        List<MemberResponse> members =
             memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
         dbResGroup.put(JsonKey.MEMBERS, members);
       }
@@ -76,7 +76,7 @@ public class GroupServiceImpl implements GroupService {
     if (StringUtils.isNotBlank(userId)) {
       List<String> groupIds = fetchAllGroupIdsByUserId(userId);
       if (!groupIds.isEmpty()) {
-        List<Member> members = memberService.fetchMembersByGroupIds(groupIds, null);
+        List<MemberResponse> members = memberService.fetchMembersByGroupIds(groupIds, null);
         groups = readGroupDetailsByGroupIds(groupIds);
         GroupUtil.updateRoles(groups, members, userId);
       }

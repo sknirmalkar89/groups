@@ -51,7 +51,7 @@ public class CreateGroupActor extends BaseActor {
     String groupId = groupService.createGroup(group);
 
     // adding members to group
-    List<Map<String, Object>> memberList =
+    List<Map<String, Object>> memberList =group
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.MEMBERS);
     if (CollectionUtils.isNotEmpty(memberList)) {
       logger.info("Adding members to the group: {} stated", group.getName());

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class GroupResponse extends Group {
 
-  private List<Member> members;
+  private List<MemberResponse> members;
 
   private String memberRole;
 
@@ -16,11 +16,11 @@ public class GroupResponse extends Group {
     return memberRole;
   }
 
-  public List<Member> getMembers() {
+  public List<MemberResponse> getMembers() {
     return members;
   }
 
-  public void setMembers(List<Member> members) {
+  public void setMembers(List<MemberResponse> members) {
     this.members = members;
   }
 }
