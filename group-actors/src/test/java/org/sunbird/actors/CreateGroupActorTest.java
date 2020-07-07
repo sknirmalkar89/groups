@@ -96,7 +96,8 @@ public class CreateGroupActorTest extends BaseActorTest {
     Response memberRes = CassandraUtil.createResponse(groupMember);
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) memberRes.getResult().get(JsonKey.RESPONSE);
-    Assert.assertEquals(reqObj.get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
+    Assert.assertEquals(
+        members.get(0).get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
   }
 
   @Test

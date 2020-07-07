@@ -1,6 +1,8 @@
 package org.sunbird.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ public class MemberServiceImpl implements MemberService {
   private static MemberDao memberDao = MemberDaoImpl.getInstance();
   private static MemberService memberService = null;
   private static Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class);
+  private static ObjectMapper objectMapper = new ObjectMapper();
 
   public static MemberService getInstance() {
     if (memberService == null) {
@@ -49,6 +52,26 @@ public class MemberServiceImpl implements MemberService {
       addMemberRes = addMembers(members);
     }
     return addMemberRes;
+  }
+
+  @Override
+  public List<Member> fetchMembersByGroupIds(List<String> groupIds, List<String> fields)
+      throws BaseException {
+    Response response = memberDao.fetchMembersByGroupIds(groupIds, fields);
+    List<Member> members = new ArrayList<>();
+    if (null != response && null != response.getResult()) {
+      List<Map<String, Object>> dbResMembers =
+          (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
+      if (null != dbResMembers) {
+        dbResMembers.forEach(
+            map -> {
+              Member member = objectMapper.convertValue(map, Member.class);
+              members.add(member);
+            });
+      }
+    }
+
+    return members;
   }
 
   private Member getMemberModel(Map<String, Object> data, String groupId) {

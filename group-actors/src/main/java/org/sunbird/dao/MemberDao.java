@@ -11,5 +11,5 @@ public interface MemberDao {
 
   Response removeMembers(List<String> members, String groupId) throws BaseException;
 
-  Response fetchMembers() throws BaseException;
+  Response fetchMembersByGroupIds(List<String> groupIds, List<String> fields) throws BaseException;
 }
