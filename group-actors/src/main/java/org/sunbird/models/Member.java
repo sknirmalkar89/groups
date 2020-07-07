@@ -9,6 +9,7 @@ public class Member {
   private String userId;
   private String role = JsonKey.MEMBER;
   private String groupId;
+  private String username;
   private String status = JsonKey.ACTIVE;
   private Timestamp createdOn;
   private String createdBy;
@@ -101,5 +102,13 @@ public class Member {
 
   public void setRemovedBy(String removedBy) {
     this.removedBy = removedBy;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getUsername() {
+    return username;
   }
 }

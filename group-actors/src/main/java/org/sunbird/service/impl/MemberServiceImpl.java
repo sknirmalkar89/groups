@@ -54,6 +54,16 @@ public class MemberServiceImpl implements MemberService {
     return addMemberRes;
   }
 
+  // TODO: Fix me to get the Members Details with List<Member> includes username
+
+  /**
+   * Fetch Member Details based on Group
+   *
+   * @param groupIds
+   * @param fields
+   * @return
+   * @throws BaseException
+   */
   @Override
   public List<Member> fetchMembersByGroupIds(List<String> groupIds, List<String> fields)
       throws BaseException {
