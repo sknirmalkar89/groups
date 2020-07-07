@@ -209,7 +209,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
     for (Map.Entry<String, Object> filter : primaryKey.entrySet()) {
       Object filterValue = filter.getValue();
       if (filterValue instanceof List) {
-        where = where.and(QueryBuilder.in(filter.getKey(), ((List) filter.getValue())));
+        where = where.and(QueryBuilder.in(filter.getKey(), filterValue));
       } else {
         where = where.and(QueryBuilder.eq(filter.getKey(), filter.getValue()));
       }
@@ -220,7 +220,6 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       connectionManager.getSession(keySpace).execute(update);
       response.put(Constants.RESPONSE, Constants.SUCCESS);
     } catch (Exception e) {
-      e.printStackTrace();
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
       throw new BaseException(
           IResponseMessage.SERVER_ERROR,
