@@ -14,4 +14,7 @@ public interface MemberService {
 
   Response handleMemberAddition(List<Map<String, Object>> memberList, String groupId)
       throws BaseException;
+
+  List<Member> fetchMembersByGroupIds(List<String> groupIds, List<String> fields)
+      throws BaseException;
 }

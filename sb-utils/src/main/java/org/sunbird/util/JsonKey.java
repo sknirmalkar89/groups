@@ -50,4 +50,5 @@ public interface JsonKey {
   String API_ACCESS = "api_access";
   String FILTERS = "filters";
   String GROUP = "group";
+  String MEMBER_ROLE = "memberRole";
 }

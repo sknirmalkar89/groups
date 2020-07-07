@@ -65,7 +65,15 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
-  public Response fetchMembers() throws BaseException {
-    return null;
+  public Response fetchMembersByGroupIds(List<String> groupIds, List<String> fields)
+      throws BaseException {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(JsonKey.GROUP_ID, groupIds);
+    properties.put(JsonKey.STATUS, JsonKey.ACTIVE);
+
+    Response responseObj =
+        cassandraOperation.getRecordsByProperties(
+            DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties, fields);
+    return responseObj;
   }
 }
