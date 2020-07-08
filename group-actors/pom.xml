@@ -17,11 +17,25 @@
             <artifactId>sb-actor</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.sunbird</groupId>
             <artifactId>sb-utils</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+
         <dependency>
             <groupId>org.sunbird</groupId>
             <artifactId>cassandra-utils</artifactId>

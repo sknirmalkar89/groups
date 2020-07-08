@@ -52,15 +52,17 @@ public interface JsonKey {
   String API_ACCESS = "api_access";
   String FILTERS = "filters";
   String GROUP = "group";
-  String MEMBER_ROLE = "memberRole";
   String MEMBER_ADD = "add";
   String MEMBER_EDIT = "edit";
   String MEMBER_REMOVE = "remove";
   String INVITE_ONLY = "invite_only";
-  String MODERATED = "moderated";
   String ACTIVITIES = "activities";
   String TYPE = "type";
   String REQUEST = "request";
   String CREATED_ON = "createdOn";
   String UPDATED_ON = "updatedOn";
+  String USER_SERVICE_SEARCH_URL = "sunbird_user_service_search_url";
+  String CONTENT = "content";
+  String USERNAME = "userName";
+  String RESULT = "result";
 }

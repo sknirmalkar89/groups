@@ -2,9 +2,7 @@ package org.sunbird.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-
 import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +76,9 @@ public class GroupServiceImpl implements GroupService {
     if (StringUtils.isNotBlank(userId)) {
       List<String> groupIds = fetchAllGroupIdsByUserId(userId);
       if (!groupIds.isEmpty()) {
-        List<MemberResponse> members = memberService.fetchMembersByGroupIds(groupIds, null);
+        Map<String, String> groupRoleMap = memberService.fetchGroupRoleByUser(groupIds, userId);
         groups = readGroupDetailsByGroupIds(groupIds);
-        GroupUtil.updateRoles(groups, members, userId);
+        GroupUtil.updateRoles(groups, groupRoleMap);
       }
 
     } else if (StringUtils.isNotBlank(groupId)) {

@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 public class PropertiesCache {
 
   Logger logger = LoggerFactory.getLogger(PropertiesCache.class);
-  private final String[] fileName = {"cassandra.config.properties", "dbconfig.properties"};
+  private final String[] fileName = {
+    "cassandra.config.properties", "dbconfig.properties", "external.config.properties"
+  };
   private final Properties configProp = new Properties();
   public final Map<String, Float> attributePercentageMap = new ConcurrentHashMap<>();
   private static PropertiesCache propertiesCache = null;
