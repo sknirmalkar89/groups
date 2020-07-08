@@ -1,9 +1,12 @@
 package org.sunbird.response;
 
+import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.exception.BaseException;
 import org.sunbird.message.Localizer;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
+import org.sunbird.util.JsonKey;
 
 public class ResponseFactory {
   private static final String msgKeyStr = "message";
@@ -18,16 +21,35 @@ public class ResponseFactory {
   public static Response getFailureMessage(Object exception, Request request) {
     Response response = new Response();
     if (request != null) {
-      response.setId(request.getId());
+      response.setId(getApiId(request.getPath()));
       response.setVer(request.getVer());
       response.setTs(System.currentTimeMillis() + StringUtils.EMPTY);
     }
     if (exception instanceof BaseException) {
       BaseException ex = (BaseException) exception;
-      response.put(msgKeyStr, ex.getMessage());
+      response.setParams(
+          createResponseParamObj(
+              request, ResponseCode.getResponseCode(ex.getResponseCode()), ex.getMessage()));
       response.setResponseCode(ex.getResponseCode());
     }
     return response;
+  }
+
+  public static ResponseParams createResponseParamObj(
+      Request request, ResponseCode code, String customMessage) {
+    ResponseParams params = new ResponseParams();
+    if (code.getCode() != 200) {
+      params.setErr(code.name());
+      params.setErrmsg(StringUtils.isNotBlank(customMessage) ? customMessage : code.name());
+    }
+    params.setStatus(ResponseCode.getResponseCode(code.getCode()).name());
+
+    if (request.getHeaders().containsKey(JsonKey.REQUEST_MESSAGE_ID)) {
+      ArrayList<String> requestIds =
+          (ArrayList<String>) request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID);
+      params.setMsgid(requestIds.get(0));
+    }
+    return params;
   }
 
   public static Response getSuccessMessage(Request request) {
@@ -36,5 +58,20 @@ public class ResponseFactory {
     response.setVer(request.getVer());
     response.setTs(System.currentTimeMillis() + StringUtils.EMPTY);
     return response;
+  }
+
+  public static String getApiId(String uri) {
+    final String ver = "/" + JsonKey.API_VERSION;
+    StringBuilder builder = new StringBuilder();
+    if (StringUtils.isNotBlank(uri)) {
+      if (uri.contains(ver)) {
+        uri = uri.replaceFirst(ver, "api");
+      }
+      String temVal[] = uri.split("/");
+      for (String str : temVal) {
+        builder.append(str + ".");
+      }
+    }
+    return builder.toString();
   }
 }
