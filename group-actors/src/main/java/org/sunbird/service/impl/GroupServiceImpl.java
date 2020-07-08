@@ -43,22 +43,23 @@ public class GroupServiceImpl implements GroupService {
   }
 
   @Override
-  public List<Map<String, Object>> readGroup(String groupId) throws BaseException {
-    List<Map<String, Object>> dbGroupDetails = new ArrayList<>();
+  public Map<String, Object> readGroup(String groupId) throws BaseException {
+    Map<String, Object> dbResGroup = new HashMap<>();
     Response responseObj = groupDao.readGroup(groupId);
     if (null != responseObj && null != responseObj.getResult()) {
 
-      dbGroupDetails = (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
+      List<Map<String, Object>> dbGroupDetails =
+          (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
       if (null != dbGroupDetails && !dbGroupDetails.isEmpty()) {
 
-        Map<String, Object> dbResGroup = dbGroupDetails.get(0);
+        dbResGroup = dbGroupDetails.get(0);
 
         List<MemberResponse> members =
             memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
         dbResGroup.put(JsonKey.MEMBERS, members);
       }
     }
-    return dbGroupDetails;
+    return dbResGroup;
   }
 
   /**

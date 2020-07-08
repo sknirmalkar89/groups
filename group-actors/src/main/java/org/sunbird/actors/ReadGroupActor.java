@@ -1,7 +1,5 @@
 package org.sunbird.actors;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
@@ -40,10 +38,8 @@ public class ReadGroupActor extends BaseActor {
     logger.info("ReadGroup method call");
     String groupId = (String) actorMessage.getRequest().get(JsonKey.GROUP_ID);
     Response response = new Response(ResponseCode.OK.getCode());
-    List<Map<String, Object>> groupDetails = groupService.readGroup(groupId);
-    Map<String, Object> result = new HashMap<>();
-    result.put(JsonKey.GROUP, groupDetails);
-    response.putAll(result);
+    Map<String, Object> groupDetails = groupService.readGroup(groupId);
+    response.putAll(groupDetails);
 
     sender().tell(response, self());
   }
