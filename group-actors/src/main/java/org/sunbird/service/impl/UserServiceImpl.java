@@ -40,6 +40,13 @@ public class UserServiceImpl implements UserService {
     return userService;
   }
 
+  /**
+   * Fetch user details with user ids from Platform service
+   *
+   * @param userIds
+   * @return
+   * @throws BaseException
+   */
   @Override
   public Response searchUserByIds(List<String> userIds) throws BaseException {
     Response responseObj = new Response();
