@@ -112,6 +112,7 @@ public class BaseController extends Controller {
 
   private Request createSBRequest(play.mvc.Http.Request httpReq) {
     // Copy body
+    
     JsonNode requestData = httpReq.body().asJson();
     if (requestData == null || requestData.isMissingNode()) {
       requestData = JsonNodeFactory.instance.objectNode();
@@ -122,6 +123,7 @@ public class BaseController extends Controller {
     ((ObjectNode) requestData).set("headers", headerData);
 
     Request request = Json.fromJson(requestData, Request.class);
+    request.getContext().put(JsonKey.USER_ID, httpReq.flash().get(JsonKey.USER_ID));
     request.setPath(httpReq.path());
 
     return request;

@@ -29,13 +29,9 @@ public class OnRequestHandler implements ActionCreator {
       @Override
       public CompletionStage<Result> call(Http.Request request) {
         CompletionStage<Result> result = null;
+        request.flash().put(JsonKey.USER_ID, null);
         request.getHeaders();
-        //need to know it's necessity
-        /*CompletionStage<Result> result = checkForServiceHealth(request);
-        if (result != null) return result;*/
         String message = RequestInterceptor.verifyRequestData(request);
-        // call method to set all the required params for the telemetry event(log)...
-        //initializeRequestInfo(request, message, requestId);
         if (!JsonKey.USER_UNAUTH_STATES.contains(message)) {
           request.flash().put(JsonKey.USER_ID, message);
           request.flash().put(JsonKey.IS_AUTH_REQ, "false");

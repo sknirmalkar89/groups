@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PropertiesCache {
 
   private final String[] fileName = {
-    "elasticsearch.config.properties",
     "cassandra.config.properties",
     "dbconfig.properties",
     "externalresource.properties",

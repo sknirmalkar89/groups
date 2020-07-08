@@ -37,9 +37,9 @@
         </dependency>
 
         <dependency>
-            <artifactId>slf4j-log4j12</artifactId>
             <groupId>org.slf4j</groupId>
-            <version>1.6.1</version>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
         </dependency>
 
         <dependency>
