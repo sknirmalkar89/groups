@@ -1,6 +1,8 @@
 package org.sunbird.response;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.exception.BaseException;
 import org.sunbird.message.Localizer;
@@ -23,7 +25,7 @@ public class ResponseFactory {
     if (request != null) {
       response.setId(getApiId(request.getPath()));
       response.setVer(request.getVer());
-      response.setTs(System.currentTimeMillis() + StringUtils.EMPTY);
+      response.setTs(getCurrentDate());
     }
     if (exception instanceof BaseException) {
       BaseException ex = (BaseException) exception;
@@ -69,9 +71,18 @@ public class ResponseFactory {
       }
       String temVal[] = uri.split("/");
       for (String str : temVal) {
-        builder.append(str + ".");
+        if (str.matches("[A-Za-z]+")) {
+          builder.append(str + ".");
+        }
       }
+      builder.deleteCharAt(builder.length() - 1);
     }
     return builder.toString();
+  }
+
+  public static String getCurrentDate() {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSZ");
+    simpleDateFormat.setLenient(false);
+    return simpleDateFormat.format(new Date());
   }
 }

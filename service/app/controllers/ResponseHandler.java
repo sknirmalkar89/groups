@@ -56,7 +56,7 @@ public class ResponseHandler {
     String apiId = ResponseFactory.getApiId(request.getPath());
     response.setId(apiId);
     response.setVer(JsonKey.API_VERSION);
-    response.setTs(System.currentTimeMillis() + "");
+    response.setTs(ResponseFactory.getCurrentDate());
     return Results.ok(Json.toJson(response));
   }
 }
