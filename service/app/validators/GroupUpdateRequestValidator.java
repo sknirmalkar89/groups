@@ -7,14 +7,14 @@ import org.sunbird.exception.BaseException;
 import org.sunbird.request.Request;
 import org.sunbird.util.JsonKey;
 
-public class GroupReadRequestValidator implements IRequestValidator {
+public class GroupUpdateRequestValidator implements IRequestValidator {
 
-  private static Logger logger = LoggerFactory.getLogger(GroupCreateRequestValidator.class);
+  private static Logger logger = LoggerFactory.getLogger(GroupUpdateRequestValidator.class);
 
   @Override
   public boolean validate(Request request) throws BaseException {
     logger.info(
-        "GroupCreateRequestValidator:started validating the request with request"
+        "GroupUpdateRequestValidator:started validating the request with request"
             + request.getRequest());
     ValidationUtil.validateRequestObject(request);
     ValidationUtil.validateMandatoryParamsWithType(

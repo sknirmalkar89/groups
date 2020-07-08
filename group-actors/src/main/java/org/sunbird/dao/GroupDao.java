@@ -1,7 +1,6 @@
 package org.sunbird.dao;
 
 import java.util.List;
-import java.util.UUID;
 import org.sunbird.exception.BaseException;
 import org.sunbird.models.Group;
 import org.sunbird.response.Response;
@@ -11,7 +10,7 @@ public interface GroupDao {
 
   /**
    * This method will create group and return groupId as success response or throw
-   * ProjectCommonException.
+   * BaseException.
    *
    * @param groupObj Group Details.
    * @return group ID.
@@ -20,7 +19,7 @@ public interface GroupDao {
 
   /**
    * This method will read group based on Id and return response Object as success response or throw
-   * ProjectCommonException.
+   * BaseException.
    *
    * @param groupId
    * @return responseObj with Group Details.
@@ -34,7 +33,7 @@ public interface GroupDao {
    * @param userId
    * @return responseObj with Group Details.
    */
-  Response readGroupUuidsByUserId(String userId) throws BaseException;
+  Response readGroupIdsByUserId(String userId) throws BaseException;
 
   /**
    * This method will read group based on Id and return response Object as success response or throw
@@ -43,16 +42,15 @@ public interface GroupDao {
    * @param groupIds
    * @return responseObj with Group Details.
    */
-  Response readGroups(List<UUID> groupIds) throws BaseException;
+  Response readGroups(List<String> groupIds) throws BaseException;
 
   /**
-   * TODO:To be removed Later
+   * This method will update group and return success response or throw
+   * BaseException.
    *
-   * <p>This method will read group based on Id and return response Object as success response or
-   * throw ProjectCommonException.
-   *
-   * @param
-   * @return responseObj with Group Details.
+   * @param groupObj Group Details.
+   * @return Response.
    */
-  Response readAllGroups() throws BaseException;
+  Response updateGroup(Group groupObj) throws BaseException;
+
 }

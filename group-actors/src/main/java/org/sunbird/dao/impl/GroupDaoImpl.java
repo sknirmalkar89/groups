@@ -1,10 +1,12 @@
 package org.sunbird.dao.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.dao.GroupDao;
 import org.sunbird.exception.BaseException;
@@ -32,7 +34,12 @@ public class GroupDaoImpl implements GroupDao {
 
   @Override
   public String createGroup(Group groupObj) throws BaseException {
-    Map<String, Object> map = mapper.convertValue(groupObj, Map.class);
+
+    Map<String, Object> map =
+        mapper.convertValue(groupObj, new TypeReference<Map<String, Object>>() {});
+    map.put(JsonKey.CREATED_ON, new Timestamp(Calendar.getInstance().getTime().getTime()));
+    // need to fix , as mapper is converting set to arrayList
+    map.put(JsonKey.ACTIVITIES, groupObj.getActivities());
     cassandraOperation.insertRecord(DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME, map);
     return (String) map.get(JsonKey.ID);
   }
@@ -45,26 +52,30 @@ public class GroupDaoImpl implements GroupDao {
   }
 
   @Override
-  public Response readGroupUuidsByUserId(String userId) throws BaseException {
-    UUID usrId = java.util.UUID.fromString(userId);
+  public Response readGroupIdsByUserId(String userId) throws BaseException {
     Response responseObj =
         cassandraOperation.getRecordsByProperty(
-            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE_NAME, JsonKey.USER_ID, usrId);
+            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE_NAME, JsonKey.USER_ID, userId);
     return responseObj;
   }
 
   @Override
-  public Response readGroups(List<UUID> groupIds) throws BaseException {
+  public Response readGroups(List<String> groupIds) throws BaseException {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(JsonKey.ID, groupIds);
+    properties.put(JsonKey.STATUS, JsonKey.ACTIVE);
     Response responseObj =
-        cassandraOperation.getRecordsByProperty(
-            DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME, JsonKey.ID, new ArrayList<Object>(groupIds));
+        cassandraOperation.getRecordsByProperties(
+            DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME, properties);
     return responseObj;
   }
 
   @Override
-  public Response readAllGroups() throws BaseException {
+  public Response updateGroup(Group groupObj) throws BaseException {
+    Map<String, Object> map = mapper.convertValue(groupObj, Map.class);
+    map.put(JsonKey.UPDATED_ON, new Timestamp(Calendar.getInstance().getTime().getTime()));
     Response responseObj =
-        cassandraOperation.getAllRecords(DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME);
+        cassandraOperation.updateRecord(DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME, map);
     return responseObj;
   }
 }

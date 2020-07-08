@@ -92,11 +92,11 @@ public class CreateGroupActorTest extends BaseActorTest {
                 members.get(0).get(JsonKey.USER_ID),
                 members.get(0).get(JsonKey.ROLE),
                 reqObj.getRequest().get(JsonKey.ID)));
-    System.out.println(groupMember.wasApplied());
     Response memberRes = CassandraUtil.createResponse(groupMember);
     List<Map<String, Object>> memberList =
         (List<Map<String, Object>>) memberRes.getResult().get(JsonKey.RESPONSE);
-    Assert.assertEquals(reqObj.get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
+    Assert.assertEquals(
+        members.get(0).get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
   }
 
   @Test
@@ -122,6 +122,12 @@ public class CreateGroupActorTest extends BaseActorTest {
     member.put(JsonKey.STATUS, "active");
     member.put(JsonKey.ROLE, "member");
     members.add(member);
+    List<Map<String, Object>> activities = new ArrayList<>();
+    Map<String, Object> activity = new HashMap<>();
+    activity.put(JsonKey.TYPE, "COURSE");
+    activity.put(JsonKey.ID, "courseId");
+    activities.add(activity);
+    reqObj.getRequest().put(JsonKey.ACTIVITIES, activities);
     reqObj.getRequest().put(JsonKey.MEMBERS, members);
     reqObj.getRequest().put(JsonKey.ID, UUID.randomUUID().toString());
     return reqObj;

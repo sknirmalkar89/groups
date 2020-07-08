@@ -42,6 +42,8 @@ public interface JsonKey {
   String ADMIN = "admin";
   String ACTIVE = "active";
   String INACTIVE = "inactive";
+  String GROUP_MEMBERSHIP_TYPE = "membershipType";
+  String GROUP_STATUS = "status";
   String URL = "url";
   String LOG_TYPE = "logType";
   String DURATION = "duration";
@@ -86,4 +88,14 @@ public interface JsonKey {
   String ACCESS_TOKEN_PUBLICKEY_KEYPREFIX = "accesstoken.publickey.keyprefix";
   String ACCESS_TOKEN_PUBLICKEY_KEYCOUNT = "accesstoken.publickey.keycount";
   
+  String MEMBER_ROLE = "memberRole";
+  String MEMBER_ADD = "add";
+  String MEMBER_EDIT = "edit";
+  String MEMBER_REMOVE = "remove";
+  String INVITE_ONLY = "invite_only";
+  String MODERATED = "moderated";
+  String ACTIVITIES = "activities";
+  String TYPE = "type";
+  String CREATED_ON = "createdOn";
+  String UPDATED_ON = "updatedOn";
 }
