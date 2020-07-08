@@ -1,6 +1,7 @@
 package org.sunbird.message;
 
 public enum ResponseCode {
+  unAuthorized(IResponseMessage.UNAUTHORIZED_USER),
   OK(200),
   CLIENT_ERROR(400),
   SERVER_ERROR(500),
@@ -11,6 +12,7 @@ public enum ResponseCode {
   TOO_MANY_REQUESTS(429),
   SERVICE_UNAVAILABLE(503),
   BAD_REQUEST(400);
+  
 
   private int code;
 
