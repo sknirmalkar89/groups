@@ -6,8 +6,8 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.common.exception.ProjectCommonException;
 
+import org.sunbird.exception.BaseException;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.sso.KeyCloakConnectionProvider;
 import org.sunbird.sso.SSOManager;
@@ -69,7 +69,7 @@ public class KeyCloakServiceImpl implements SSOManager {
   }
 
   @Override
-  public String verifyToken(String accessToken, String url) {
+  public String verifyToken(String accessToken, String url)  {
 
     try {
       PublicKey publicKey = getPublicKey();
@@ -110,7 +110,7 @@ public class KeyCloakServiceImpl implements SSOManager {
       } else {
         logger.error(
             "KeyCloakServiceImpl:verifyToken: SSO_PUBLIC_KEY is NULL.");
-        throw new ProjectCommonException(
+        throw new BaseException(
             ResponseCode.keyCloakDefaultError.getErrorCode(),
             ResponseCode.keyCloakDefaultError.getErrorMessage(),
             ResponseCode.keyCloakDefaultError.getResponseCode());
@@ -118,7 +118,7 @@ public class KeyCloakServiceImpl implements SSOManager {
     } catch (Exception e) {
       logger.error(
           "KeyCloakServiceImpl:verifyToken: Exception occurred with message = " + e.getMessage());
-      throw new ProjectCommonException(
+      throw new BaseException(
           ResponseCode.unAuthorized.getErrorCode(),
           ResponseCode.unAuthorized.getErrorMessage(),
           ResponseCode.UNAUTHORIZED.getResponseCode());

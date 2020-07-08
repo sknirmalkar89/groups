@@ -1,8 +1,6 @@
 /** */
 package org.sunbird.sso;
 
-import java.util.Map;
-
 /** @author Manzarul This interface will handle all call related to single sign out. */
 public interface SSOManager {
 

@@ -1,10 +1,9 @@
 package org.sunbird.auth.verifier;
 
-import org.apache.commons.lang3.StringUtils;
-import org.sunbird.common.models.util.JsonKey;
-import org.sunbird.common.models.util.LoggerEnum;
-import org.sunbird.common.models.util.ProjectLogger;
-import org.sunbird.common.models.util.PropertiesCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sunbird.util.JsonKey;
+import org.sunbird.util.helper.PropertiesCache;
 
 import java.io.FileInputStream;
 import java.security.KeyFactory;
@@ -15,6 +14,7 @@ import java.util.Map;
 
 public class KeyManager {
     
+    private static Logger logger = LoggerFactory.getLogger(KeyManager.class);
     private static PropertiesCache propertiesCache = PropertiesCache.getInstance();
 
     private static Map<String, KeyData> keyMap = new HashMap<String, KeyData>();
@@ -23,18 +23,17 @@ public class KeyManager {
         String basePath = null;
         String keyPrefix = null;
         try {
-            ProjectLogger.log("KeyManager:init: Start", LoggerEnum.INFO.name());
+            logger.info("KeyManager:init: Start");
             basePath = propertiesCache.getProperty(JsonKey.ACCESS_TOKEN_PUBLICKEY_BASEPATH);
             keyPrefix = propertiesCache.getProperty(JsonKey.ACCESS_TOKEN_PUBLICKEY_KEYPREFIX);
             int keyCount = Integer.parseInt(propertiesCache.getProperty(JsonKey.ACCESS_TOKEN_PUBLICKEY_KEYCOUNT));
-            ProjectLogger.log("KeyManager:init: basePath: "+basePath+ " keyPrefix: "+keyPrefix+ " keys count: "+keyCount, LoggerEnum.INFO.name());
+            logger.info("KeyManager:init: basePath: "+basePath+ " keyPrefix: "+keyPrefix+ " keys count: "+keyCount);
             for(int i = 1; i <= keyCount; i++) {
                 String keyId = keyPrefix + i;
                 keyMap.put(keyId, new KeyData(keyId, loadPublicKey(basePath + keyId)));
             }
         } catch (Exception e) {
-            ProjectLogger.log("KeyManager:init: exception in loading publickeys ", LoggerEnum.ERROR.name());
-            e.printStackTrace();
+            logger.error("KeyManager:init: exception in loading publickeys ", e.getMessage());
         }
         
     }

@@ -74,13 +74,16 @@ public interface JsonKey {
   List<String> USER_UNAUTH_STATES =
     Arrays.asList(JsonKey.UNAUTHORIZED, JsonKey.ANONYMOUS);
   String IS_AUTH_REQ = "isAuthReq";
-  String SUNBIRD_HEALTH_CHECK_ENABLE = "sunbird_health_check_enable";
-  String HEALTH = "health";
   String REQUEST = "request";
   String IS_SSO_ENABLED = "sso.enabled";
   String PARENT_ID = "parentId";
   String SUB = "sub";
   String DOT_SEPARATOR = ".";
   String SHA_256_WITH_RSA = "SHA256withRSA";
+  String REQUEST_ID = "requestId";
+  String VERSION_2 = "v2";
+  String ACCESS_TOKEN_PUBLICKEY_BASEPATH = "accesstoken.publickey.basepath";
+  String ACCESS_TOKEN_PUBLICKEY_KEYPREFIX = "accesstoken.publickey.keyprefix";
+  String ACCESS_TOKEN_PUBLICKEY_KEYCOUNT = "accesstoken.publickey.keycount";
   
 }

@@ -15,8 +15,6 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -24,19 +22,9 @@ public class OnRequestHandler implements ActionCreator {
   
   private static Logger logger = LoggerFactory.getLogger(OnRequestHandler.class);
 
-  private ObjectMapper mapper = new ObjectMapper();
-  public static boolean isServiceHealthy = true;
-
   @Override
   public Action createAction(Http.Request request, Method method) {
-    Optional<String> optionalMessageId = request.header(JsonKey.MESSAGE_ID);
-    String requestId;
-    if (optionalMessageId.isPresent()) {
-      requestId = optionalMessageId.get();
-    } else {
-      UUID uuid = UUID.randomUUID();
-      requestId = uuid.toString();
-    }
+    
     return new Action.Simple() {
       @Override
       public CompletionStage<Result> call(Http.Request request) {
@@ -45,19 +33,12 @@ public class OnRequestHandler implements ActionCreator {
         //need to know it's necessity
         /*CompletionStage<Result> result = checkForServiceHealth(request);
         if (result != null) return result;*/
-        // From 3.0.0 checking user access-token and managed-by from the request header
         String message = RequestInterceptor.verifyRequestData(request);
         // call method to set all the required params for the telemetry event(log)...
         //initializeRequestInfo(request, message, requestId);
         if (!JsonKey.USER_UNAUTH_STATES.contains(message)) {
           request.flash().put(JsonKey.USER_ID, message);
           request.flash().put(JsonKey.IS_AUTH_REQ, "false");
-          /*for (String uri : RequestInterceptor.restrictedUriList) {
-            if (request.path().contains(uri)) {
-              request.flash().put(JsonKey.IS_AUTH_REQ, "true");
-              break;
-            }
-          }*/
           result = delegate.call(request);
         } else if (JsonKey.UNAUTHORIZED.equals(message)) {
           result =
