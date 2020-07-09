@@ -1,7 +1,11 @@
 package org.sunbird.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sunbird.util.helper.PropertiesCache;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * This class will contains all the common utility methods.
@@ -9,6 +13,12 @@ import java.util.*;
  * @author Manzarul
  */
 public class ProjectUtil {
+  
+  public static PropertiesCache propertiesCache;
+  
+  static {
+    propertiesCache = PropertiesCache.getInstance();
+  }
 
   public enum Method {
     GET,
@@ -31,5 +41,12 @@ public class ProjectUtil {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSZ");
     simpleDateFormat.setLenient(false);
     return simpleDateFormat;
+  }
+  
+  public static String getConfigValue(String key) {
+    if (StringUtils.isNotBlank(System.getenv(key))) {
+      return System.getenv(key);
+    }
+    return propertiesCache.readProperty(key);
   }
 }
