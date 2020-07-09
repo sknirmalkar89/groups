@@ -22,8 +22,8 @@ import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.response.ResponseParams;
-import org.sunbird.util.ProjectUtil;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.ProjectUtil;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -112,7 +112,7 @@ public class BaseController extends Controller {
 
   private Request createSBRequest(play.mvc.Http.Request httpReq) {
     // Copy body
-    
+
     JsonNode requestData = httpReq.body().asJson();
     if (requestData == null || requestData.isMissingNode()) {
       requestData = JsonNodeFactory.instance.objectNode();
@@ -134,7 +134,7 @@ public class BaseController extends Controller {
     request.setOperation(operation);
     return request;
   }
-  
+
   /**
    * This method will create failure response
    *
@@ -144,8 +144,8 @@ public class BaseController extends Controller {
    * @return Response
    */
   public static Response createFailureResponse(
-    Http.Request request, ResponseCode code, ResponseCode headerCode) {
-    
+      Http.Request request, ResponseCode code, ResponseCode headerCode) {
+
     Response response = new Response();
     response.setVer(getApiVersion(request.path()));
     response.setId(getApiResponseId(request));
@@ -154,20 +154,20 @@ public class BaseController extends Controller {
     response.setParams(createResponseParamObj(code, null, request.flash().get(JsonKey.REQUEST_ID)));
     return response;
   }
-  
+
   public static ResponseParams createResponseParamObj(
-    ResponseCode code, String customMessage, String requestId) {
+      ResponseCode code, String customMessage, String requestId) {
     ResponseParams params = new ResponseParams();
     if (code.getCode() != 200) {
       params.setErr(code.getErrorCode());
       params.setErrmsg(
-        StringUtils.isNotBlank(customMessage) ? customMessage : code.getErrorMessage());
+          StringUtils.isNotBlank(customMessage) ? customMessage : code.getErrorMessage());
     }
     params.setMsgid(requestId);
     params.setStatus(ResponseCode.getHeaderResponseCode(code.getResponseCode()).name());
     return params;
   }
-  
+
   /**
    * This method will provide api version.
    *
@@ -175,10 +175,10 @@ public class BaseController extends Controller {
    * @return String
    */
   public static String getApiVersion(String request) {
-    
+
     return request.split("[/]")[1];
   }
-  
+
   /**
    * Method to get API response Id
    *
@@ -186,7 +186,7 @@ public class BaseController extends Controller {
    * @return String
    */
   private static String getApiResponseId(Http.Request request) {
-    
+
     String val = "";
     if (request != null) {
       String path = request.path();
@@ -211,7 +211,7 @@ public class BaseController extends Controller {
     }
     return val;
   }
-  
+
   /**
    * Method to get the response id on basis of request path.
    *
@@ -219,7 +219,7 @@ public class BaseController extends Controller {
    * @return
    */
   public static String getResponseId(String requestPath) {
-    
+
     String path = requestPath;
     final String ver = "/" + version;
     final String ver2 = "/" + JsonKey.VERSION_2;
@@ -246,7 +246,7 @@ public class BaseController extends Controller {
     }
     return builder.toString();
   }
-  
+
   /**
    * Method to remove last value
    *
@@ -254,7 +254,7 @@ public class BaseController extends Controller {
    * @return String
    */
   private static String removeLastValue(String splited[]) {
-    
+
     StringBuilder builder = new StringBuilder();
     if (splited != null && splited.length > 0) {
       for (int i = 1; i < splited.length - 1; i++) {
