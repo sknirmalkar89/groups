@@ -19,6 +19,7 @@ import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.UserService;
+import org.sunbird.util.GroupUtil;
 import org.sunbird.util.JsonKey;
 
 public class MemberServiceImpl implements MemberService {
@@ -139,8 +140,9 @@ public class MemberServiceImpl implements MemberService {
       if (null != dbResMembers) {
         dbResMembers.forEach(
             map -> {
-              MemberResponse member = objectMapper.convertValue(map, MemberResponse.class);
-              members.add(member);
+              Member member = objectMapper.convertValue(map, Member.class);
+              MemberResponse memberResponse = createMemberResponseObj(member);
+              members.add(memberResponse);
             });
       }
     }
@@ -172,7 +174,7 @@ public class MemberServiceImpl implements MemberService {
                       .findFirst()
                       .orElse(null);
               if (userInfo != null) {
-                member.setUsername((String) userInfo.get(JsonKey.USERNAME));
+                member.setUserName((String) userInfo.get(JsonKey.USERNAME));
               }
             });
       }
@@ -215,5 +217,29 @@ public class MemberServiceImpl implements MemberService {
     member.setUserId(userId);
     member.setGroupId(groupId);
     return member;
+  }
+
+  private MemberResponse createMemberResponseObj(Member member) {
+    MemberResponse memberResponse = new MemberResponse();
+    memberResponse.setGroupId(member.getGroupId());
+    memberResponse.setUserId(member.getUserId());
+    memberResponse.setRole(member.getRole());
+    memberResponse.setStatus(member.getStatus());
+    memberResponse.setCreatedBy(member.getCreatedBy());
+    memberResponse.setRemovedBy(member.getRemovedBy());
+    memberResponse.setUpdatedBy(member.getUpdatedBy());
+    memberResponse.setCreatedOn(
+        member.getCreatedOn() != null
+            ? GroupUtil.convertTimestampToUTC(member.getCreatedOn().getTime())
+            : null);
+    memberResponse.setUpdatedOn(
+        member.getUpdatedOn() != null
+            ? GroupUtil.convertTimestampToUTC(member.getUpdatedOn().getTime())
+            : null);
+    memberResponse.setRemovedOn(
+        member.getUpdatedOn() != null
+            ? GroupUtil.convertTimestampToUTC(member.getRemovedOn().getTime())
+            : null);
+    return memberResponse;
   }
 }

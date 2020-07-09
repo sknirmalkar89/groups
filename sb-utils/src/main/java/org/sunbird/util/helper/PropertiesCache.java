@@ -1,4 +1,4 @@
-package org.sunbird.helper;
+package org.sunbird.util.helper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +18,12 @@ public class PropertiesCache {
 
   Logger logger = LoggerFactory.getLogger(PropertiesCache.class);
   private final String[] fileName = {
-    "cassandra.config.properties", "dbconfig.properties", "externalApi.config.properties"
+    "cassandra.config.properties",
+    "dbconfig.properties",
+    "externalresource.properties",
+    "sso.properties",
   };
+
   private final Properties configProp = new Properties();
   public final Map<String, Float> attributePercentageMap = new ConcurrentHashMap<>();
   private static PropertiesCache propertiesCache = null;
@@ -57,6 +61,10 @@ public class PropertiesCache {
    */
   public String getProperty(String key) {
     return configProp.getProperty(key) != null ? configProp.getProperty(key) : key;
+  }
+
+  public void saveConfigProperty(String key, String value) {
+    configProp.setProperty(key, value);
   }
 
   /**

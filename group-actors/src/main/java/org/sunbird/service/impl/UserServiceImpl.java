@@ -9,13 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
-import org.sunbird.helper.PropertiesCache;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.models.SearchRequest;
 import org.sunbird.response.Response;
 import org.sunbird.service.UserService;
 import org.sunbird.util.HttpClientUtil;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.helper.PropertiesCache;
 
 public class UserServiceImpl implements UserService {
 

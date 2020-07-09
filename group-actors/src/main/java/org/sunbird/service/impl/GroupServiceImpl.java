@@ -53,6 +53,20 @@ public class GroupServiceImpl implements GroupService {
 
         dbResGroup = dbGroupDetails.get(0);
 
+        // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
+
+        dbResGroup.put(
+            JsonKey.CREATED_ON,
+            dbResGroup.get(JsonKey.CREATED_ON) != null
+                ? GroupUtil.convertDateToUTC((Date) dbResGroup.get(JsonKey.CREATED_ON))
+                : dbResGroup.get(JsonKey.CREATED_ON));
+
+        dbResGroup.put(
+            JsonKey.UPDATED_ON,
+            dbResGroup.get(JsonKey.UPDATED_ON) != null
+                ? GroupUtil.convertDateToUTC((Date) dbResGroup.get(JsonKey.UPDATED_ON))
+                : dbResGroup.get(JsonKey.UPDATED_ON));
+
         List<MemberResponse> members =
             memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
         dbResGroup.put(JsonKey.MEMBERS, members);
@@ -131,8 +145,9 @@ public class GroupServiceImpl implements GroupService {
       if (null != dbGroupDetails) {
         dbGroupDetails.forEach(
             map -> {
-              GroupResponse group = objectMapper.convertValue(map, GroupResponse.class);
-              groups.add(group);
+              Group group = objectMapper.convertValue(map, Group.class);
+              GroupResponse groupResponse = createGroupResponseObj(group);
+              groups.add(groupResponse);
             });
       }
     }
@@ -143,5 +158,25 @@ public class GroupServiceImpl implements GroupService {
   public Response updateGroup(Group groupObj) throws BaseException {
     Response responseObj = groupDao.updateGroup(groupObj);
     return responseObj;
+  }
+
+  private GroupResponse createGroupResponseObj(Group group) {
+    GroupResponse groupResponse = new GroupResponse();
+    groupResponse.setId(group.getId());
+    groupResponse.setDescription(group.getDescription());
+    groupResponse.setName(group.getName());
+    groupResponse.setStatus(group.getStatus());
+    groupResponse.setActivities(group.getActivities());
+    groupResponse.setCreatedBy(group.getCreatedBy());
+    groupResponse.setUpdatedBy(group.getUpdatedBy());
+    groupResponse.setCreatedOn(
+        group.getCreatedOn() != null
+            ? GroupUtil.convertTimestampToUTC(group.getCreatedOn().getTime())
+            : null);
+    groupResponse.setUpdatedOn(
+        group.getUpdatedOn() != null
+            ? GroupUtil.convertTimestampToUTC(group.getUpdatedOn().getTime())
+            : null);
+    return groupResponse;
   }
 }
