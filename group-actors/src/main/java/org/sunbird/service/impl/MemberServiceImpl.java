@@ -145,12 +145,12 @@ public class MemberServiceImpl implements MemberService {
       }
     }
     if (!members.isEmpty()) {
-      updateMemberDetails(members);
+      fetchMemberDetails(members);
     }
     return members;
   }
 
-  private void updateMemberDetails(List<MemberResponse> members) throws BaseException {
+  private void fetchMemberDetails(List<MemberResponse> members) throws BaseException {
     List<String> memberIds = new ArrayList<>();
     members.forEach(
         member -> {

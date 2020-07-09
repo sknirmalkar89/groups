@@ -62,6 +62,7 @@ public interface JsonKey {
   String CREATED_ON = "createdOn";
   String UPDATED_ON = "updatedOn";
   String USER_SERVICE_BASE_URL = "LEARNER_SERVICE_PORT";
+  String USER_SERVICE_SEARCH_URL = "user_service_search_url";
   String CONTENT = "content";
   String USERNAME = "userName";
   String RESULT = "result";

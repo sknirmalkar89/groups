@@ -18,7 +18,7 @@ public class PropertiesCache {
 
   Logger logger = LoggerFactory.getLogger(PropertiesCache.class);
   private final String[] fileName = {
-    "cassandra.config.properties", "dbconfig.properties", "external.config.properties"
+    "cassandra.config.properties", "dbconfig.properties", "externalApi.config.properties"
   };
   private final Properties configProp = new Properties();
   public final Map<String, Float> attributePercentageMap = new ConcurrentHashMap<>();
