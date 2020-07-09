@@ -46,7 +46,7 @@ public class KeyCloakRsaKeyFetcherTest {
   private static HttpEntity httpEntity;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
 
     client = PowerMockito.mock(CloseableHttpClient.class);
     PowerMockito.mockStatic(HttpClientBuilder.class);
