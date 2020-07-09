@@ -22,14 +22,19 @@ public class UserServiceImpl implements UserService {
   Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
   private static String userServiceSearchUrl;
+  private static String userServiceBaseUrl;
+
   private static UserService userService = null;
   private static ObjectMapper objectMapper = new ObjectMapper();
 
   static {
     userServiceSearchUrl = System.getenv(JsonKey.USER_SERVICE_SEARCH_URL);
+    userServiceBaseUrl = System.getenv(JsonKey.USER_SERVICE_BASE_URL);
     if (StringUtils.isBlank(userServiceSearchUrl)) {
       userServiceSearchUrl =
           PropertiesCache.getInstance().getProperty(JsonKey.USER_SERVICE_SEARCH_URL);
+      userServiceSearchUrl =
+          PropertiesCache.getInstance().getProperty(JsonKey.USER_SERVICE_BASE_URL);
     }
   }
 
@@ -55,7 +60,9 @@ public class UserServiceImpl implements UserService {
     try {
       SearchRequest searchRequest = createUserSearchRequest(userIds);
       String searchJsonStrReq = objectMapper.writeValueAsString(searchRequest);
-      String response = HttpClientUtil.post(userServiceSearchUrl, searchJsonStrReq, requestHeader);
+      String response =
+          HttpClientUtil.post(
+              userServiceSearchUrl + userServiceBaseUrl, searchJsonStrReq, requestHeader);
       if (StringUtils.isNotBlank(response)) {
         Map<String, Object> responseMap = objectMapper.readValue(response, Map.class);
         responseObj.putAll((Map<String, Object>) responseMap.get(JsonKey.RESULT));
