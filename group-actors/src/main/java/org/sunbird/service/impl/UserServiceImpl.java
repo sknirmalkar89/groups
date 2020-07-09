@@ -21,20 +21,16 @@ public class UserServiceImpl implements UserService {
 
   Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-  private static String userServiceSearchUrl;
+  private static String userServiceSearchUrl = "/private/user/v1/search";
   private static String userServiceBaseUrl;
 
   private static UserService userService = null;
   private static ObjectMapper objectMapper = new ObjectMapper();
 
   static {
-    userServiceSearchUrl = System.getenv(JsonKey.USER_SERVICE_SEARCH_URL);
     userServiceBaseUrl = System.getenv(JsonKey.USER_SERVICE_BASE_URL);
-    if (StringUtils.isBlank(userServiceSearchUrl)) {
-      userServiceSearchUrl =
-          PropertiesCache.getInstance().getProperty(JsonKey.USER_SERVICE_SEARCH_URL);
-      userServiceSearchUrl =
-          PropertiesCache.getInstance().getProperty(JsonKey.USER_SERVICE_BASE_URL);
+    if (StringUtils.isBlank(userServiceBaseUrl)) {
+      userServiceBaseUrl = PropertiesCache.getInstance().getProperty(JsonKey.USER_SERVICE_BASE_URL);
     }
   }
 
