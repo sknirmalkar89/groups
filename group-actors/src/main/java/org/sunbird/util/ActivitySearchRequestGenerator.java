@@ -21,6 +21,7 @@ import org.sunbird.util.helper.PropertiesCache;
 public class ActivitySearchRequestGenerator {
 
   private static Logger logger = LoggerFactory.getLogger(ActivitySearchRequestGenerator.class);
+  private static final String ACTIVITY_CONFIG_FILE = "activityConfig.json";
 
   static Map<String, String> activityServiceSearchUrlMap = new HashMap<>();
   static Map<String, Map<String, Object>> activityServiceSearchRequestMap = new HashMap<>();
@@ -32,7 +33,7 @@ public class ActivitySearchRequestGenerator {
       InputStream in =
           SearchActivityServiceImpl.class
               .getClassLoader()
-              .getResourceAsStream(JsonKey.ACTIVITY_CONFIG);
+              .getResourceAsStream(ACTIVITY_CONFIG_FILE);
 
       loadActivityConfigMap(in);
 

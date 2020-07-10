@@ -60,6 +60,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "TestGroup");
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -89,6 +90,8 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
+
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -124,6 +127,8 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
+
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -158,6 +163,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))

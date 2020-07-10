@@ -105,7 +105,6 @@ public interface JsonKey {
   String ACTIVITY = "activity";
   String BEARER = "Bearer ";
   String SUNBIRD_AUTHORIZATION = "sunbird_authorization";
-  String ACTIVITY_CONFIG = "activityConfig.json";
   String FIELDS = "fields";
   String AUTHORIZATION = "Authorization";
   String HEADERS = "headers";

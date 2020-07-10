@@ -54,7 +54,7 @@ public class GroupServiceImpl implements GroupService {
   }
 
   @Override
-  public Map<String, Object> readGroup(String groupId) throws BaseException {
+  public Map<String, Object> readGroup(String groupId, List<String> fields) throws BaseException {
     Map<String, Object> dbResGroup = new HashMap<>();
     Response responseObj = groupDao.readGroup(groupId);
     if (null != responseObj && null != responseObj.getResult()) {
@@ -79,20 +79,31 @@ public class GroupServiceImpl implements GroupService {
                 ? GroupUtil.convertDateToUTC((Date) dbResGroup.get(JsonKey.UPDATED_ON))
                 : dbResGroup.get(JsonKey.UPDATED_ON));
 
-        List<MemberResponse> members =
-            memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
-
-        dbResGroup.put(JsonKey.MEMBERS, members);
-
-        List<Map<String, Object>> dbResActivities =
-            (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
-
-        if (dbResActivities != null && !dbResActivities.isEmpty()) {
-          addActivityInfoDetails(dbResActivities);
+        if (CollectionUtils.isNotEmpty(fields)) {
+          if (fields.contains(JsonKey.MEMBERS)) {
+            List<MemberResponse> members =
+                memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
+            dbResGroup.put(JsonKey.MEMBERS, members);
+          }
+          if (fields.contains(JsonKey.ACTIVITIES)) {
+            List<Map<String, Object>> dbResActivities =
+                (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
+            if (dbResActivities != null && !dbResActivities.isEmpty()) {
+              addActivityInfoDetails(dbResActivities);
+            }
+          } else {
+            removeActivities(dbResGroup);
+          }
+        } else {
+          removeActivities(dbResGroup);
         }
       }
     }
     return dbResGroup;
+  }
+
+  private Object removeActivities(Map<String, Object> dbResGroup) {
+    return dbResGroup.remove(JsonKey.ACTIVITIES);
   }
 
   private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
