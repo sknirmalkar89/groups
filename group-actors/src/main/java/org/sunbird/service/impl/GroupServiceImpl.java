@@ -26,6 +26,7 @@ import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.service.GroupService;
 import org.sunbird.service.MemberService;
+import org.sunbird.service.SearchActivityService;
 import org.sunbird.util.GroupUtil;
 import org.sunbird.util.JsonKey;
 
@@ -36,6 +37,8 @@ public class GroupServiceImpl implements GroupService {
   private static GroupService groupService = null;
   private static MemberService memberService = MemberServiceImpl.getInstance();
   private static ObjectMapper objectMapper = new ObjectMapper();
+  private static SearchActivityService searchActivityService =
+      SearchActivityServiceImpl.getInstance();
 
   public static GroupService getInstance() {
     if (groupService == null) {
@@ -78,10 +81,30 @@ public class GroupServiceImpl implements GroupService {
 
         List<MemberResponse> members =
             memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
+
         dbResGroup.put(JsonKey.MEMBERS, members);
+
+        List<Map<String, Object>> dbResActivities =
+            (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
+
+        if (dbResActivities != null && !dbResActivities.isEmpty()) {
+          addActivityInfoDetails(dbResActivities);
+        }
       }
     }
     return dbResGroup;
+  }
+
+  private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
+    Map<String, Map<String, Object>> activityInfoMap =
+        searchActivityService.searchActivity(dbResActivities);
+    for (Map<String, Object> activity : dbResActivities) {
+      if (activityInfoMap.containsKey(activity.get(JsonKey.ID))) {
+        activity.put(JsonKey.ACTIVITY_INFO, activityInfoMap.get(activity.get(JsonKey.ID)));
+      } else {
+        activity.put(JsonKey.ACTIVITY_INFO, new HashMap<>());
+      }
+    }
   }
 
   /**

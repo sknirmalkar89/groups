@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.sunbird.Application;
 import org.sunbird.exception.BaseException;
+import org.sunbird.util.ActivitySearchRequestGenerator;
 import org.sunbird.util.DBUtil;
 import org.sunbird.util.HttpClientUtil;
 import play.api.Environment;
@@ -29,6 +30,7 @@ public class ApplicationStart {
     setEnvironment(environment);
     checkCassandraConnections();
     HttpClientUtil.getInstance();
+    ActivitySearchRequestGenerator.init();
     // Shut-down hook
     lifecycle.addStopHook(
         () -> {

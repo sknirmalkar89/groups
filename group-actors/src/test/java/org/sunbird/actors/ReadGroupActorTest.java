@@ -9,10 +9,7 @@ import akka.testkit.javadsl.TestKit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +28,7 @@ import org.sunbird.message.Localizer;
 import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
+import org.sunbird.util.ActivitySearchRequestGenerator;
 import org.sunbird.util.HttpClientUtil;
 import org.sunbird.util.JsonKey;
 
@@ -52,6 +50,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     PowerMockito.mockStatic(ServiceFactory.class);
     cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    ActivitySearchRequestGenerator.init();
   }
 
   @Test
@@ -64,7 +63,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(getGroupsDetailsResponse());
+          .thenReturn(getGroupsDetailsResponseNoActivities());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
@@ -83,7 +82,152 @@ public class ReadGroupActorTest extends BaseActorTest {
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
+  @Test
+  public void readGroupReturnGroupWithActivites() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = new Request();
+    reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
+    reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    try {
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByProperties(
+              Mockito.anyString(),
+              Matchers.eq(GROUP_MEMBER_TABLE),
+              Mockito.anyMap(),
+              Mockito.anyList()))
+          .thenReturn(getMemberResponseByGroupIds());
+      PowerMockito.mockStatic(HttpClientUtil.class);
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+          .thenReturn(getActivityInfoResponse());
+
+    } catch (BaseException ex) {
+      Assert.assertTrue(false);
+    }
+    subject.tell(reqObj, probe.getRef());
+    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Assert.assertTrue(null != res && res.getResponseCode() == 200);
+    List<Map<String, Object>> activities =
+        (List<Map<String, Object>>) res.getResult().get(JsonKey.ACTIVITIES);
+    Map<String, Object> activityInfo =
+        (Map<String, Object>) activities.get(0).get(JsonKey.ACTIVITY_INFO);
+    Assert.assertTrue(
+        null != activityInfo && !activityInfo.isEmpty() && null != activityInfo.get("identifier"));
+  }
+
+  @Test
+  public void readGroupReturnGroupWithEmptyActivites() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = new Request();
+    reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
+    reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    try {
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByProperties(
+              Mockito.anyString(),
+              Matchers.eq(GROUP_MEMBER_TABLE),
+              Mockito.anyMap(),
+              Mockito.anyList()))
+          .thenReturn(getMemberResponseByGroupIds());
+      PowerMockito.mockStatic(HttpClientUtil.class);
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+          .thenReturn(getEmptyActivityResponse());
+
+    } catch (BaseException ex) {
+      Assert.assertTrue(false);
+    }
+    subject.tell(reqObj, probe.getRef());
+    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Assert.assertTrue(null != res && res.getResponseCode() == 200);
+    List<Map<String, Object>> activities =
+        (List<Map<String, Object>>) res.getResult().get(JsonKey.ACTIVITIES);
+    Map<String, Object> activityInfo =
+        (Map<String, Object>) activities.get(0).get(JsonKey.ACTIVITY_INFO);
+    Assert.assertTrue(null != activityInfo && activityInfo.isEmpty());
+  }
+
+  @Test
+  public void readGroupReturnGroupWithActivityServiceThrowException() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = new Request();
+    reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
+    reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    try {
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByProperties(
+              Mockito.anyString(),
+              Matchers.eq(GROUP_MEMBER_TABLE),
+              Mockito.anyMap(),
+              Mockito.anyList()))
+          .thenReturn(getMemberResponseByGroupIds());
+      PowerMockito.mockStatic(HttpClientUtil.class);
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+          .thenReturn("");
+
+    } catch (BaseException ex) {
+      Assert.assertTrue(false);
+    }
+    subject.tell(reqObj, probe.getRef());
+    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Assert.assertTrue(null != res && res.getResponseCode() == 200);
+    List<Map<String, Object>> activities =
+        (List<Map<String, Object>>) res.getResult().get(JsonKey.ACTIVITIES);
+    Map<String, Object> activityInfo =
+        (Map<String, Object>) activities.get(0).get(JsonKey.ACTIVITY_INFO);
+    Assert.assertTrue(null != activityInfo && activityInfo.isEmpty());
+  }
+
+  private String getActivityInfoResponse() {
+    String response =
+        "{ \"id\": \"api.content.search\", \"ver\": \"1.0\", \"ts\": \"2020-07-10T12:36:10.076Z\", \"params\": { \"resmsgid\": "
+            + "\"eeda31c0-c2a9-11ea-8ebb-8389e3bbdc82\", \"msgid\": \"eed88410-c2a9-11ea-8ebb-8389e3bbdc82\", \"status\": \"successful\", "
+            + "\"err\": null, \"errmsg\": null }, \"responseCode\": \"OK\", \"result\": { \"count\": 2, "
+            + "\"content\": [ { \"identifier\": \"do_11304065892935270414\", \"contentType\": \"TextBook\", \"objectType\": \"Content\" },"
+            + " { \"identifier\": \"do_112470675618004992181\", \"contentType\": \"Course\", \"objectType\": \"Content\" } ] } }";
+    return response;
+  }
+
+  private String getEmptyActivityResponse() {
+    String response =
+        "{ \"id\": \"api.content.search\", \"ver\": \"1.0\", \"ts\": \"2020-07-10T12:43:47.609Z\", \"params\": "
+            + "{ \"resmsgid\": \"ff903090-c2aa-11ea-8ebb-8389e3bbdc82\", \"msgid\": \"ff8e34c0-c2aa-11ea-8ebb-8389e3bbdc82\", \"status\": \"successful\", \"err\": null, \"errmsg\": null },"
+            + " \"responseCode\": \"OK\", \"result\": { \"count\": 0 } }";
+    return response;
+  }
+
   private Response getGroupsDetailsResponse() {
+    Map<String, Object> result = new HashMap<>();
+    List<Map<String, Object>> groupList = new ArrayList<>();
+    Map<String, Object> group1 = new HashMap<>();
+    group1.put("name", "TestGroup1");
+    group1.put("id", "groupid1");
+    List<Map<String, Object>> activities = new ArrayList<>();
+    Map<String, Object> activity1 = new HashMap<>();
+    activity1.put(JsonKey.ID, "do_112470675618004992181");
+    activity1.put(JsonKey.TYPE, "Course");
+
+    Map<String, Object> activity2 = new HashMap<>();
+    activity2.put(JsonKey.ID, "do_11304065892935270414");
+    activity2.put(JsonKey.TYPE, "Textbook");
+    activities.add(activity1);
+    activities.add(activity2);
+    group1.put(JsonKey.ACTIVITIES, activities);
+    groupList.add(group1);
+    result.put(JsonKey.RESPONSE, groupList);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+
+  private Response getGroupsDetailsResponseNoActivities() {
     Map<String, Object> result = new HashMap<>();
     List<Map<String, Object>> groupList = new ArrayList<>();
     Map<String, Object> group1 = new HashMap<>();

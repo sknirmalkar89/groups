@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
       String searchJsonStrReq = objectMapper.writeValueAsString(searchRequest);
       String response =
           HttpClientUtil.post(
-              userServiceSearchUrl + userServiceBaseUrl, searchJsonStrReq, requestHeader);
+              userServiceBaseUrl + userServiceSearchUrl, searchJsonStrReq, requestHeader);
       if (StringUtils.isNotBlank(response)) {
         Map<String, Object> responseMap = objectMapper.readValue(response, Map.class);
         responseObj.putAll((Map<String, Object>) responseMap.get(JsonKey.RESULT));
