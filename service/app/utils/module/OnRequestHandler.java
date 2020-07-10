@@ -14,7 +14,7 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-public class OnRequestHandler implements ActionCreator {
+public class questHandler implements ActionCreator {
 
   private static Logger logger = LoggerFactory.getLogger(OnRequestHandler.class);
 
@@ -27,8 +27,7 @@ public class OnRequestHandler implements ActionCreator {
         CompletionStage<Result> result = null;
         request.flash().put(JsonKey.USER_ID, null);
         request.getHeaders();
-        // String message = RequestInterceptor.verifyRequestData(request);
-        String message = "userId";
+        String message = RequestInterceptor.verifyRequestData(request);
         if (!JsonKey.USER_UNAUTH_STATES.contains(message)) {
           request.flash().put(JsonKey.USER_ID, message);
           request.flash().put(JsonKey.IS_AUTH_REQ, "false");
