@@ -1,25 +1,19 @@
 package utils.module;
 
-import controllers.BaseController;
 import controllers.ResponseHandler;
 import java.lang.reflect.Method;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
 import org.sunbird.message.ResponseCode;
-import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
 import org.sunbird.util.ProjectUtil;
 import play.http.ActionCreator;
-import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 
 public class OnRequestHandler implements ActionCreator {
 
