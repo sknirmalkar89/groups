@@ -16,7 +16,6 @@ import play.test.Helpers;
 @PrepareForTest({})
 @PowerMockIgnore({"javax.management.*", "javax.net.ssl.*", "javax.security.*"})
 public class OnRequestHandlerTest {
-
   @Test
   public void checkForServiceHealth() {
     Http.RequestBuilder requestBuilder =
