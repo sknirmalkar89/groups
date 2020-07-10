@@ -3,7 +3,6 @@ package utils.module;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +18,7 @@ import play.mvc.Http;
 /**
  * Request interceptor responsible to authenticated HTTP requests
  *
- * @author Amit Kumar
+ * @author Amit Kumar, Hari kumar
  */
 public class RequestInterceptor {
   static Logger logger = LoggerFactory.getLogger(RequestInterceptor.class);
@@ -70,7 +69,6 @@ public class RequestInterceptor {
     String clientId = JsonKey.UNAUTHORIZED;
     request.flash().put(JsonKey.MANAGED_FOR, null);
     Optional<String> accessToken = request.header(HeaderParam.X_Authenticated_User_Token.getName());
-    Optional<String> authClientId = request.header(HeaderParam.X_Authenticated_Client_Id.getName());
     // The API must be invoked with either access token or client token.
     if (!isRequestInExcludeList(request.path()) && !isRequestPrivate(request.path())) {
       if (accessToken.isPresent()) {
