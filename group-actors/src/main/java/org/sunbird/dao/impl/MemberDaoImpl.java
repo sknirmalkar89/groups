@@ -85,6 +85,31 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
+  public Response removeMemberFromUserGroup(List<Member> members) throws BaseException {
+    List<Map<String, Object>> memberList =
+        mapper.convertValue(members, new TypeReference<List<Map<String, Object>>>() {});
+    logger.info(
+        "remove member from User group table started , no of members to be remove {}",
+        members.size());
+    Response response = new Response();
+    for (Map<String, Object> member : memberList) {
+      Map<String, Object> primaryKey = new HashMap<>();
+      primaryKey.put(JsonKey.USER_ID, member.get(JsonKey.USER_ID));
+      response =
+          cassandraOperation.updateRemoveSetRecord(
+              DBUtil.KEY_SPACE_NAME,
+              USER_GROUP_TABLE,
+              primaryKey,
+              JsonKey.GROUP_ID,
+              member.get(JsonKey.GROUP_ID));
+    }
+    logger.info(
+        "members removed successfully from the user group table : response {}",
+        response.getResult());
+    return response;
+  }
+
+  @Override
   public Response fetchMembersByGroupIds(List<String> groupIds, List<String> fields)
       throws BaseException {
     Map<String, Object> properties = new HashMap<>();

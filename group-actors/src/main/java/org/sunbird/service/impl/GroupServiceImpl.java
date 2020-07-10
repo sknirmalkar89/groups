@@ -51,7 +51,7 @@ public class GroupServiceImpl implements GroupService {
   }
 
   @Override
-  public Map<String, Object> readGroup(String groupId) throws BaseException {
+  public Map<String, Object> readGroup(String groupId, List<String> fields) throws BaseException {
     Map<String, Object> dbResGroup = new HashMap<>();
     Response responseObj = groupDao.readGroup(groupId);
     if (null != responseObj && null != responseObj.getResult()) {
@@ -76,9 +76,16 @@ public class GroupServiceImpl implements GroupService {
                 ? GroupUtil.convertDateToUTC((Date) dbResGroup.get(JsonKey.UPDATED_ON))
                 : dbResGroup.get(JsonKey.UPDATED_ON));
 
-        List<MemberResponse> members =
-            memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
-        dbResGroup.put(JsonKey.MEMBERS, members);
+        if (CollectionUtils.isNotEmpty(fields)) {
+          if (fields.contains(JsonKey.MEMBERS)) {
+            List<MemberResponse> members =
+                memberService.fetchMembersByGroupIds(Lists.newArrayList(groupId), null);
+            dbResGroup.put(JsonKey.MEMBERS, members);
+          }
+        }
+        if (CollectionUtils.isEmpty(fields) || !fields.contains(JsonKey.ACTIVITIES)) {
+          dbResGroup.remove(JsonKey.ACTIVITIES);
+        }
       }
     }
     return dbResGroup;

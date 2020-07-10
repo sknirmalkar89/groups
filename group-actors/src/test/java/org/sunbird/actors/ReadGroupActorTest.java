@@ -9,10 +9,7 @@ import akka.testkit.javadsl.TestKit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +58,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "TestGroup");
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))

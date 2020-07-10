@@ -63,6 +63,27 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.updateRecord(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
           .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchInsert(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateAddSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+          .thenReturn(getCassandraResponse())
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateRemoveSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
