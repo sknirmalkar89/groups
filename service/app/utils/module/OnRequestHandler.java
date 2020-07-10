@@ -14,7 +14,7 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-public class questHandler implements ActionCreator {
+public class OnRequestHandler implements ActionCreator {
 
   private static Logger logger = LoggerFactory.getLogger(OnRequestHandler.class);
 
