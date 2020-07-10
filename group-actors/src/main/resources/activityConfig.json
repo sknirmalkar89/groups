@@ -2,13 +2,13 @@
   "activities":[
     {
       "type": [
-        "Textbook","Course"
+        "Course"
       ],
       "baseUrl": "CONTENT_SERVICE_PORT",
       "apiUrl": "sunbird_cs_search_url",
       "request": {
               "id":"identifier",
-              "fields": ["identifier","contentType","organisation","board","downloadUrl","contentEncoding","lastPublishedBy"]
+              "fields": ["identifier","contentType","objectType","name","organisation","language","appIcon","mimeType","topic","resourceType"]
        },
       "response": "$.result.content[*]",
       "headers": {

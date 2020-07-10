@@ -25,7 +25,9 @@ import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.message.Localizer;
+import org.sunbird.models.ActivitySearchRequestConfig;
 import org.sunbird.models.ActorOperations;
+import org.sunbird.models.SearchRequest;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.ActivitySearchRequestGenerator;
@@ -33,10 +35,16 @@ import org.sunbird.util.HttpClientUtil;
 import org.sunbird.util.JsonKey;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Localizer.class, ServiceFactory.class, HttpClientUtil.class})
+@PrepareForTest({
+  Localizer.class,
+  ServiceFactory.class,
+  HttpClientUtil.class,
+  ActivitySearchRequestGenerator.class
+})
 @PowerMockIgnore({"javax.management.*"})
 public class ReadGroupActorTest extends BaseActorTest {
   private static final String GROUP_MEMBER_TABLE = "group_member";
+  public static String ACTIVITY_CONFIG_JSON = "activityConfigTest.json";
 
   private final Props props = Props.create(ReadGroupActor.class);
   public CassandraOperation cassandraOperation;
@@ -50,7 +58,6 @@ public class ReadGroupActorTest extends BaseActorTest {
     PowerMockito.mockStatic(ServiceFactory.class);
     cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
-    ActivitySearchRequestGenerator.init();
   }
 
   @Test
@@ -60,10 +67,10 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "TestGroup");
-    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members"));
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
           .thenReturn(getGroupsDetailsResponseNoActivities());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
@@ -94,7 +101,7 @@ public class ReadGroupActorTest extends BaseActorTest {
 
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("groupid1")))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
@@ -105,6 +112,9 @@ public class ReadGroupActorTest extends BaseActorTest {
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
           .thenReturn(getActivityInfoResponse());
+      PowerMockito.mockStatic(ActivitySearchRequestGenerator.class);
+      when(ActivitySearchRequestGenerator.generateActivitySearchRequest(Mockito.anyList()))
+          .thenReturn(getActivitySearchConfigList());
 
     } catch (BaseException ex) {
       Assert.assertTrue(false);
@@ -131,7 +141,7 @@ public class ReadGroupActorTest extends BaseActorTest {
 
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("groupid1")))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
@@ -142,6 +152,9 @@ public class ReadGroupActorTest extends BaseActorTest {
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
           .thenReturn(getEmptyActivityResponse());
+      PowerMockito.mockStatic(ActivitySearchRequestGenerator.class);
+      when(ActivitySearchRequestGenerator.generateActivitySearchRequest(Mockito.anyList()))
+          .thenReturn(getActivitySearchConfigList());
 
     } catch (BaseException ex) {
       Assert.assertTrue(false);
@@ -166,7 +179,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("groupid1")))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
@@ -177,6 +190,9 @@ public class ReadGroupActorTest extends BaseActorTest {
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
           .thenReturn("");
+      PowerMockito.mockStatic(ActivitySearchRequestGenerator.class);
+      when(ActivitySearchRequestGenerator.generateActivitySearchRequest(Mockito.anyList()))
+          .thenReturn(getActivitySearchConfigList());
 
     } catch (BaseException ex) {
       Assert.assertTrue(false);
@@ -244,6 +260,18 @@ public class ReadGroupActorTest extends BaseActorTest {
     Response response = new Response();
     response.putAll(result);
     return response;
+  }
+
+  private List<ActivitySearchRequestConfig> getActivitySearchConfigList() {
+    List<ActivitySearchRequestConfig> configLists = new ArrayList<>();
+    ActivitySearchRequestConfig activitySearchRequestConfig = new ActivitySearchRequestConfig();
+    activitySearchRequestConfig.setApiUrl("http://content-service/v1/user/search");
+    activitySearchRequestConfig.setIdentifierKey("identifier");
+    activitySearchRequestConfig.setRequestHeader(new HashMap<>());
+    activitySearchRequestConfig.setSearchRequest(new SearchRequest());
+    activitySearchRequestConfig.setResponse("$.result.content[*]");
+    configLists.add(activitySearchRequestConfig);
+    return configLists;
   }
 
   private Response getMemberResponseByGroupIds() {
