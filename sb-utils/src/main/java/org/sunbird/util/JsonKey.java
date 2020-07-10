@@ -100,6 +100,9 @@ public interface JsonKey {
   String CONTENT = "content";
   String USERNAME = "userName";
   String RESULT = "result";
+  String SUNBIRD_HEALTH_CHECK_ENABLE = "sunbird_health_check_enable";
+  String HEALTH = "health";
+  String PRIVATE = "private";
   String ACTIVITY = "activity";
   String FIELDS = "fields";
 }
