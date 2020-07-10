@@ -17,23 +17,7 @@
         "Accept-Charset": "UTF-8"
       }
 
-    },
-    {
-    "type": ["Announcement"],
-     "baseUrl": "LEARNER_SERVICE_PORT",
-     "apiUrl": "content_search_url",
-     "request":{
-           "id":"announcementIds",
-           "fields": ["contentType"]
-      },
-     "response": "$.result.content[*]",
-      "headers": {
-              "Authorization": "sunbird_authorization",
-              "Content-Type" : "application/json",
-              "Accept-Charset": "UTF-8"
-      }
     }
-
   ]
 
 }
