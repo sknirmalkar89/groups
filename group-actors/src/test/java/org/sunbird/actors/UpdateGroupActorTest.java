@@ -1,8 +1,16 @@
 package org.sunbird.actors;
 
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -21,15 +29,6 @@ import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
@@ -63,7 +62,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     try {
       when(cassandraOperation.updateRecord(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
-              .thenReturn(getCassandraResponse());
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -79,8 +78,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     reqObj.setHeaders(headerMap);
     reqObj.setOperation(ActorOperations.UPDATE_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup Name1");
-    Map<String,List<Map<String, Object>>> memberOpearations = new HashMap<>();
-
+    Map<String, List<Map<String, Object>>> memberOpearations = new HashMap<>();
     List<Map<String, Object>> members = new ArrayList<>();
     Map<String, Object> member = new HashMap<>();
     member.put(JsonKey.USER_ID, "userID1");
@@ -92,21 +90,37 @@ public class UpdateGroupActorTest extends BaseActorTest {
     member.put(JsonKey.STATUS, "active");
     member.put(JsonKey.ROLE, "member");
     members.add(member);
-    memberOpearations.put("add",members);
-    //Edit
+    memberOpearations.put("add", members);
+    // Edit
     members = new ArrayList<>();
     member = new HashMap<>();
     member.put(JsonKey.USER_ID, "userID1");
     member.put(JsonKey.ROLE, "admin");
     members.add(member);
-    memberOpearations.put("edit",members);
-    //Remove
+    memberOpearations.put("edit", members);
+    // Remove
     ArrayList removeMembers = new ArrayList();
     removeMembers.add("userID1");
-    memberOpearations.put("remove",removeMembers);
+    memberOpearations.put("remove", removeMembers);
+    // Add activities
+    Map<String, List<Map<String, Object>>> activitiesOperations = new HashMap<>();
+    List<Map<String, Object>> activities = new ArrayList<>();
+    Map<String, Object> activity = new HashMap<>();
+    activity.put(JsonKey.TYPE, "COURSE");
+    activity.put(JsonKey.ID, "activityId1");
+    activities.add(activity);
+    activity = new HashMap<>();
+    activity.put(JsonKey.TYPE, "COURSE");
+    activity.put(JsonKey.ID, "activityId2");
+    activities.add(activity);
+    activitiesOperations.put("add", activities);
+    // Remove
+    ArrayList removeActivities = new ArrayList();
+    removeActivities.add("activityId2");
+    activitiesOperations.put("remove", removeActivities);
+    reqObj.getRequest().put(JsonKey.ACTIVITIES, activitiesOperations);
     reqObj.getRequest().put(JsonKey.MEMBERS, memberOpearations);
     reqObj.getRequest().put(JsonKey.ID, "group1");
     return reqObj;
   }
-
 }

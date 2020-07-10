@@ -2,7 +2,6 @@ package org.sunbird.models;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class GroupResponse {
 
@@ -13,7 +12,7 @@ public class GroupResponse {
   private String description;
   private String status;
   private String membershipType;
-  private Set<Map<String, Object>> activities;
+  private List<Map<String, Object>> activities;
   private String createdOn;
   private String createdBy;
   private String updatedOn;
@@ -61,11 +60,11 @@ public class GroupResponse {
     this.membershipType = membershipType;
   }
 
-  public Set<Map<String, Object>> getActivities() {
+  public List<Map<String, Object>> getActivities() {
     return activities;
   }
 
-  public void setActivities(Set<Map<String, Object>> activities) {
+  public void setActivities(List<Map<String, Object>> activities) {
     this.activities = activities;
   }
 

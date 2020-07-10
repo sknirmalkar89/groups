@@ -1,19 +1,18 @@
 package controllers;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sunbird.exception.BaseException;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
-import play.mvc.Result;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
+import javax.ws.rs.core.Response;
+import org.junit.Before;
+import org.junit.Test;
+import org.sunbird.exception.BaseException;
+import org.sunbird.util.JsonKey;
+import play.mvc.Result;
 
 public class UpdateGroupControllerTest extends BaseApplicationTest {
 
@@ -61,4 +60,24 @@ public class UpdateGroupControllerTest extends BaseApplicationTest {
     assertTrue(getResponseStatus(result) == Response.Status.BAD_REQUEST.getStatusCode());
   }
 
+  @Test
+  public void testMandatoryParamActivityType() {
+    Map<String, Object> reqMap = new HashMap<>();
+    Map<String, Object> request = new HashMap<>();
+    reqMap.put(JsonKey.GROUP_ID, "group1");
+    Map<String, Object> activities = new HashMap<>();
+    List<Map<String, Object>> addActvity = new ArrayList<>();
+    Map<String, Object> activity =
+        new HashMap<String, Object>() {
+          {
+            put(JsonKey.ID, "id");
+          }
+        };
+    addActvity.add(activity);
+    activities.put(JsonKey.ADD, addActvity);
+    reqMap.put(JsonKey.ACTIVITIES, activities);
+    request.put("request", reqMap);
+    Result result = performTest("/v1/group/update", "PATCH", request);
+    assertEquals(getResponseStatus(result), Response.Status.BAD_REQUEST.getStatusCode());
+  }
 }

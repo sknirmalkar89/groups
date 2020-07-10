@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /** @desc POJO class for Group */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,7 +19,7 @@ public class Group implements Serializable {
   private String description;
   private String status;
   private String membershipType;
-  private Set<Map<String, Object>> activities;
+  private List<Map<String, Object>> activities;
   private Timestamp createdOn;
   private String createdBy;
   private Timestamp updatedOn;
@@ -73,10 +73,11 @@ public class Group implements Serializable {
     this.membershipType = membershipType;
   }
 
-  public Set<Map<String, Object>> getActivities() {
+  public List<Map<String, Object>> getActivities() {
     return activities;
   }
-  public void setActivities(Set<Map<String, Object>> activities) {
+
+  public void setActivities(List<Map<String, Object>> activities) {
     this.activities = activities;
   }
 

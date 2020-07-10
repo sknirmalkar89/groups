@@ -2,13 +2,22 @@ package org.sunbird.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.dao.GroupDao;
 import org.sunbird.dao.impl.GroupDaoImpl;
 import org.sunbird.exception.BaseException;
+import org.sunbird.exception.ValidationException;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
@@ -178,5 +187,69 @@ public class GroupServiceImpl implements GroupService {
             ? GroupUtil.convertTimestampToUTC(group.getUpdatedOn().getTime())
             : null);
     return groupResponse;
+  }
+
+  @Override
+  public List<Map<String, Object>> handleActivityOperations(
+      String groupId, Map<String, Object> activityOperationMap) throws BaseException {
+    List<Map<String, Object>> activityAddList =
+        (List<Map<String, Object>>) activityOperationMap.get(JsonKey.ADD);
+    List<String> activityRemoveList = (List<String>) activityOperationMap.get(JsonKey.REMOVE);
+
+    // Fetching the activities from DB
+    List<Map<String, Object>> dbActivityList = readActivityFromDb(groupId);
+
+    if (CollectionUtils.isNotEmpty(activityAddList)) {
+      // Check if activities in add request is already existing, if not append
+      final List<Map<String, Object>> addDbActivityList = dbActivityList;
+      if (CollectionUtils.isNotEmpty(addDbActivityList)) {
+        List<Map<String, Object>> unavailable =
+            activityAddList
+                .stream()
+                .filter(
+                    e ->
+                        (addDbActivityList
+                                .stream()
+                                .filter(d -> d.get("id").equals(e.get("id")))
+                                .count())
+                            < 1)
+                .collect(Collectors.toList());
+        dbActivityList.addAll(unavailable);
+      } else {
+        // If no activity in DB, assign the activities from request
+        dbActivityList = new ArrayList<>(activityAddList);
+      }
+    }
+
+    // Remove activities in request from finalist
+    List<Map<String, Object>> finalList = dbActivityList;
+    if (CollectionUtils.isNotEmpty(activityRemoveList)
+        && CollectionUtils.isNotEmpty(dbActivityList)) {
+      finalList =
+          dbActivityList
+              .stream()
+              .filter(
+                  e -> (activityRemoveList.stream().filter(d -> d.equals(e.get("id"))).count()) < 1)
+              .collect(Collectors.toList());
+    }
+    return finalList;
+  }
+
+  private List<Map<String, Object>> readActivityFromDb(String groupId) throws BaseException {
+    List<Map<String, Object>> dbActivityList = null;
+    Response responseObj = groupDao.readGroup(groupId);
+    if (null != responseObj && MapUtils.isNotEmpty(responseObj.getResult())) {
+      List<Map<String, Object>> groupDetails =
+          (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
+      if (CollectionUtils.isNotEmpty(groupDetails)) {
+        Map<String, Object> dbResGroup = groupDetails.get(0);
+        if (StringUtils.isNotBlank((String) dbResGroup.get(JsonKey.ID))
+            && StringUtils.equals(groupId, (String) dbResGroup.get(JsonKey.ID)))
+          dbActivityList = (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
+      } else {
+        throw new ValidationException.InvalidGroupId(groupId);
+      }
+    }
+    return dbActivityList;
   }
 }

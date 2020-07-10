@@ -103,4 +103,5 @@ public interface JsonKey {
   String SUNBIRD_HEALTH_CHECK_ENABLE = "sunbird_health_check_enable";
   String HEALTH = "health";
   String PRIVATE = "private";
+  String ACTIVITY = "activity";
 }

@@ -1,5 +1,6 @@
 package org.sunbird.actors;
 
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.MapUtils;
 import org.sunbird.actor.core.ActorConfig;
@@ -51,6 +52,14 @@ public class UpdateGroupActor extends BaseActor {
           memberOperationMap,
           group.getId(),
           (String) actorMessage.getContext().get(JsonKey.USER_ID));
+    }
+
+    Map<String, Object> activityOperationMap =
+        (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES);
+    if (MapUtils.isNotEmpty(activityOperationMap)) {
+      List<Map<String, Object>> updateActivityList =
+          groupService.handleActivityOperations(group.getId(), activityOperationMap);
+      group.setActivities(updateActivityList);
     }
 
     Response response = groupService.updateGroup(group);

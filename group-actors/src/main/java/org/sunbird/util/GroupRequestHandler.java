@@ -1,6 +1,5 @@
 package org.sunbird.util;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,7 +31,7 @@ public class GroupRequestHandler {
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.ACTIVITIES);
     if (CollectionUtils.isNotEmpty(activityList)) {
       logger.info("adding activities to the group {}", activityList.size());
-      group.setActivities(new HashSet<>(activityList));
+      group.setActivities(activityList);
     }
     return group;
   }

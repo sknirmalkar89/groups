@@ -44,7 +44,7 @@ public class OnRequestHandler implements ActionCreator {
     };
   }
   
-  public CompletionStage<Result> checkForServiceHealth(Http.Request request) {
+  public static CompletionStage<Result> checkForServiceHealth(Http.Request request) {
     if (Boolean.parseBoolean((ProjectUtil.getConfigValue(JsonKey.SUNBIRD_HEALTH_CHECK_ENABLE)))
       && !request.path().endsWith(JsonKey.HEALTH)) {
       if (!isServiceHealthy) {
