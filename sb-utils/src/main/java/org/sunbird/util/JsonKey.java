@@ -112,4 +112,6 @@ public interface JsonKey {
   String AUTHORIZATION = "Authorization";
   String HEADERS = "headers";
   String ACTIVITY_INFO = "activityInfo";
+  String API_URL = "apiUrl";
+  String BASE_URL = "baseUrl";
 }

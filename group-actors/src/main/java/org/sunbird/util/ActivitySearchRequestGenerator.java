@@ -59,15 +59,18 @@ public class ActivitySearchRequestGenerator {
 
   private static void initializeActivityContext(List<Map<String, Object>> activitiesConfigList) {
     for (Map<String, Object> activityConfig : activitiesConfigList) {
-      String baseUrl = System.getenv((String) activityConfig.get("baseUrl"));
-      String apiUrl = System.getenv((String) activityConfig.get("apiUrl"));
-      Map<String, String> headers = (Map<String, String>) activityConfig.get("headers");
+      String baseUrl = System.getenv((String) activityConfig.get(JsonKey.BASE_URL));
+      String apiUrl = System.getenv((String) activityConfig.get(JsonKey.API_URL));
+      Map<String, String> headers = (Map<String, String>) activityConfig.get(JsonKey.HEADERS);
       String authToken = System.getenv(headers.get(JsonKey.AUTHORIZATION));
       if (!StringUtils.isNotBlank(baseUrl)) {
-        baseUrl = PropertiesCache.getInstance().getProperty((String) activityConfig.get("baseUrl"));
+        baseUrl =
+            PropertiesCache.getInstance()
+                .getProperty((String) activityConfig.get(JsonKey.BASE_URL));
       }
       if (!StringUtils.isNotBlank(apiUrl)) {
-        apiUrl = PropertiesCache.getInstance().getProperty((String) activityConfig.get("apiUrl"));
+        apiUrl =
+            PropertiesCache.getInstance().getProperty((String) activityConfig.get(JsonKey.API_URL));
       }
       if (!StringUtils.isNotBlank(authToken)) {
         authToken = PropertiesCache.getInstance().getProperty(headers.get(JsonKey.AUTHORIZATION));
