@@ -1,5 +1,6 @@
 package org.sunbird.actors;
 
+import java.util.List;
 import java.util.Map;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
@@ -37,8 +38,10 @@ public class ReadGroupActor extends BaseActor {
   private void readGroup(Request actorMessage) throws BaseException {
     logger.info("ReadGroup method call");
     String groupId = (String) actorMessage.getRequest().get(JsonKey.GROUP_ID);
+    List<String> requestFields = (List<String>) actorMessage.getRequest().get(JsonKey.FIELDS);
+
     Response response = new Response(ResponseCode.OK.getCode());
-    Map<String, Object> groupDetails = groupService.readGroup(groupId);
+    Map<String, Object> groupDetails = groupService.readGroup(groupId, requestFields);
     response.putAll(groupDetails);
 
     sender().tell(response, self());
