@@ -100,4 +100,5 @@ public interface JsonKey {
   String CONTENT = "content";
   String USERNAME = "userName";
   String RESULT = "result";
+  String ACTIVITY = "activity";
 }

@@ -57,6 +57,17 @@ public class ValidationException {
     }
   }
 
+  public static class InvalidGroupId extends BaseException {
+    public InvalidGroupId(String paramValue) {
+      super(
+          IResponseMessage.GROUP_NOT_FOUND,
+          MessageFormat.format(
+              ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_FOUND, null),
+              paramValue),
+          400);
+    }
+  }
+
   private static String getLocalizedMessage(String key, Locale locale) {
     return localizer.getMessage(key, locale);
   }

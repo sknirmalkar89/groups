@@ -93,7 +93,7 @@ public class ValidationUtil {
     }
   }
 
-  private static boolean isInstanceOf(Class objClass, Class targetClass) {
+  public static boolean isInstanceOf(Class objClass, Class targetClass) {
     return targetClass.isAssignableFrom(objClass);
   }
 }

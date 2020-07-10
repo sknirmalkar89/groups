@@ -44,7 +44,7 @@ public class CreateGroupActor extends BaseActor {
    */
   private void createGroup(Request actorMessage) throws BaseException {
     logger.info("CreateGroup method call");
-
+    String contextUserId = (String) actorMessage.getContext().get(JsonKey.USER_ID);
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     Group group = requestHandler.handleCreateGroupRequest(actorMessage);
     String groupId = groupService.createGroup(group);
@@ -52,21 +52,20 @@ public class CreateGroupActor extends BaseActor {
     // add creator of group to memberList as admin
     List<Map<String, Object>> memberList = new ArrayList<>();
     Map<String, Object> createdUser = new HashMap<>();
-    createdUser.put(JsonKey.USER_ID, actorMessage.getContext().get(JsonKey.USER_ID));
+    createdUser.put(JsonKey.USER_ID, contextUserId);
     createdUser.put(JsonKey.ROLE, JsonKey.ADMIN);
     memberList.add(createdUser);
 
     // adding members to group, if members are provided in request
     List<Map<String, Object>> reqMemberList =
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.MEMBERS);
+    logger.info("Adding members to the group: {} started", group.getName());
     if (CollectionUtils.isNotEmpty(reqMemberList)) {
       memberList.addAll(reqMemberList);
-      logger.info("Adding members to the group: {} started", group.getName());
-      String contextUserId = (String) actorMessage.getContext().get(JsonKey.USER_ID);
-      Response addMembersRes =
-          memberService.handleMemberAddition(memberList, groupId, contextUserId);
-      logger.info("Adding members to the group ended : {}", addMembersRes.getResult());
     }
+    Response addMembersRes = memberService.handleMemberAddition(memberList, groupId, contextUserId);
+    logger.info("Adding members to the group ended : {}", addMembersRes.getResult());
+
     Response response = new Response();
     response.put(JsonKey.GROUP_ID, groupId);
     sender().tell(response, self());
