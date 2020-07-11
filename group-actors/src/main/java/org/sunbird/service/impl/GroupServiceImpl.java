@@ -1,5 +1,6 @@
 package org.sunbird.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -26,9 +27,10 @@ import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.service.GroupService;
 import org.sunbird.service.MemberService;
-import org.sunbird.service.SearchActivityService;
+import org.sunbird.util.ActivityConfigReader;
 import org.sunbird.util.GroupUtil;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.SearchServiceUtil;
 
 public class GroupServiceImpl implements GroupService {
   private static Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
@@ -37,8 +39,6 @@ public class GroupServiceImpl implements GroupService {
   private static GroupService groupService = null;
   private static MemberService memberService = MemberServiceImpl.getInstance();
   private static ObjectMapper objectMapper = new ObjectMapper();
-  private static SearchActivityService searchActivityService =
-      SearchActivityServiceImpl.getInstance();
 
   public static GroupService getInstance() {
     if (groupService == null) {
@@ -106,14 +106,32 @@ public class GroupServiceImpl implements GroupService {
     return dbResGroup.remove(JsonKey.ACTIVITIES);
   }
 
+  /**
+   * Merge Activity Info to activities detail
+   *
+   * @param dbResActivities
+   */
   private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
-    Map<String, Map<String, Object>> activityInfoMap =
-        searchActivityService.searchActivity(dbResActivities);
-    for (Map<String, Object> activity : dbResActivities) {
-      if (activityInfoMap.containsKey(activity.get(JsonKey.ID))) {
-        activity.put(JsonKey.ACTIVITY_INFO, activityInfoMap.get(activity.get(JsonKey.ID)));
-      } else {
-        activity.put(JsonKey.ACTIVITY_INFO, new HashMap<>());
+
+    Map<SearchServiceUtil, List<String>> idClassTypeMap =
+        GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
+
+    for (Map.Entry<SearchServiceUtil, List<String>> itr : idClassTypeMap.entrySet()) {
+      try {
+        SearchServiceUtil searchServiceUtil = itr.getKey();
+        List<String> fields = ActivityConfigReader.getFieldsLists(searchServiceUtil);
+        Map<String, Map<String, Object>> activityInfoMap =
+            searchServiceUtil.searchContent(itr.getValue(), fields);
+        for (Map<String, Object> activity : dbResActivities) {
+          String activityKey = (String) activity.get(JsonKey.TYPE) + activity.get(JsonKey.ID);
+          if (activityInfoMap.containsKey(activityKey)) {
+            activity.put(JsonKey.ACTIVITY_INFO, activityInfoMap.get(activityKey));
+          } else {
+            activity.put(JsonKey.ACTIVITY_INFO, new HashMap<>());
+          }
+        }
+      } catch (JsonProcessingException e) {
+        logger.error("No Service Class Configured");
       }
     }
   }

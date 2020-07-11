@@ -107,11 +107,14 @@ public interface JsonKey {
   String PRIVATE = "private";
   String ACTIVITY = "activity";
   String BEARER = "Bearer ";
-  String SUNBIRD_AUTHORIZATION = "sunbird_authorization";
+  String SUNBIRD_CS_AUTH_KEY = "sunbird_cs_token_key";
   String FIELDS = "fields";
   String AUTHORIZATION = "Authorization";
   String HEADERS = "headers";
   String ACTIVITY_INFO = "activityInfo";
   String API_URL = "apiUrl";
   String BASE_URL = "baseUrl";
+  String IDENTIFIER = "identifier";
+  String CONTENT_SERVICE = "content-service";
+  String CONTENT_TYPE = "contentType";
 }

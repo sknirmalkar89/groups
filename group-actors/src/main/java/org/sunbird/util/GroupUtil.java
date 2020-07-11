@@ -1,9 +1,7 @@
 package org.sunbird.util;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.sunbird.models.GroupResponse;
 
 public class GroupUtil {
@@ -33,5 +31,25 @@ public class GroupUtil {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSZ");
     simpleDateFormat.setLenient(false);
     return simpleDateFormat.format(date);
+  }
+
+  public static Map<SearchServiceUtil, List<String>> groupActivityIdsBySearchUtilClass(
+      List<Map<String, Object>> activities) {
+    Map<SearchServiceUtil, List<String>> idClassTypeMap = new HashMap<>();
+    for (Map<String, Object> activity : activities) {
+      SearchServiceUtil searchUtil =
+          ActivityConfigReader.getServiceUtilClassName((String) activity.get(JsonKey.TYPE));
+      if (null != searchUtil) {
+        if (idClassTypeMap.containsKey(searchUtil)) {
+          List<String> ids = idClassTypeMap.get(searchUtil);
+          ids.add((String) activity.get(JsonKey.ID));
+        } else {
+          List<String> ids = new ArrayList<>();
+          ids.add((String) activity.get(JsonKey.ID));
+          idClassTypeMap.put(searchUtil, ids);
+        }
+      }
+    }
+    return idClassTypeMap;
   }
 }

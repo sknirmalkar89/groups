@@ -1,23 +1,18 @@
 {
-  "activities":[
-    {
-      "type": [
-        "Course"
-      ],
-      "baseUrl": "CONTENT_SERVICE_PORT",
-      "apiUrl": "sunbird_cs_search_url",
-      "request": {
-              "id":"identifier",
-              "fields": ["identifier","contentType","objectType","name","organisation","language","appIcon","mimeType","topic","resourceType"]
-       },
-      "response": "$.result.content[*]",
-      "headers": {
-        "Authorization": "sunbird_authorization",
-        "Content-Type" : "application/json",
-        "Accept-Charset": "UTF-8"
-      }
-
-    }
+  "activities": [{
+  "type": ["Course","TextBook"],
+  "serviceClass": "org.sunbird.util.ContentSearchUtil",
+  "fields": [
+    "identifier",
+    "contentType",
+    "objectType",
+    "name",
+    "organisation",
+    "language",
+    "appIcon",
+    "mimeType",
+    "topic",
+    "resourceType"
   ]
-
+  }]
 }

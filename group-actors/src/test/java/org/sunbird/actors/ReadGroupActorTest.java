@@ -30,16 +30,14 @@ import org.sunbird.models.ActorOperations;
 import org.sunbird.models.SearchRequest;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
-import org.sunbird.util.ActivitySearchRequestGenerator;
-import org.sunbird.util.HttpClientUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.util.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
   Localizer.class,
   ServiceFactory.class,
   HttpClientUtil.class,
-  ActivitySearchRequestGenerator.class
+  ActivityConfigReader.class
 })
 @PowerMockIgnore({"javax.management.*"})
 public class ReadGroupActorTest extends BaseActorTest {
@@ -112,9 +110,11 @@ public class ReadGroupActorTest extends BaseActorTest {
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
           .thenReturn(getActivityInfoResponse());
-      PowerMockito.mockStatic(ActivitySearchRequestGenerator.class);
-      when(ActivitySearchRequestGenerator.generateActivitySearchRequest(Mockito.anyList()))
-          .thenReturn(getActivitySearchConfigList());
+      PowerMockito.mockStatic(ActivityConfigReader.class);
+      when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))
+          .thenReturn(new ContentSearchUtil());
+      when(ActivityConfigReader.getFieldsLists(Mockito.any(SearchServiceUtil.class)))
+          .thenReturn(new ArrayList<>());
 
     } catch (BaseException ex) {
       Assert.assertTrue(false);
@@ -137,7 +137,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
-    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
+    reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("activities"));
 
     try {
       when(cassandraOperation.getRecordById(
@@ -152,15 +152,17 @@ public class ReadGroupActorTest extends BaseActorTest {
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
           .thenReturn(getEmptyActivityResponse());
-      PowerMockito.mockStatic(ActivitySearchRequestGenerator.class);
-      when(ActivitySearchRequestGenerator.generateActivitySearchRequest(Mockito.anyList()))
-          .thenReturn(getActivitySearchConfigList());
+      PowerMockito.mockStatic(ActivityConfigReader.class);
+      when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))
+          .thenReturn(new ContentSearchUtil());
+      when(ActivityConfigReader.getFieldsLists(Mockito.any(SearchServiceUtil.class)))
+          .thenReturn(new ArrayList<>());
 
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(1000), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     List<Map<String, Object>> activities =
         (List<Map<String, Object>>) res.getResult().get(JsonKey.ACTIVITIES);
@@ -190,15 +192,17 @@ public class ReadGroupActorTest extends BaseActorTest {
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
           .thenReturn("");
-      PowerMockito.mockStatic(ActivitySearchRequestGenerator.class);
-      when(ActivitySearchRequestGenerator.generateActivitySearchRequest(Mockito.anyList()))
-          .thenReturn(getActivitySearchConfigList());
+      PowerMockito.mockStatic(ActivityConfigReader.class);
+      when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))
+          .thenReturn(new ContentSearchUtil());
+      when(ActivityConfigReader.getFieldsLists(Mockito.any(SearchServiceUtil.class)))
+          .thenReturn(new ArrayList<>());
 
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(1000), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     List<Map<String, Object>> activities =
         (List<Map<String, Object>>) res.getResult().get(JsonKey.ACTIVITIES);
