@@ -86,6 +86,8 @@ public class GroupServiceImpl implements GroupService {
         if (CollectionUtils.isEmpty(fields) || !fields.contains(JsonKey.ACTIVITIES)) {
           dbResGroup.remove(JsonKey.ACTIVITIES);
         }
+      } else {
+        throw new ValidationException.GroupNotFound(groupId);
       }
     }
     return dbResGroup;
@@ -254,7 +256,7 @@ public class GroupServiceImpl implements GroupService {
             && StringUtils.equals(groupId, (String) dbResGroup.get(JsonKey.ID)))
           dbActivityList = (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
       } else {
-        throw new ValidationException.InvalidGroupId(groupId);
+        throw new ValidationException.GroupNotFound(groupId);
       }
     }
     return dbActivityList;

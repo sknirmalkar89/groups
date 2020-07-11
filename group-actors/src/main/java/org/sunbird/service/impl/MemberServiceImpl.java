@@ -252,7 +252,7 @@ public class MemberServiceImpl implements MemberService {
             ? GroupUtil.convertTimestampToUTC(member.getUpdatedOn().getTime())
             : null);
     memberResponse.setRemovedOn(
-        member.getUpdatedOn() != null
+        member.getRemovedOn() != null
             ? GroupUtil.convertTimestampToUTC(member.getRemovedOn().getTime())
             : null);
     return memberResponse;
