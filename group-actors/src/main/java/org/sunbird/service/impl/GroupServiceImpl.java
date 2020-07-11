@@ -126,8 +126,6 @@ public class GroupServiceImpl implements GroupService {
           String activityKey = (String) activity.get(JsonKey.TYPE) + activity.get(JsonKey.ID);
           if (activityInfoMap.containsKey(activityKey)) {
             activity.put(JsonKey.ACTIVITY_INFO, activityInfoMap.get(activityKey));
-          } else {
-            activity.put(JsonKey.ACTIVITY_INFO, new HashMap<>());
           }
         }
       } catch (JsonProcessingException e) {
