@@ -97,6 +97,8 @@ public class GroupServiceImpl implements GroupService {
         } else {
           removeActivities(dbResGroup);
         }
+      } else {
+        throw new ValidationException.GroupNotFound(groupId);
       }
     }
     return dbResGroup;
@@ -113,10 +115,10 @@ public class GroupServiceImpl implements GroupService {
    */
   private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
 
-    Map<SearchServiceUtil, List<String>> idClassTypeMap =
+    Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
 
-    for (Map.Entry<SearchServiceUtil, List<String>> itr : idClassTypeMap.entrySet()) {
+    for (Map.Entry<SearchServiceUtil, Map<String, String>> itr : idClassTypeMap.entrySet()) {
       try {
         SearchServiceUtil searchServiceUtil = itr.getKey();
         List<String> fields = ActivityConfigReader.getFieldsLists(searchServiceUtil);
@@ -297,7 +299,7 @@ public class GroupServiceImpl implements GroupService {
             && StringUtils.equals(groupId, (String) dbResGroup.get(JsonKey.ID)))
           dbActivityList = (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
       } else {
-        throw new ValidationException.InvalidGroupId(groupId);
+        throw new ValidationException.GroupNotFound(groupId);
       }
     }
     return dbActivityList;

@@ -36,11 +36,11 @@ public class ContentSearchUtil implements SearchServiceUtil {
 
   @Override
   public Map<String, Map<String, Object>> searchContent(
-      List<String> activityIds, List<String> fields) throws JsonProcessingException {
+      Map<String, String> activityIds, List<String> fields) throws JsonProcessingException {
     Map<String, Map<String, Object>> activityInfoMap = new HashMap<>();
     SearchRequest request = new SearchRequest();
     Map<String, Object> filters = new HashMap<>();
-    filters.put(JsonKey.IDENTIFIER, activityIds);
+    filters.put(JsonKey.IDENTIFIER, activityIds.keySet());
     request.getRequest().put(JsonKey.FIELDS, fields);
     request.getRequest().put(JsonKey.FILTERS, filters);
     String response =
@@ -51,9 +51,10 @@ public class ContentSearchUtil implements SearchServiceUtil {
           && null != jsonNode.get(JsonKey.RESULT).get(JsonKey.CONTENT)) {
 
         ArrayNode jsonArrayNode = (ArrayNode) jsonNode.get(JsonKey.RESULT).get(JsonKey.CONTENT);
+
         for (JsonNode activityJsonNode : jsonArrayNode) {
           String key =
-              activityJsonNode.get(JsonKey.CONTENT_TYPE).asText()
+              activityIds.get(activityJsonNode.get(JsonKey.IDENTIFIER).asText())
                   + activityJsonNode.get(JsonKey.IDENTIFIER).asText();
           activityInfoMap.put(
               key,

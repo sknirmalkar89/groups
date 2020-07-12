@@ -57,8 +57,8 @@ public class ValidationException {
     }
   }
 
-  public static class InvalidGroupId extends BaseException {
-    public InvalidGroupId(String paramValue) {
+  public static class GroupNotFound extends BaseException {
+    public GroupNotFound(String paramValue) {
       super(
           IResponseMessage.GROUP_NOT_FOUND,
           MessageFormat.format(

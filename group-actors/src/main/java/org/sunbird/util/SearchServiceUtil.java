@@ -8,7 +8,7 @@ import java.util.Map;
 public interface SearchServiceUtil {
 
   public Map<String, Map<String, Object>> searchContent(
-      List<String> activityIds, List<String> fields) throws JsonProcessingException;
+      Map<String, String> activityIds, List<String> fields) throws JsonProcessingException;
 
   static Map<String, String> getUpdatedDefaultHeaders(Map<String, String> headers) {
     if (null == headers) {

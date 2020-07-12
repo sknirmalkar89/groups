@@ -33,20 +33,20 @@ public class GroupUtil {
     return simpleDateFormat.format(date);
   }
 
-  public static Map<SearchServiceUtil, List<String>> groupActivityIdsBySearchUtilClass(
+  public static Map<SearchServiceUtil, Map<String, String>> groupActivityIdsBySearchUtilClass(
       List<Map<String, Object>> activities) {
-    Map<SearchServiceUtil, List<String>> idClassTypeMap = new HashMap<>();
+    Map<SearchServiceUtil, Map<String, String>> idClassTypeMap = new HashMap<>();
     for (Map<String, Object> activity : activities) {
       SearchServiceUtil searchUtil =
           ActivityConfigReader.getServiceUtilClassName((String) activity.get(JsonKey.TYPE));
       if (null != searchUtil) {
         if (idClassTypeMap.containsKey(searchUtil)) {
-          List<String> ids = idClassTypeMap.get(searchUtil);
-          ids.add((String) activity.get(JsonKey.ID));
+          Map<String, String> idActivityMap = idClassTypeMap.get(searchUtil);
+          idActivityMap.put((String) activity.get(JsonKey.ID), (String) activity.get(JsonKey.TYPE));
         } else {
-          List<String> ids = new ArrayList<>();
-          ids.add((String) activity.get(JsonKey.ID));
-          idClassTypeMap.put(searchUtil, ids);
+          Map<String, String> idActivityMap = new HashMap<>();
+          idActivityMap.put((String) activity.get(JsonKey.ID), (String) activity.get(JsonKey.TYPE));
+          idClassTypeMap.put(searchUtil, idActivityMap);
         }
       }
     }

@@ -107,7 +107,7 @@ public class MemberServiceImpl implements MemberService {
     return addMemberRes;
   }
 
-  // TODO: Fix me to get the Members Details with List<Member> includes username
+  // TODO: Fix me to get the Members Details with List<Member> includes name of the user
 
   /**
    * Fetch Member Details based on Group
@@ -163,7 +163,16 @@ public class MemberServiceImpl implements MemberService {
                       .findFirst()
                       .orElse(null);
               if (userInfo != null) {
-                member.setUserName((String) userInfo.get(JsonKey.USERNAME));
+                String firstName =
+                    StringUtils.isNotEmpty((String) userInfo.get(JsonKey.FIRSTNAME))
+                        ? (String) userInfo.get(JsonKey.FIRSTNAME)
+                        : "";
+
+                String lastName =
+                    StringUtils.isNotEmpty((String) userInfo.get(JsonKey.LASTNAME))
+                        ? " " + (String) userInfo.get(JsonKey.LASTNAME)
+                        : "";
+                member.setName(firstName + lastName);
               }
             });
       }
@@ -252,7 +261,7 @@ public class MemberServiceImpl implements MemberService {
             ? GroupUtil.convertTimestampToUTC(member.getUpdatedOn().getTime())
             : null);
     memberResponse.setRemovedOn(
-        member.getUpdatedOn() != null
+        member.getRemovedOn() != null
             ? GroupUtil.convertTimestampToUTC(member.getRemovedOn().getTime())
             : null);
     return memberResponse;
