@@ -43,19 +43,19 @@ public class OnRequestHandler implements ActionCreator {
       }
     };
   }
-  
+
   public static CompletionStage<Result> checkForServiceHealth(Http.Request request) {
     if (Boolean.parseBoolean((ProjectUtil.getConfigValue(JsonKey.SUNBIRD_HEALTH_CHECK_ENABLE)))
-      && !request.path().endsWith(JsonKey.HEALTH)) {
+        && !request.path().endsWith(JsonKey.HEALTH)) {
       if (!isServiceHealthy) {
         ResponseCode headerCode = ResponseCode.SERVICE_UNAVAILABLE;
         Result result =
-          ResponseHandler.handleFailureResponse(
-            new BaseException(
-              ResponseCode.CLIENT_ERROR.getErrorCode(),
-              headerCode.getErrorMessage(),
-              ResponseCode.UNAUTHORIZED.getResponseCode()),
-            request);
+            ResponseHandler.handleFailureResponse(
+                new BaseException(
+                    ResponseCode.CLIENT_ERROR.getErrorCode(),
+                    headerCode.getErrorMessage(),
+                    ResponseCode.UNAUTHORIZED.getResponseCode()),
+                request);
         return CompletableFuture.completedFuture(result);
       }
     }

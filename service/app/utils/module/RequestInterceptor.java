@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +24,14 @@ public class RequestInterceptor {
   private static ConcurrentHashMap<String, Short> apiHeaderIgnoreMap = new ConcurrentHashMap<>();
 
   private RequestInterceptor() {}
-  
+
   static {
     short var = 1;
-  
+
     apiHeaderIgnoreMap.put("/service/health", var);
     apiHeaderIgnoreMap.put("/health", var);
   }
-  
+
   private static String getUserRequestedFor(Http.Request request) {
     String requestedForUserID = null;
     JsonNode jsonBody = request.body().asJson();
@@ -79,11 +78,11 @@ public class RequestInterceptor {
           if (StringUtils.isNotEmpty(requestedForUserID) && !requestedForUserID.equals(clientId)) {
             // LUA - MUA user combo, check the 'for' token and its parent, child identifiers
             Optional<String> forTokenHeader =
-              request.header(HeaderParam.X_Authenticated_For.getName());
+                request.header(HeaderParam.X_Authenticated_For.getName());
             String managedAccessToken = forTokenHeader.isPresent() ? forTokenHeader.get() : "";
             if (StringUtils.isNotEmpty(managedAccessToken)) {
               String managedFor =
-                ManagedTokenValidator.verify(managedAccessToken, clientId, requestedForUserID);
+                  ManagedTokenValidator.verify(managedAccessToken, clientId, requestedForUserID);
               if (!JsonKey.USER_UNAUTH_STATES.contains(managedFor)) {
                 request.flash().put(JsonKey.MANAGED_FOR, managedFor);
               } else {
@@ -109,13 +108,13 @@ public class RequestInterceptor {
           clientAccessTokenId = null;
         }
         return StringUtils.isNotBlank(clientAccessTokenId)
-          ? clientAccessTokenId
-          : JsonKey.ANONYMOUS;
+            ? clientAccessTokenId
+            : JsonKey.ANONYMOUS;
       }
       return JsonKey.ANONYMOUS;
     }
   }
-  
+
   /**
    * Checks if request URL is in excluded (i.e. public) URL list or not
    *
@@ -137,11 +136,11 @@ public class RequestInterceptor {
     }
     return resp;
   }
-  
+
   private static boolean isRequestPrivate(String path) {
     return path.contains(JsonKey.PRIVATE);
   }
-  
+
   /**
    * Returns URL without path and query parameters.
    *
@@ -149,7 +148,7 @@ public class RequestInterceptor {
    * @return URL without path and query parameters
    */
   private static String removeLastValue(String splitPath[]) {
-    
+
     StringBuilder builder = new StringBuilder();
     if (splitPath != null && splitPath.length > 0) {
       for (int i = 1; i < splitPath.length - 1; i++) {

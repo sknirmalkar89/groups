@@ -86,7 +86,6 @@ public interface JsonKey {
   String ACCESS_TOKEN_PUBLICKEY_BASEPATH = "accesstoken.publickey.basepath";
   String ACCESS_TOKEN_PUBLICKEY_KEYPREFIX = "accesstoken.publickey.keyprefix";
   String ACCESS_TOKEN_PUBLICKEY_KEYCOUNT = "accesstoken.publickey.keycount";
-  String MEMBER_ROLE = "memberRole";
   String ADD = "add";
   String EDIT = "edit";
   String REMOVE = "remove";
@@ -96,16 +95,23 @@ public interface JsonKey {
   String CREATED_ON = "createdOn";
   String UPDATED_ON = "updatedOn";
   String USER_SERVICE_BASE_URL = "LEARNER_SERVICE_PORT";
-  String USER_SERVICE_SEARCH_URL = "user_service_search_url";
+  String USER_SERVICE_SEARCH_URL = "sunbird_user_service_search_url";
+  String SUNBIRD_CS_BASE_URL = "CONTENT_SERVICE_PORT";
+  String SUNBIRD_CS_SEARCH_URL = "sunbird_cs_search_url";
   String CONTENT = "content";
-  String USERNAME = "userName";
   String RESULT = "result";
   String SUNBIRD_HEALTH_CHECK_ENABLE = "sunbird_health_check_enable";
   String HEALTH = "health";
   String PRIVATE = "private";
-  String ACTIVITY = "activity";
+  String BEARER = "Bearer ";
+  String SUNBIRD_CS_AUTH_KEY = "sunbird_cs_token_key";
   String FIELDS = "fields";
+  String AUTHORIZATION = "Authorization";
+  String HEADERS = "headers";
+  String ACTIVITY_INFO = "activityInfo";
+  String IDENTIFIER = "identifier";
+  String CONTENT_SERVICE = "content-service";
+  String CONTENT_TYPE = "contentType";
   String FIRSTNAME = "firstName";
   String LASTNAME = "lastName";
-  String NAME = "name";
 }

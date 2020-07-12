@@ -9,13 +9,13 @@ import org.sunbird.util.helper.PropertiesCache;
  * @author Manzarul
  */
 public class ProjectUtil {
-  
+
   public static final PropertiesCache propertiesCache;
-  
+
   static {
     propertiesCache = PropertiesCache.getInstance();
   }
-  
+
   public static String getConfigValue(String key) {
     if (StringUtils.isNotBlank(System.getenv(key))) {
       return System.getenv(key);

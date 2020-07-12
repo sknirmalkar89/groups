@@ -163,12 +163,14 @@ public class MemberServiceImpl implements MemberService {
                       .findFirst()
                       .orElse(null);
               if (userInfo != null) {
-                String firstName = StringUtils.isNotEmpty((String)userInfo.get(JsonKey.FIRSTNAME))
+                String firstName =
+                    StringUtils.isNotEmpty((String) userInfo.get(JsonKey.FIRSTNAME))
                         ? (String) userInfo.get(JsonKey.FIRSTNAME)
                         : "";
 
-                String lastName = StringUtils.isNotEmpty((String) userInfo.get(JsonKey.LASTNAME))
-                        ? " "+(String) userInfo.get(JsonKey.LASTNAME)
+                String lastName =
+                    StringUtils.isNotEmpty((String) userInfo.get(JsonKey.LASTNAME))
+                        ? " " + (String) userInfo.get(JsonKey.LASTNAME)
                         : "";
                 member.setName(firstName + lastName);
               }

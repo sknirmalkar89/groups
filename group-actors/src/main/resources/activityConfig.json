@@ -1,0 +1,18 @@
+{
+  "activities": [{
+  "type": ["Course","TextBook"],
+  "serviceClass": "org.sunbird.util.ContentSearchUtil",
+  "fields": [
+    "identifier",
+    "contentType",
+    "objectType",
+    "name",
+    "organisation",
+    "language",
+    "appIcon",
+    "mimeType",
+    "topic",
+    "resourceType"
+  ]
+  }]
+}
