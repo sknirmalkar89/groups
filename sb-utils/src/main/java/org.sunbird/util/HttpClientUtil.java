@@ -107,7 +107,7 @@ public class HttpClientUtil {
   public static String post(String requestURL, String params, Map<String, String> headers) {
     CloseableHttpResponse response = null;
     try {
-      logger.error(
+      logger.info(
           "Calling Request api: "
               + requestURL
               + " with request: "
