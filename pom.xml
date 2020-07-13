@@ -29,6 +29,8 @@
         <sbt-compiler.plugin.version>1.0.0</sbt-compiler.plugin.version>
         <scala.major.version>2.11</scala.major.version>
         <scala.version>2.11.8</scala.version>
+        <jedis.version>2.6.2</jedis.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
     </properties>
 
     <modules>
@@ -38,5 +40,6 @@
         <module>group-actors</module>
         <module>cassandra-utils</module>
         <module>service</module>
+        <module>platform-cache</module>
     </modules>
 </project>
