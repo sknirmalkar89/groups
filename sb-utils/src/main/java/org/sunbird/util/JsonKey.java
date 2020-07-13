@@ -95,7 +95,7 @@ public interface JsonKey {
   String CREATED_ON = "createdOn";
   String UPDATED_ON = "updatedOn";
   String USER_SERVICE_BASE_URL = "LEARNER_SERVICE_PORT";
-  String USER_SERVICE_SEARCH_URL = "user_service_search_url";
+  String USER_SERVICE_SEARCH_URL = "sunbird_user_service_search_url";
   String SUNBIRD_CS_BASE_URL = "CONTENT_SERVICE_PORT";
   String SUNBIRD_CS_SEARCH_URL = "sunbird_cs_search_url";
   String CONTENT = "content";
