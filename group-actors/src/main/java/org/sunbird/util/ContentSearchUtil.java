@@ -7,10 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.models.SearchRequest;
 import org.sunbird.util.helper.PropertiesCache;
 
 public class ContentSearchUtil implements SearchServiceUtil {
+
+  private static Logger logger = LoggerFactory.getLogger(ContentSearchUtil.class);
 
   private static String contentSearchURL = null;
   private static ObjectMapper objectMapper = new ObjectMapper();
@@ -62,6 +66,8 @@ public class ContentSearchUtil implements SearchServiceUtil {
                   activityJsonNode, new TypeReference<Map<String, Object>>() {}));
         }
       }
+    } else {
+      logger.error("No response coming from the content service" + response);
     }
 
     return activityInfoMap;
