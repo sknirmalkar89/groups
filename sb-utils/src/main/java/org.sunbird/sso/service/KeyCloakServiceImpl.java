@@ -36,10 +36,7 @@ public class KeyCloakServiceImpl implements SSOManager {
 
   public PublicKey getPublicKey() {
     if (null == SSO_PUBLIC_KEY) {
-      SSO_PUBLIC_KEY =
-          new KeyCloakRsaKeyFetcher()
-              .getPublicKeyFromKeyCloak(
-                  KeyCloakConnectionProvider.SSO_URL, KeyCloakConnectionProvider.SSO_REALM);
+      SSO_PUBLIC_KEY = toPublicKey(System.getenv(JsonKey.SSO_PUBLIC_KEY));
     }
     return SSO_PUBLIC_KEY;
   }
@@ -71,11 +68,6 @@ public class KeyCloakServiceImpl implements SSOManager {
 
     try {
       PublicKey publicKey = getPublicKey();
-      if (publicKey == null) {
-        logger.info(
-            "KeyCloakServiceImpl: SSO_PUBLIC_KEY is NULL. Keycloak server may need to be started. Read value from environment variable.");
-        publicKey = toPublicKey(System.getenv(JsonKey.SSO_PUBLIC_KEY));
-      }
       if (publicKey != null) {
         String ssoUrl = (url != null ? url : KeyCloakConnectionProvider.SSO_URL);
         AccessToken token =
