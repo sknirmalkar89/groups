@@ -106,6 +106,8 @@ public class HttpClientUtil {
 
   public static String post(String requestURL, String params, Map<String, String> headers) {
     CloseableHttpResponse response = null;
+    logger.info(
+        "Calling Request:" + requestURL + " with request:" + params + " with headers:" + headers);
     try {
       HttpPost httpPost = new HttpPost(requestURL);
       if (MapUtils.isNotEmpty(headers)) {
