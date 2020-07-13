@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> responseMap = objectMapper.readValue(response, Map.class);
         responseObj.putAll((Map<String, Object>) responseMap.get(JsonKey.RESULT));
       } else {
-        logger.error("Empty response coming from the content service" + response);
+        logger.error("Empty  response coming from the content service" + response);
       }
     } catch (JsonProcessingException ex) {
       logger.error("Error while fetching user details through user service" + ex);
