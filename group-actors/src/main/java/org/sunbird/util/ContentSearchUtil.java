@@ -67,7 +67,7 @@ public class ContentSearchUtil implements SearchServiceUtil {
         }
       }
     } else {
-      logger.error("No response coming from the content service" + response);
+      logger.error("Empty response coming from the content service" + response);
     }
 
     return activityInfoMap;
