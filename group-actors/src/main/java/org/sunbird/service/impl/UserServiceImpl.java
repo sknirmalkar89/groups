@@ -67,6 +67,8 @@ public class UserServiceImpl implements UserService {
       if (StringUtils.isNotBlank(response)) {
         Map<String, Object> responseMap = objectMapper.readValue(response, Map.class);
         responseObj.putAll((Map<String, Object>) responseMap.get(JsonKey.RESULT));
+      } else {
+        logger.error("Empty response from the user service:" + response);
       }
     } catch (JsonProcessingException ex) {
       logger.error("Error while fetching user details through user service" + ex);
