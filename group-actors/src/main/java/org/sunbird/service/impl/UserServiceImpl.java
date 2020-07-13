@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         logger.error("Empty response from the user service:" + response);
       }
     } catch (JsonProcessingException ex) {
-      logger.error("Error while fetching user details through user service" + ex);
+      logger.error("Error while fetching user details through user service" + ex.getMessage());
       throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
     }
     return responseObj;
