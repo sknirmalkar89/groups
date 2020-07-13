@@ -107,6 +107,13 @@ public class HttpClientUtil {
   public static String post(String requestURL, String params, Map<String, String> headers) {
     CloseableHttpResponse response = null;
     try {
+      logger.info(
+          "Calling Request api: "
+              + requestURL
+              + " with request: "
+              + params
+              + " with headers: "
+              + headers);
       HttpPost httpPost = new HttpPost(requestURL);
       if (MapUtils.isNotEmpty(headers)) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
