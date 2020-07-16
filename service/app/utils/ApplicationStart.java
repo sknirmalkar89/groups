@@ -7,6 +7,7 @@ import org.sunbird.Application;
 import org.sunbird.auth.verifier.KeyManager;
 import org.sunbird.exception.BaseException;
 import org.sunbird.util.ActivityConfigReader;
+import org.sunbird.util.CacheUtil;
 import org.sunbird.util.DBUtil;
 import org.sunbird.util.HttpClientUtil;
 import play.api.Environment;
@@ -32,6 +33,7 @@ public class ApplicationStart {
     checkCassandraConnections();
     HttpClientUtil.getInstance();
     ActivityConfigReader.initialize();
+    CacheUtil.init();
     // Shut-down hook
     lifecycle.addStopHook(
         () -> {

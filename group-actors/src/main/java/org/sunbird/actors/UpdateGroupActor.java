@@ -1,9 +1,9 @@
 package org.sunbird.actors;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
 import org.sunbird.message.ResponseCode;
@@ -14,6 +14,8 @@ import org.sunbird.service.GroupService;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.impl.GroupServiceImpl;
 import org.sunbird.service.impl.MemberServiceImpl;
+import org.sunbird.telemetry.TelemetryEnvKey;
+import org.sunbird.telemetry.util.TelemetryUtil;
 import org.sunbird.util.GroupRequestHandler;
 import org.sunbird.util.JsonKey;
 
@@ -51,9 +53,7 @@ public class UpdateGroupActor extends BaseActor {
     Map memberOperationMap = (Map) actorMessage.getRequest().get(JsonKey.MEMBERS);
     if (MapUtils.isNotEmpty(memberOperationMap)) {
       memberService.handleMemberOperations(
-          memberOperationMap,
-          group.getId(),
-              requestHandler.getRequestedBy(actorMessage));
+          memberOperationMap, group.getId(), requestHandler.getRequestedBy(actorMessage));
     }
 
     Map<String, Object> activityOperationMap =
@@ -68,5 +68,16 @@ public class UpdateGroupActor extends BaseActor {
     response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
     response.setResponseCode(ResponseCode.OK.getCode());
     sender().tell(response, self());
+    Map<String, Object> targetObject = null;
+    List<Map<String, Object>> correlatedObject = new ArrayList<>();
+    targetObject =
+        TelemetryUtil.generateTargetObject(
+            (String) actorMessage.getContext().get(JsonKey.USER_ID),
+            TelemetryEnvKey.USER,
+            JsonKey.UPDATE,
+            null);
+
+    TelemetryUtil.telemetryProcessingCall(
+        actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
   }
 }

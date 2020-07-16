@@ -15,6 +15,8 @@ import org.sunbird.service.GroupService;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.impl.GroupServiceImpl;
 import org.sunbird.service.impl.MemberServiceImpl;
+import org.sunbird.telemetry.TelemetryEnvKey;
+import org.sunbird.telemetry.util.TelemetryUtil;
 import org.sunbird.util.GroupRequestHandler;
 import org.sunbird.util.JsonKey;
 
@@ -64,11 +66,37 @@ public class CreateGroupActor extends BaseActor {
     if (CollectionUtils.isNotEmpty(reqMemberList)) {
       memberList.addAll(reqMemberList);
     }
-    Response addMembersRes = memberService.handleMemberAddition(memberList, groupId, requestHandler.getRequestedBy(actorMessage));
+    Response addMembersRes =
+        memberService.handleMemberAddition(
+            memberList, groupId, requestHandler.getRequestedBy(actorMessage));
     logger.info("Adding members to the group ended : {}", addMembersRes.getResult());
 
     Response response = new Response();
     response.put(JsonKey.GROUP_ID, groupId);
     sender().tell(response, self());
+    String source =
+        actorMessage.getContext().get(JsonKey.REQUEST_SOURCE) != null
+            ? (String) actorMessage.getContext().get(JsonKey.REQUEST_SOURCE)
+            : "";
+
+    List<Map<String, Object>> correlatedObject = new ArrayList<>();
+    if (StringUtils.isNotBlank(source)) {
+      TelemetryUtil.generateCorrelatedObject(
+          source, StringUtils.capitalize(JsonKey.REQUEST_SOURCE), null, correlatedObject);
+    }
+    Map<String, Object> targetObject = null;
+    targetObject =
+        TelemetryUtil.generateTargetObject(
+            (String) actorMessage.getRequest().get(JsonKey.ID),
+            TelemetryEnvKey.USER,
+            JsonKey.CREATE,
+            null);
+    TelemetryUtil.generateCorrelatedObject(
+        (String) actorMessage.getContext().get(JsonKey.USER_ID),
+        TelemetryEnvKey.USER,
+        null,
+        correlatedObject);
+    TelemetryUtil.telemetryProcessingCall(
+        actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
   }
 }
