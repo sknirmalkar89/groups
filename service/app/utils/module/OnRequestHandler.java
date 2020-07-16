@@ -17,10 +17,10 @@ import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.request.HeaderParam;
 import org.sunbird.service.UserService;
-import org.sunbird.service.impl.UserServiceImpl;
-import org.sunbird.util.CacheUtil;
+import org.sunbird.service.UserServiceImpl;
 import org.sunbird.util.JsonKey;
 import org.sunbird.util.ProjectUtil;
+import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
 import play.http.ActionCreator;
 import play.mvc.Action;
@@ -166,7 +166,7 @@ public class OnRequestHandler implements ActionCreator {
       if (custodianOrgHashTagId == null) {
         try {
           // Get hash tag ID of custodian org
-          Map<String, Object> custodianOrgDetails = CacheUtil.getCustodianOrgDetails();
+          Map<String, Object> custodianOrgDetails = SystemConfigUtil.getCustodianOrgDetails();
           if (null != custodianOrgDetails && !custodianOrgDetails.isEmpty()) {
             custodianOrgHashTagId = (String) custodianOrgDetails.get(JsonKey.HASH_TAG_ID);
           } else {

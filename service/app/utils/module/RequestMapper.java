@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
@@ -33,10 +34,12 @@ public class RequestMapper {
       ((ObjectNode) requestData).set("headers", headerData);
 
       Request request = Json.fromJson(requestData, Request.class);
-      Map<String, Object> contextObject =
-          mapper.readValue(httpReq.flash().get(JsonKey.CONTEXT), Map.class);
-      request.setContext((Map<String, Object>) contextObject.get(JsonKey.CONTEXT));
-
+      String contextStr = httpReq.flash().get(JsonKey.CONTEXT);
+      if (StringUtils.isNotBlank(contextStr)) {
+        Map<String, Object> contextObject =
+            mapper.readValue(httpReq.flash().get(JsonKey.CONTEXT), Map.class);
+        request.setContext((Map<String, Object>) contextObject.get(JsonKey.CONTEXT));
+      }
       request.getContext().put(JsonKey.USER_ID, httpReq.flash().get(JsonKey.USER_ID));
       request.getContext().put(JsonKey.MANAGED_FOR, httpReq.flash().get(JsonKey.MANAGED_FOR));
       request.setPath(httpReq.path());
