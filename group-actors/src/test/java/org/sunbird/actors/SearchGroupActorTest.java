@@ -103,10 +103,11 @@ public class SearchGroupActorTest extends BaseActorTest {
     Map<String, Object> group1 = new HashMap<>();
     group1.put("name", "TestGroup1");
     group1.put("id", "groupid1");
-
+    group1.put(JsonKey.STATUS, JsonKey.ACTIVE);
     Map<String, Object> group2 = new HashMap<>();
     group2.put("name", "TestGroup2");
     group2.put("id", "groupid2");
+    group1.put(JsonKey.STATUS, JsonKey.ACTIVE);
     groupList.add(group1);
     groupList.add(group2);
     result.put(JsonKey.RESPONSE, groupList);

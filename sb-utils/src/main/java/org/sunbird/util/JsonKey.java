@@ -138,4 +138,7 @@ public interface JsonKey {
   String CUSTODIAN_ORG_ID = "custodianOrgId";
   String ORGANISATION_ID = "organisationId";
   String HASH_TAG_ID = "hashTagId";
+  String MAX_GROUP_MEMBERS_LIMIT = "max_group_members_limit";
+  String MAX_ACTIVITY_LIMIT = "max_activity_limit";
+  String COUNT = "count";
 }

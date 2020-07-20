@@ -8,6 +8,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
+import org.sunbird.message.IResponseMessage;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
@@ -19,6 +21,7 @@ import org.sunbird.telemetry.TelemetryEnvKey;
 import org.sunbird.telemetry.util.TelemetryUtil;
 import org.sunbird.util.GroupRequestHandler;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.SystemConfigUtil;
 
 @ActorConfig(
   tasks = {"createGroup"},
@@ -50,7 +53,6 @@ public class CreateGroupActor extends BaseActor {
 
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     Group group = requestHandler.handleCreateGroupRequest(actorMessage);
-    String groupId = groupService.createGroup(group);
 
     // add creator of group to memberList as admin
     List<Map<String, Object>> memberList = new ArrayList<>();
@@ -66,6 +68,25 @@ public class CreateGroupActor extends BaseActor {
     if (CollectionUtils.isNotEmpty(reqMemberList)) {
       memberList.addAll(reqMemberList);
     }
+
+    if (memberList.size() > SystemConfigUtil.getMaxGroupMemberLimit()) {
+      logger.error("List of members exceeded the member size limit:{}", memberList.size());
+      throw new BaseException(
+          IResponseMessage.EXCEEDED_MAX_LIMIT,
+          IResponseMessage.Message.EXCEEDED_MEMBER_MAX_LIMIT,
+          ResponseCode.CLIENT_ERROR.getCode());
+    }
+    if (group.getActivities().size() > SystemConfigUtil.getMaxActivityLimit()) {
+      logger.error(
+          "List of activities exceeded the activity size limit:{}", group.getActivities().size());
+      throw new BaseException(
+          IResponseMessage.EXCEEDED_MAX_LIMIT,
+          IResponseMessage.Message.EXCEEDED_ACTIVITY_MAX_LIMIT,
+          ResponseCode.CLIENT_ERROR.getCode());
+    }
+
+    String groupId = groupService.createGroup(group);
+
     Response addMembersRes =
         memberService.handleMemberAddition(
             memberList, groupId, requestHandler.getRequestedBy(actorMessage));
@@ -87,15 +108,17 @@ public class CreateGroupActor extends BaseActor {
     Map<String, Object> targetObject = null;
     targetObject =
         TelemetryUtil.generateTargetObject(
-            (String) actorMessage.getRequest().get(JsonKey.ID),
+            (String) actorMessage.getContext().get(JsonKey.USER_ID),
             TelemetryEnvKey.USER,
             JsonKey.CREATE,
             null);
+
     TelemetryUtil.generateCorrelatedObject(
         (String) actorMessage.getContext().get(JsonKey.USER_ID),
         TelemetryEnvKey.USER,
         null,
         correlatedObject);
+    TelemetryUtil.generateCorrelatedObject(groupId, TelemetryEnvKey.GROUP, null, correlatedObject);
     TelemetryUtil.telemetryProcessingCall(
         actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
   }

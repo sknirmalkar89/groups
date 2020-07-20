@@ -12,7 +12,6 @@ import java.time.Duration;
 import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -28,9 +27,7 @@ import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.message.Localizer;
-import org.sunbird.models.ActivitySearchRequestConfig;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.models.SearchRequest;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.*;
@@ -47,6 +44,7 @@ import org.sunbird.util.*;
 @PowerMockIgnore({"javax.management.*"})
 public class ReadGroupActorTest extends BaseActorTest {
   private static final String GROUP_MEMBER_TABLE = "group_member";
+  private static final String GROUP_TABLE_NAME = "group";
   public static String ACTIVITY_CONFIG_JSON = "activityConfigTest.json";
 
   private final Props props = Props.create(ReadGroupActor.class);
@@ -91,7 +89,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
-          .thenReturn(getGroupsDetailsResponseNoActivities());
+          .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
@@ -110,19 +108,18 @@ public class ReadGroupActorTest extends BaseActorTest {
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
-  @Ignore
   @Test
   public void readGroupReturnGroupWithActivites() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
     reqObj.setOperation(ActorOperations.READ_GROUP.getValue());
-    reqObj.getRequest().put(JsonKey.GROUP_ID, "groupid1");
+    reqObj.getRequest().put(JsonKey.GROUP_ID, "TestGroup");
     reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("activities"));
 
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("groupid1")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
           .thenReturn(getGroupsDetailsResponse());
       PowerMockito.mockStatic(HttpClientUtil.class);
       when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
@@ -158,7 +155,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     try {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
-          .thenReturn(getGroupsDetailsResponseNoActivities());
+          .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
@@ -207,7 +204,7 @@ public class ReadGroupActorTest extends BaseActorTest {
     List<Map<String, Object>> groupList = new ArrayList<>();
     Map<String, Object> group1 = new HashMap<>();
     group1.put("name", "TestGroup1");
-    group1.put("id", "groupid1");
+    group1.put("id", "TestGroup");
     group1.put("status", "active");
     List<Map<String, Object>> activities = new ArrayList<>();
     Map<String, Object> activity1 = new HashMap<>();
@@ -227,43 +224,17 @@ public class ReadGroupActorTest extends BaseActorTest {
     return response;
   }
 
-  private Response getGroupsDetailsResponseNoActivities() {
-    Map<String, Object> result = new HashMap<>();
-    List<Map<String, Object>> groupList = new ArrayList<>();
-    Map<String, Object> group1 = new HashMap<>();
-    group1.put("name", "TestGroup1");
-    group1.put("id", "groupid1");
-    group1.put("status", "active");
-    groupList.add(group1);
-    result.put(JsonKey.RESPONSE, groupList);
-    Response response = new Response();
-    response.putAll(result);
-    return response;
-  }
-
-  private List<ActivitySearchRequestConfig> getActivitySearchConfigList() {
-    List<ActivitySearchRequestConfig> configLists = new ArrayList<>();
-    ActivitySearchRequestConfig activitySearchRequestConfig = new ActivitySearchRequestConfig();
-    activitySearchRequestConfig.setApiUrl("http://content-service/v1/user/search");
-    activitySearchRequestConfig.setIdentifierKey("identifier");
-    activitySearchRequestConfig.setRequestHeader(new HashMap<>());
-    activitySearchRequestConfig.setSearchRequest(new SearchRequest());
-    activitySearchRequestConfig.setResponse("$.result.content[*]");
-    configLists.add(activitySearchRequestConfig);
-    return configLists;
-  }
-
   private Response getMemberResponseByGroupIds() {
     Map<String, Object> result = new HashMap<>();
     List<Map<String, Object>> memberLists = new ArrayList<>();
     Map<String, Object> member1 = new HashMap<>();
     member1.put(JsonKey.USER_ID, "userid1");
-    member1.put(JsonKey.GROUP_ID, "groupid1");
+    member1.put(JsonKey.GROUP_ID, "TestGroup");
     member1.put(JsonKey.ROLE, "admin");
     member1.put(JsonKey.STATUS, JsonKey.ACTIVE);
     Map<String, Object> member2 = new HashMap<>();
     member2.put(JsonKey.USER_ID, "userid2");
-    member2.put(JsonKey.GROUP_ID, "groupid1");
+    member2.put(JsonKey.GROUP_ID, "TestGroup");
     member2.put(JsonKey.ROLE, "member");
     member2.put(JsonKey.STATUS, JsonKey.ACTIVE);
 
@@ -280,11 +251,11 @@ public class ReadGroupActorTest extends BaseActorTest {
     Map<String, Object> result = new HashMap<>();
     List<Map<String, Object>> userList = new ArrayList<>();
     Map<String, Object> member1 = new HashMap<>();
-    member1.put(JsonKey.ID, "user7");
+    member1.put(JsonKey.ID, "userid1");
     member1.put(JsonKey.FIRSTNAME, "John");
     member1.put(JsonKey.LASTNAME, null);
     Map<String, Object> member2 = new HashMap<>();
-    member2.put(JsonKey.ID, "user6");
+    member2.put(JsonKey.ID, "userid2");
     member2.put(JsonKey.FIRSTNAME, "Terry");
     member2.put(JsonKey.LASTNAME, "Test");
     userList.add(member1);

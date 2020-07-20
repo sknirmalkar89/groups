@@ -33,6 +33,7 @@ import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.SystemConfigUtil;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
@@ -41,7 +42,8 @@ import org.sunbird.util.JsonKey;
   ServiceFactory.class,
   Localizer.class,
   Application.class,
-  RedisCache.class
+  RedisCache.class,
+  SystemConfigUtil.class
 })
 @PowerMockIgnore({"javax.management.*"})
 public class UpdateGroupActorTest extends BaseActorTest {
@@ -74,6 +76,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
         .when(RedisCache.class, "set", Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
     doNothing().when(RedisCache.class, "delete", Mockito.anyObject());
     when(RedisCache.get(Mockito.anyString(), Mockito.anyObject(), Mockito.anyInt())).thenReturn("");
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+    when(SystemConfigUtil.getMaxGroupMemberLimit()).thenReturn(4);
+    when(SystemConfigUtil.getMaxActivityLimit()).thenReturn(4);
   }
 
   @Test
@@ -106,6 +111,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.batchUpdate(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+          .thenReturn(memberSizeResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -114,6 +122,19 @@ public class UpdateGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
     Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
+  }
+
+  private Response memberSizeResponse() {
+    Response response = new Response();
+    Map<String, Object> result = new HashMap<>();
+
+    Map<String, Object> count = new HashMap<>();
+    List<Map<String, Object>> countlist = new ArrayList<>();
+    countlist.add(count);
+    count.put(JsonKey.COUNT, 3l);
+    result.put(JsonKey.RESPONSE, countlist);
+    response.putAll(result);
+    return response;
   }
 
   private static Request updateGroupReq() {

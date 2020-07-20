@@ -1,5 +1,7 @@
 package org.sunbird.dao;
 
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select.Builder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -113,8 +115,6 @@ public class MemberDaoImpl implements MemberDao {
       throws BaseException {
     Map<String, Object> properties = new HashMap<>();
     properties.put(JsonKey.GROUP_ID, groupIds);
-    properties.put(JsonKey.STATUS, JsonKey.ACTIVE);
-
     Response responseObj =
         cassandraOperation.getRecordsByProperties(
             DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties, fields);
@@ -130,5 +130,17 @@ public class MemberDaoImpl implements MemberDao {
         cassandraOperation.getRecordsByProperties(
             DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties);
     return responseObj;
+  }
+
+  @Override
+  public Response fetchMemberSize(String groupId) throws BaseException {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(JsonKey.GROUP_ID, groupId);
+    properties.put(JsonKey.STATUS, JsonKey.ACTIVE);
+    Builder selectQueryBuilder = QueryBuilder.select().countAll();
+    Response response =
+        cassandraOperation.executeSelectQuery(
+            DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties, selectQueryBuilder);
+    return response;
   }
 }
