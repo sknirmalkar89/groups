@@ -8,7 +8,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
-import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.request.Request;
@@ -19,10 +18,8 @@ import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
 import org.sunbird.telemetry.TelemetryEnvKey;
 import org.sunbird.telemetry.util.TelemetryUtil;
-import org.sunbird.util.CacheUtil;
-import org.sunbird.util.GroupRequestHandler;
-import org.sunbird.util.JsonKey;
-import org.sunbird.util.SystemConfigUtil;
+import org.sunbird.util.*;
+import org.sunbird.util.helper.PropertiesCache;
 
 @ActorConfig(
   tasks = {"updateGroup"},
@@ -52,6 +49,7 @@ public class UpdateGroupActor extends BaseActor {
     logger.info("UpdateGroup method call");
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     Group group = requestHandler.handleUpdateGroupRequest(actorMessage);
+    logger.info("Update group for the groupId {}", group.getId());
 
     // member updates to group
     handleMemberOperation(
@@ -101,13 +99,7 @@ public class UpdateGroupActor extends BaseActor {
             groupService.handleActivityOperations(group.getId(), activityOperationMap);
         totalActivityCount = updateActivityList.size();
       }
-      if (totalActivityCount > SystemConfigUtil.getMaxActivityLimit()) {
-        logger.error("List of activities exceeded the activity size limit:{}", totalActivityCount);
-        throw new BaseException(
-            IResponseMessage.EXCEEDED_MAX_LIMIT,
-            IResponseMessage.Message.EXCEEDED_ACTIVITY_MAX_LIMIT,
-            ResponseCode.CLIENT_ERROR.getCode());
-      }
+      GroupUtil.checkMaxActivityLimit(totalActivityCount);
       cacheUtil.delCache(group.getId() + "_" + JsonKey.ACTIVITIES + "_" + JsonKey.COUNT);
       cacheUtil.delCache(group.getId());
       group.setActivities(updateActivityList);
@@ -119,7 +111,8 @@ public class UpdateGroupActor extends BaseActor {
     if (MapUtils.isNotEmpty(activityOperationMap)) {
       cacheUtil.setCache(
           group.getId() + "_" + JsonKey.ACTIVITIES + "_" + JsonKey.COUNT,
-          String.valueOf(totalActivityCount));
+          String.valueOf(totalActivityCount),
+          CacheUtil.groupTtl);
     }
   }
 
@@ -144,18 +137,37 @@ public class UpdateGroupActor extends BaseActor {
               + (null != memberAddList ? memberAddList.size() : 0)
               - (null != memberRemoveList ? memberRemoveList.size() : 0);
 
-      if (totalMemberCount > SystemConfigUtil.getMaxGroupMemberLimit()) {
-        logger.error("List of members exceeded the member size limit:{}", totalMemberCount);
-        throw new BaseException(
-            IResponseMessage.EXCEEDED_MAX_LIMIT,
-            IResponseMessage.Message.EXCEEDED_MEMBER_MAX_LIMIT,
-            ResponseCode.CLIENT_ERROR.getCode());
+      GroupUtil.checkMaxMemberLimit(totalMemberCount);
+      boolean isUseridRedisEnabled =
+          Boolean.parseBoolean(
+              PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
+      if (isUseridRedisEnabled) {
+        deleteUserCache(memberOperationMap);
       }
       cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS + "_" + JsonKey.COUNT);
       cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
       memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
       cacheUtil.setCache(
-          groupId + "_" + JsonKey.MEMBERS + "_" + JsonKey.COUNT, String.valueOf(totalMemberCount));
+          groupId + "_" + JsonKey.MEMBERS + "_" + JsonKey.COUNT,
+          String.valueOf(totalMemberCount),
+          CacheUtil.groupTtl);
+    }
+  }
+
+  public void deleteUserCache(Map memberOperationMap) {
+    List<Map<String, Object>> memberAddList =
+        (List<Map<String, Object>>) memberOperationMap.get(JsonKey.ADD);
+    if (CollectionUtils.isNotEmpty(memberAddList)) {
+      memberAddList.forEach(member -> cacheUtil.delCache((String) (member.get(JsonKey.USER_ID))));
+    }
+    List<Map<String, Object>> memberEditList =
+        (List<Map<String, Object>>) memberOperationMap.get(JsonKey.EDIT);
+    if (CollectionUtils.isNotEmpty(memberEditList)) {
+      memberEditList.forEach(member -> cacheUtil.delCache((String) (member.get(JsonKey.USER_ID))));
+    }
+    List<String> memberRemoveList = (List<String>) memberOperationMap.get(JsonKey.REMOVE);
+    if (CollectionUtils.isNotEmpty(memberRemoveList)) {
+      memberRemoveList.forEach(member -> cacheUtil.delCache(member));
     }
   }
 }

@@ -7,11 +7,7 @@ import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import com.datastax.driver.core.ResultSet;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -106,7 +102,8 @@ public class CreateGroupActorTest extends BaseActorTest {
   }
 
   @Test
-  public void testCreateGroup() {
+  public void testCreateGroup() throws Exception {
+    mockCacheActor();
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(reqObj, probe.getRef());

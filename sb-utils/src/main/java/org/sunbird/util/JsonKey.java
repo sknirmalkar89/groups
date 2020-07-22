@@ -141,4 +141,8 @@ public interface JsonKey {
   String MAX_GROUP_MEMBERS_LIMIT = "max_group_members_limit";
   String MAX_ACTIVITY_LIMIT = "max_activity_limit";
   String COUNT = "count";
+  String ENABLE_USERID_REDIS_CACHE = "enable_userid_redis_cache";
+  String TTL = "ttl";
+  String GROUPS_REDIS_TTL = "groups_redis_ttl";
+  String USER_REDIS_TTL = "user_redis_ttl";
 }

@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.sunbird.telemetry.util.TelemetryEvents;
 import org.sunbird.telemetry.util.TelemetryWriter;
 import org.sunbird.util.JsonKey;
@@ -60,6 +61,7 @@ public class AccessLogFilter extends EssentialFilter {
                           params,
                           (Map<String, Object>) context.get(JsonKey.CONTEXT)));
                   TelemetryWriter.write(req);
+                  MDC.clear();
                 } catch (Exception ex) {
                   logger.info("AccessLogFilter:apply Exception in writing telemetry", ex);
                 }

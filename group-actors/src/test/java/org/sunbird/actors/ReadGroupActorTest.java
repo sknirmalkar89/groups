@@ -1,9 +1,9 @@
 package org.sunbird.actors;
 
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,8 +20,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.sunbird.Application;
-import org.sunbird.cache.impl.RedisCache;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
@@ -37,9 +35,7 @@ import org.sunbird.util.*;
   Localizer.class,
   ServiceFactory.class,
   HttpClientUtil.class,
-  ActivityConfigReader.class,
-  Application.class,
-  RedisCache.class
+  ActivityConfigReader.class
 })
 @PowerMockIgnore({"javax.management.*"})
 public class ReadGroupActorTest extends BaseActorTest {
@@ -60,22 +56,6 @@ public class ReadGroupActorTest extends BaseActorTest {
     cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     mockCacheActor();
-  }
-
-  private void mockCacheActor() throws Exception {
-    ActorSystem actorSystem = ActorSystem.create("system");
-    Props props = Props.create(CacheActor.class);
-    ActorRef actorRef = actorSystem.actorOf(props);
-    Application app = PowerMockito.mock(Application.class);
-    PowerMockito.mockStatic(Application.class);
-    PowerMockito.when(Application.getInstance()).thenReturn(app);
-    PowerMockito.when(app.getActorRef(Mockito.anyString())).thenReturn(actorRef);
-    app.init();
-    PowerMockito.mockStatic(RedisCache.class);
-    PowerMockito.doNothing()
-        .when(RedisCache.class, "set", Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
-    PowerMockito.when(RedisCache.get(Mockito.anyString(), Mockito.anyObject(), Mockito.anyInt()))
-        .thenReturn("");
   }
 
   @Test
