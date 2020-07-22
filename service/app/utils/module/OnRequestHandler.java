@@ -111,7 +111,7 @@ public class OnRequestHandler implements ActionCreator {
    * @param httpReq
    * @param userId
    */
-  private void initializeContext(Http.Request httpReq, String userId) {
+  void initializeContext(Http.Request httpReq, String userId) {
     try {
       Map<String, Object> requestContext = new WeakHashMap<>();
       String env = getEnv(httpReq);
@@ -137,7 +137,7 @@ public class OnRequestHandler implements ActionCreator {
       if (optionalDeviceId.isPresent()) {
         requestContext.put(JsonKey.DEVICE_ID, optionalDeviceId.get());
       }
-      if (null != userId) {
+      if (null != userId && !JsonKey.USER_UNAUTH_STATES.contains(userId)) {
         requestContext.put(JsonKey.ACTOR_ID, userId);
         requestContext.put(JsonKey.ACTOR_TYPE, StringUtils.capitalize(JsonKey.USER));
       } else {
@@ -201,7 +201,7 @@ public class OnRequestHandler implements ActionCreator {
     String uri = request.uri();
     String env = "";
     if (uri.startsWith("/v1/group")) {
-      env = JsonKey.USER;
+      env = JsonKey.GROUP;
     }
     return env;
   }

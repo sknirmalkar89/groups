@@ -22,6 +22,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunbird.Application;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
@@ -31,13 +32,16 @@ import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.SystemConfigUtil;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
   CassandraOperation.class,
   CassandraOperationImpl.class,
   ServiceFactory.class,
-  Localizer.class
+  Localizer.class,
+  Application.class,
+  SystemConfigUtil.class
 })
 @PowerMockIgnore({"javax.management.*"})
 public class UpdateGroupActorTest extends BaseActorTest {
@@ -55,6 +59,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
     cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     mockCacheActor();
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+    when(SystemConfigUtil.getMaxGroupMemberLimit()).thenReturn(4);
+    when(SystemConfigUtil.getMaxActivityLimit()).thenReturn(4);
   }
 
   @Test
@@ -87,6 +94,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.batchUpdate(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+          .thenReturn(memberSizeResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -95,6 +105,19 @@ public class UpdateGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
     Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
+  }
+
+  private Response memberSizeResponse() {
+    Response response = new Response();
+    Map<String, Object> result = new HashMap<>();
+
+    Map<String, Object> count = new HashMap<>();
+    List<Map<String, Object>> countlist = new ArrayList<>();
+    countlist.add(count);
+    count.put(JsonKey.COUNT, 3l);
+    result.put(JsonKey.RESPONSE, countlist);
+    response.putAll(result);
+    return response;
   }
 
   private static Request updateGroupReq() {

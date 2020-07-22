@@ -27,13 +27,15 @@ import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
+import org.sunbird.util.SystemConfigUtil;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
   CassandraOperation.class,
   CassandraOperationImpl.class,
   ServiceFactory.class,
-  Localizer.class
+  Localizer.class,
+  SystemConfigUtil.class
 })
 @PowerMockIgnore({"javax.management.*"})
 public class CreateGroupActorTest extends BaseActorTest {
@@ -93,6 +95,10 @@ public class CreateGroupActorTest extends BaseActorTest {
         (List<Map<String, Object>>) memberRes.getResult().get(JsonKey.RESPONSE);
     Assert.assertEquals(
         members.get(0).get(JsonKey.USER_ID), memberList.get(0).get(JsonKey.USER_ID));
+
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+    when(SystemConfigUtil.getMaxGroupMemberLimit()).thenReturn(4);
+    when(SystemConfigUtil.getMaxActivityLimit()).thenReturn(4);
   }
 
   @Test

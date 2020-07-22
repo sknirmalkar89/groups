@@ -194,6 +194,20 @@ public class MemberServiceImpl implements MemberService {
     return groupRoleMap;
   }
 
+  @Override
+  public Integer fetchMemberSize(String groupId) throws BaseException {
+
+    Response response = memberDao.fetchMemberSize(groupId);
+    if (null != response && null != response.getResult()) {
+      List<Map<String, Object>> dbResponse =
+          (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
+      if (null != dbResponse) {
+        return ((Long) dbResponse.get(0).get(JsonKey.COUNT)).intValue();
+      }
+    }
+    return 0;
+  }
+
   private Member getMemberModelForAdd(
       Map<String, Object> data, String groupId, String contextUserId) {
     Member member = new Member();
