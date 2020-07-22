@@ -3,6 +3,8 @@ package org.sunbird.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,9 +21,6 @@ import org.sunbird.models.GroupResponse;
 import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.util.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class GroupServiceImpl implements GroupService {
   private static Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
@@ -131,7 +130,7 @@ public class GroupServiceImpl implements GroupService {
         GroupUtil.updateRoles(groups, groupRoleMap);
       }
 
-   } else {
+    } else {
       logger.error("Bad Request UserId is Mandatory");
       throw new BaseException(
           IResponseMessage.INVALID_REQUESTED_DATA,

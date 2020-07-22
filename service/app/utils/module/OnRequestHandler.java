@@ -12,6 +12,7 @@ import java.util.concurrent.CompletionStage;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.sunbird.exception.BaseException;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
@@ -41,6 +42,11 @@ public class OnRequestHandler implements ActionCreator {
       @Override
       public CompletionStage<Result> call(Http.Request request) {
         request.getHeaders();
+        if (request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID).isPresent()) {
+          MDC.put(
+              JsonKey.REQUEST_MESSAGE_ID,
+              request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID).get());
+        }
         CompletionStage<Result> result = checkForServiceHealth(request);
         if (result != null) return result;
         request.flash().put(JsonKey.USER_ID, null);

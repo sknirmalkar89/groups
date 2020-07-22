@@ -1,9 +1,16 @@
 package org.sunbird.actors;
 
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
@@ -15,18 +22,7 @@ import org.sunbird.message.ResponseCode;
 import org.sunbird.response.Response;
 import org.sunbird.util.JsonKey;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-@PrepareForTest({
-        Application.class,
-        RedisCache.class
-})
+@PrepareForTest({Application.class, RedisCache.class})
 public abstract class BaseActorTest {
 
   static ActorSystem system;
@@ -66,7 +62,7 @@ public abstract class BaseActorTest {
     when(app.getActorRef(Mockito.anyString())).thenReturn(actorRef);
     PowerMockito.mockStatic(RedisCache.class);
     doNothing()
-            .when(RedisCache.class, "set", Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
+        .when(RedisCache.class, "set", Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
     doNothing().when(RedisCache.class, "delete", Mockito.anyObject());
     when(RedisCache.get(Mockito.anyString(), Mockito.anyObject(), Mockito.anyInt())).thenReturn("");
   }

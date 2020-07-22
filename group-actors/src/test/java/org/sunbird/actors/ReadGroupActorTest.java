@@ -1,10 +1,15 @@
 package org.sunbird.actors;
 
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,12 +32,6 @@ import org.sunbird.models.SearchRequest;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.util.*;
-
-import java.time.Duration;
-import java.util.*;
-
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
