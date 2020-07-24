@@ -145,4 +145,5 @@ public interface JsonKey {
   String TTL = "ttl";
   String GROUPS_REDIS_TTL = "groups_redis_ttl";
   String USER_REDIS_TTL = "user_redis_ttl";
+  String X_REQUEST_ID = "X-Request-ID";
 }
