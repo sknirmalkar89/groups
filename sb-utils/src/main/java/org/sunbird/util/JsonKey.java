@@ -131,6 +131,7 @@ public interface JsonKey {
   String ADDITIONAL_INFO = "ADDITIONAL_INFO";
   String UPDATE = "update";
   String CREATE = "create";
+  String DELETE = "delete";
   String REQUEST_SOURCE = "source";
   String CHANNEL = "channel";
   String FIELD = "field";
