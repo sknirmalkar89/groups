@@ -1,0 +1,32 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+        environment:
+          commit_hash: "${CIRCLE_SHA1}"
+    working_directory: ~/project
+    steps:
+      - checkout
+      - restore_cache:
+          key: groups-dependency-cache-{{ checksum "pom.xml" }}
+      - run:
+          name: Build the code
+          command: mvn clean install -U -DskipTests=true
+      - run:
+          name: Save the build artifact
+          command: cd service && mvn play2:dist
+      - save_cache:
+          key: groups-dependency-cache-{{ checksum "pom.xml" }}
+          paths: ~/.m2
+      - store_artifacts:
+          path: service/target/group-service-1.0.0-dist.zip
+          destination: "/tmp/group-service.zip"
+      - run:
+          name: sonar
+          command: mvn verify -DskipTests sonar:sonar -Dsonar.projectKey=project-sunbird_groups-service -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/service/target/site/jacoco/jacoco.xml
+workflows:
+  version: 2.1
+  workflow:
+    jobs:
+      - build

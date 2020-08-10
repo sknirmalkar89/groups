@@ -1,0 +1,38 @@
+{
+  "activities": [{
+  "type": ["Course","TextBook"],
+  "serviceClass": "org.sunbird.util.ContentSearchUtil",
+  "fields": [
+    "identifier",
+    "contentType",
+    "objectType",
+    "name",
+    "organisation",
+    "language",
+    "appIcon",
+    "mimeType",
+    "topic",
+    "resourceType",
+    "pkgVersion",
+    "subject",
+    "medium",
+    "board",
+    "framework",
+    "gradeLevel",
+    "channel",
+    "status",
+    "downloadUrl",
+    "variants",
+    "createdBy",
+    "originData",
+    "origin",
+    "streamingUrl",
+    "dialecodes",
+    "size",
+    "batches",
+    "leafNodes",
+    "leafNodesCount",
+    "lastUpdatedOn"
+  ]
+  }]
+}

@@ -1,0 +1,18 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+#Health check
+GET  /health                                  @controllers.HealthController.getHealth()
+GET  /:service/health                         @controllers.HealthController.getServiceHealth(service:String, request: play.mvc.Http.Request)
+
+# Logs Management APIs
+# POST    /v1.3/system/log/update             @controllers.logsmanager.LogController.setLogLevel()
+# Group management APIs
+POST	/v1/group/create				      @controllers.CreateGroupController.createGroup(request: play.mvc.Http.Request)
+PATCH	/v1/group/update				      @controllers.UpdateGroupController.updateGroup(request: play.mvc.Http.Request)
+GET	/v1/group/read/:groupId				      @controllers.ReadGroupController.readGroup(groupId: String, request: play.mvc.Http.Request)
+GET	/private/v1/group/read/:groupId			  @controllers.ReadGroupController.readGroup(groupId: String, request: play.mvc.Http.Request)
+#Search APIs
+
+POST   /v1/group/list                         @controllers.SearchGroupController.searchGroup(request: play.mvc.Http.Request)

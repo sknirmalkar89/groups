@@ -1,0 +1,32 @@
+# Sets up all environment vars.
+
+################### GROUPS_SERVICE configuration ###################################
+#sunbird_cassandra_consistency_level='quorum'
+#sunbird_cassandra_host=''
+#sunbird_cassandra_password=''
+#sunbird_cassandra_port='9042'
+#sunbird_cassandra_username='cassandra'
+
+#LEARNER_SERVICE_PORT=''
+
+#sunbird_redis_host=''
+#sunbird_redis_port=''
+
+#CONTENT_SERVICE_PORT=''
+
+#ADMINUTIL_PORT=''
+#sunbird_sso_client_id=''
+#sunbird_sso_client_secret=''
+#sunbird_sso_publickey=''
+#sunbird_sso_realm='sunbird'
+#sunbird_sso_url=''
+#sunbird_us_system_setting_url=''
+#sunbird_us_org_read_url=''
+#sunbird_cs_search_url=''
+#admin util keys must be injected
+#telemetry_pdata_id=''
+#telemetry_pdata_pid=''
+#telemetry_pdata_ver=''
+#max_group_members_limit=''
+#max_activity_limit=''
+################### END - GROUPS_SERVICE configuration #############################
