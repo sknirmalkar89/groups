@@ -87,7 +87,9 @@ public class ResponseHandler {
   }
 
   static void logTelemetry(Response response, Request request) {
-    if (!(request.getPath().contains("/health") || request.getPath().contains("/service/health"))) {
+    if (null != request.getPath()
+        && !(request.getPath().contains("/health")
+            || request.getPath().contains("/service/health"))) {
       try {
         long startTime =
             null != request.getTs() ? Long.parseLong(request.getTs()) : System.currentTimeMillis();
