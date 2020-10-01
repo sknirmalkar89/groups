@@ -27,6 +27,7 @@ import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.helper.ServiceFactory;
+import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
 import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
@@ -75,9 +76,7 @@ public class CreateGroupActorTest extends BaseActorTest {
         (List<Map<String, Object>>) reqObj.getRequest().get(JsonKey.MEMBERS);
 
     when(cassandraOperation.upsertRecord(
-            Mockito.anyString(),
-            Mockito.anyString(),
-            Mockito.anyMap()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
         .thenReturn(
             CassandraMocker.updateUserGroup(members, (String) reqObj.getRequest().get(JsonKey.ID)));
 
@@ -106,8 +105,9 @@ public class CreateGroupActorTest extends BaseActorTest {
     PowerMockito.mockStatic(PropertiesCache.class);
     propertiesCache = mock(PropertiesCache.class);
     when(PropertiesCache.getInstance()).thenReturn(propertiesCache);
-    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT)).thenReturn("4");
-    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT)).thenReturn("4");
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT))
+        .thenReturn("4");
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT)).thenReturn("2");
     when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT)).thenReturn("4");
   }
 
@@ -123,11 +123,74 @@ public class CreateGroupActorTest extends BaseActorTest {
     Assert.assertNotNull(res.getResult().get(JsonKey.GROUP_ID));
   }
 
+  @Test
+  public void testCreateGroupForMaxMemberAndMaxActivity() throws Exception {
+    mockCacheActor();
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+
+    PowerMockito.mockStatic(PropertiesCache.class);
+    propertiesCache = mock(PropertiesCache.class);
+    when(PropertiesCache.getInstance()).thenReturn(propertiesCache);
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT))
+        .thenReturn("4");
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT)).thenReturn("2");
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT)).thenReturn("4");
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = createGroupReq();
+    List<Map<String, Object>> members =
+        (List<Map<String, Object>>) reqObj.getRequest().get(JsonKey.MEMBERS);
+    List<Map<String, Object>> activities =
+        (List<Map<String, Object>>) reqObj.getRequest().get(JsonKey.ACTIVITIES);
+    Map<String, Object> member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID2");
+    members.add(member);
+    member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID3");
+    members.add(member);
+    member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID4");
+    members.add(member);
+    member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID5");
+    members.add(member);
+    member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID6");
+    members.add(member);
+    reqObj.getRequest().put(JsonKey.MEMBERS, members);
+    Map<String, Object> activity = new HashMap<>();
+    activity.put(JsonKey.TYPE, "COURSE");
+    activity.put(JsonKey.ID, "courseId1");
+    activities.add(activity);
+    activity = new HashMap<>();
+    activity.put(JsonKey.TYPE, "COURSE");
+    activity.put(JsonKey.ID, "courseId12");
+    activities.add(activity);
+    reqObj.getRequest().put(JsonKey.ACTIVITIES, activities);
+    subject.tell(reqObj, probe.getRef());
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
+    Assert.assertTrue(null != res && res.getResponseCode() == 200);
+    System.out.println("response " + res.getResult());
+    Assert.assertNotNull(res.getResult().get(JsonKey.GROUP_ID));
+    Map error = (Map) res.getResult().get(JsonKey.ERROR);
+    System.out.println("error max limit" + error);
+    List memberErrorList = (List) error.get(JsonKey.MEMBERS);
+    List activityErrorList = (List) error.get(JsonKey.ACTIVITIES);
+    Assert.assertEquals(
+        ((Map) memberErrorList.get(0)).get(JsonKey.ERROR_CODE),
+        IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
+    Assert.assertEquals(
+        ((Map) activityErrorList.get(0)).get(JsonKey.ERROR_CODE),
+        IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+  }
+
   private static Request createGroupReq() {
     Request reqObj = new Request();
     reqObj.setHeaders(headerMap);
     Map<String, Object> context = new HashMap<>();
-    context.put(JsonKey.USER_ID,"user1");
+    context.put(JsonKey.USER_ID, "user1");
     reqObj.setContext(context);
     reqObj.setOperation(ActorOperations.CREATE_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup Name");

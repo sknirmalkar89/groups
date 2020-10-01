@@ -12,7 +12,7 @@ jobs:
           key: groups-dependency-cache-{{ checksum "pom.xml" }}
       - run:
           name: Build the code
-          command: mvn clean install -U -DskipTests=true
+          command: mvn clean install
       - run:
           name: Save the build artifact
           command: cd service && mvn play2:dist
@@ -24,7 +24,7 @@ jobs:
           destination: "/tmp/group-service.zip"
       - run:
           name: sonar
-          command: mvn verify -DskipTests sonar:sonar -Dsonar.projectKey=project-sunbird_groups-service -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/service/target/site/jacoco/jacoco.xml
+          command: mvn verify -DskipTests sonar:sonar -Dsonar.projectKey=project-sunbird_groups-service -Dsonar.organization=project-sunbird -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.exclusions=**/cassandra-utils/**,**/platform-cache/**,**/sb-actor/**,**/sb-telemetry-utils/**,**/sb-utils/**,**/models/**,**/bean/* -Dsonar.coverage.jacoco.xmlReportPaths=/home/circleci/project/reports/target/jacoco/jacoco.xml
 workflows:
   version: 2.1
   workflow:

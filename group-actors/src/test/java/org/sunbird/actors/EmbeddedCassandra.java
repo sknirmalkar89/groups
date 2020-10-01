@@ -14,7 +14,7 @@ import org.sunbird.util.JsonKey;
 
 public class EmbeddedCassandra {
 
-  static final String KEYSPACE = "sunbird";
+  static final String KEYSPACE = JsonKey.SUNBIRD_GROUPS;
   static final String GROUP_TABLE = "group";
   static final String MEMBER_TABLE = "group_member";
   static final String USER_GROUP = "user_group";

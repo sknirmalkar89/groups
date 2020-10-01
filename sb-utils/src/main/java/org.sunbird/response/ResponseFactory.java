@@ -29,9 +29,21 @@ public class ResponseFactory {
     }
     if (exception instanceof BaseException) {
       BaseException ex = (BaseException) exception;
-      response.setParams(
-          createResponseParamObj(
-              request, ResponseCode.getResponseCode(ex.getResponseCode()), ex.getMessage()));
+      ResponseCode code = ResponseCode.getResponse(ex.getCode());
+      if (code == null) {
+        code = ResponseCode.SERVER_ERROR;
+      }
+      response.setParams(createResponseParamObj(request, code, ex.getMessage()));
+      if (response.getParams() != null) {
+        response.getParams().setStatus(response.getParams().getStatus());
+        if (ex.getCode() != null) {
+          response.getParams().setStatus(ex.getCode());
+        }
+        if (!StringUtils.isBlank(response.getParams().getErrmsg())
+            && response.getParams().getErrmsg().contains("{0}")) {
+          response.getParams().setErrmsg(ex.getMessage());
+        }
+      }
       response.setResponseCode(ex.getResponseCode());
     }
     return response;
@@ -41,10 +53,10 @@ public class ResponseFactory {
       Request request, ResponseCode code, String customMessage) {
     ResponseParams params = new ResponseParams();
     if (code.getCode() != 200) {
-      params.setErr(code.name());
+      params.setErr(code.getErrorCode());
       params.setErrmsg(StringUtils.isNotBlank(customMessage) ? customMessage : code.name());
     }
-    params.setStatus(ResponseCode.getResponseCode(code.getCode()).name());
+    params.setStatus(ResponseCode.getHeaderResponseCode(code.getResponseCode()).name());
 
     if (request.getHeaders().containsKey(JsonKey.REQUEST_MESSAGE_ID)) {
       ArrayList<String> requestIds =

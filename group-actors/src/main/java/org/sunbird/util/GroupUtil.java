@@ -72,8 +72,9 @@ public class GroupUtil {
 
   public static void checkMaxGroupLimit(List<Map<String, Object>> userGroupsList, String userId) {
     int groupCount = 0;
-    if(CollectionUtils.isNotEmpty(userGroupsList)) {
-      Map<String, Object> userInfo = userGroupsList
+    if (CollectionUtils.isNotEmpty(userGroupsList)) {
+      Map<String, Object> userInfo =
+          userGroupsList
               .stream()
               .filter(userMap -> userId.equals((String) userMap.get(JsonKey.USER_ID)))
               .findFirst()
@@ -82,68 +83,79 @@ public class GroupUtil {
         groupCount = ((Set<String>) userInfo.get(JsonKey.GROUP_ID)).size();
       }
     }
-    int maxGroupLimit = Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT));
-    if (groupCount > maxGroupLimit) {
+    int maxGroupLimit =
+        Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT));
+    if (groupCount >= maxGroupLimit) {
       logger.error("List of groups exceeded the max limit:{}", groupCount);
       throw new BaseException(
-              IResponseMessage.EXCEEDED_MAX_LIMIT,
-              IResponseMessage.Message.EXCEEDED_GROUP_MAX_LIMIT,
-              ResponseCode.CLIENT_ERROR.getCode());
+          IResponseMessage.Key.EXCEEDED_GROUP_MAX_LIMIT,
+          IResponseMessage.Message.EXCEEDED_GROUP_MAX_LIMIT,
+          ResponseCode.CLIENT_ERROR.getCode());
     }
   }
 
-  public static void checkMaxActivityLimit(Integer totalActivityCount) {
-    int activityLimit = Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT));
+  public static boolean checkMaxActivityLimit(
+      Integer totalActivityCount, List<Map<String, String>> errorList) {
+    boolean isExceeded = false;
+    int activityLimit =
+        Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT));
     if (totalActivityCount > activityLimit) {
       logger.error("List of activities exceeded the activity size limit:{}", totalActivityCount);
-      throw new BaseException(
-          IResponseMessage.EXCEEDED_MAX_LIMIT,
-          IResponseMessage.Message.EXCEEDED_ACTIVITY_MAX_LIMIT,
-          ResponseCode.CLIENT_ERROR.getCode());
+      Map<String, String> errorMap = new HashMap<>();
+      errorMap.put(JsonKey.ERROR_MESSAGE, IResponseMessage.Message.EXCEEDED_ACTIVITY_MAX_LIMIT);
+      errorMap.put(JsonKey.ERROR_CODE, IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+      errorList.add(errorMap);
+      isExceeded = true;
     }
+    return isExceeded;
   }
 
-  public static void checkMaxMemberLimit(int totalMemberCount) {
-    int memberLimit = Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT));
+  public static boolean checkMaxMemberLimit(
+      int totalMemberCount, List<Map<String, String>> errorList) {
+    boolean isExceeded = false;
+    int memberLimit =
+        Integer.parseInt(
+            PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT));
     if (totalMemberCount > memberLimit) {
       logger.error("List of members exceeded the member size limit:{}", totalMemberCount);
-      throw new BaseException(
-          IResponseMessage.EXCEEDED_MAX_LIMIT,
-          IResponseMessage.Message.EXCEEDED_MEMBER_MAX_LIMIT,
-          ResponseCode.CLIENT_ERROR.getCode());
+      Map<String, String> errorMap = new HashMap<>();
+      errorMap.put(JsonKey.ERROR_MESSAGE, IResponseMessage.Message.EXCEEDED_MEMBER_MAX_LIMIT);
+      errorMap.put(JsonKey.ERROR_CODE, IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
+      errorList.add(errorMap);
+      isExceeded = true;
     }
+    return isExceeded;
   }
 
-  public static int totalMemberCount(Map memberOperationMap, List<MemberResponse> membersInDB){
+  public static int totalMemberCount(Map memberOperationMap, List<MemberResponse> membersInDB) {
     int totalMemberCount = (null != membersInDB ? membersInDB.size() : 0);
 
-    List<Map<String, Object>> memberAddList = (List<Map<String, Object>>) memberOperationMap.get(JsonKey.ADD);
+    List<Map<String, Object>> memberAddList =
+        (List<Map<String, Object>>) memberOperationMap.get(JsonKey.ADD);
     if (CollectionUtils.isNotEmpty(memberAddList)) {
       totalMemberCount += memberAddList.size();
     }
 
-    List<Map<String, Object>> memberRemoveList = (List<Map<String, Object>>) memberOperationMap.get(JsonKey.REMOVE);
+    List<Map<String, Object>> memberRemoveList =
+        (List<Map<String, Object>>) memberOperationMap.get(JsonKey.REMOVE);
     if (CollectionUtils.isNotEmpty(memberRemoveList)) {
       totalMemberCount -= memberRemoveList.size();
     }
     return totalMemberCount;
   }
 
-  public static List<String> getMemberIdList(List<Member> member){
+  public static List<String> getMemberIdList(List<Member> member) {
     List<String> members =
-            member
-                    .stream()
-                    .map(data -> data.getUserId())
-                    .collect(Collectors.toList());
+        member.stream().map(data -> data.getUserId()).collect(Collectors.toList());
     return members;
   }
 
-  public static List<String> getMemberIdListFromMap( List<Map<String, Object>> member){
+  public static List<String> getMemberIdListFromMap(List<Map<String, Object>> member) {
     List<String> members =
-            member
-                    .stream()
-                    .map(data -> (String) data.get(JsonKey.USER_ID))
-                    .collect(Collectors.toList());
+        member
+            .stream()
+            .map(data -> (String) data.get(JsonKey.USER_ID))
+            .collect(Collectors.toList());
     return members;
   }
 }

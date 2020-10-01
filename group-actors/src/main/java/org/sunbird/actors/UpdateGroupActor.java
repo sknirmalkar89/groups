@@ -8,8 +8,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
+import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.BaseException;
-import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.MemberResponse;
@@ -59,30 +59,30 @@ public class UpdateGroupActor extends BaseActor {
 
     String userId = group.getUpdatedBy();
     if (StringUtils.isEmpty(userId)) {
-      throw new BaseException(
-          IResponseMessage.Key.UNAUTHORIZED_USER,
-          IResponseMessage.Message.UNAUTHORIZED_USER,
-          ResponseCode.UNAUTHORIZED.getCode());
+      throw new AuthorizationException.NotAuthorized();
     }
 
-    Map responseMap = null;
+    Map<String, List<Map<String, String>>> responseMap = new HashMap<>();
     // member validation and updates to group
     MemberService memberService = new MemberServiceImpl();
     List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId());
 
     if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
-      responseMap =
+      responseMap.put(
+          JsonKey.MEMBERS,
           validateMembersAndSave(
               group.getId(),
               (Map) actorMessage.getRequest().get(JsonKey.MEMBERS),
               userId,
-              membersInDB);
+              membersInDB));
     }
     // Activity validation
     if (MapUtils.isNotEmpty(
         (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES))) {
-      validateActivityList(
-          group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES));
+      responseMap.put(
+          JsonKey.ACTIVITIES,
+          validateActivityList(
+              group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)));
     }
     boolean deleteFromUserCache = false;
     // Group and activity updates
@@ -113,7 +113,9 @@ public class UpdateGroupActor extends BaseActor {
 
     Response response = new Response(ResponseCode.OK.getCode());
     response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
-    if (MapUtils.isNotEmpty(responseMap) && ((List) responseMap.get(JsonKey.MEMBERS)).size() > 0) {
+    if (MapUtils.isNotEmpty(responseMap)
+        && (CollectionUtils.isNotEmpty(responseMap.get(JsonKey.MEMBERS))
+            || CollectionUtils.isNotEmpty(responseMap.get(JsonKey.ACTIVITIES)))) {
       response.put(JsonKey.ERROR, responseMap);
     }
     sender().tell(response, self());
@@ -121,21 +123,25 @@ public class UpdateGroupActor extends BaseActor {
     logTelemetry(actorMessage, group);
   }
 
-  private void validateActivityList(Group group, Map<String, Object> activityOperationMap) {
+  private List<Map<String, String>> validateActivityList(
+      Group group, Map<String, Object> activityOperationMap) {
     List<Map<String, Object>> updateActivityList =
         new GroupServiceImpl().handleActivityOperations(group.getId(), activityOperationMap);
-    GroupUtil.checkMaxActivityLimit(updateActivityList.size());
-    group.setActivities(updateActivityList);
+    List<Map<String, String>> activityErrorList = new ArrayList<>();
+    boolean isActivityLimitExceeded =
+        GroupUtil.checkMaxActivityLimit(updateActivityList.size(), activityErrorList);
+    if (!isActivityLimitExceeded) {
+      group.setActivities(updateActivityList);
+    }
+    return activityErrorList;
   }
 
-  private Map validateMembersAndSave(
+  private List<Map<String, String>> validateMembersAndSave(
       String groupId,
       Map memberOperationMap,
       String requestedBy,
       List<MemberResponse> membersInDB) {
-    Map validationErrors = new HashMap<>();
-    List errorList = new ArrayList();
-    validationErrors.put(JsonKey.MEMBERS, errorList);
+    List<Map<String, String>> memberErrorList = new ArrayList<>();
 
     MemberService memberService = new MemberServiceImpl();
 
@@ -143,23 +149,24 @@ public class UpdateGroupActor extends BaseActor {
     // Validate Member Addition
     if (CollectionUtils.isNotEmpty(
         (List<Map<String, Object>>) memberOperationMap.get(JsonKey.ADD))) {
-      requestHandler.validateAddMembers(memberOperationMap, membersInDB, validationErrors);
+      requestHandler.validateAddMembers(memberOperationMap, membersInDB, memberErrorList);
     }
     // Validate Member Update
     if (CollectionUtils.isNotEmpty(
         (List<Map<String, Object>>) memberOperationMap.get(JsonKey.EDIT))) {
-      requestHandler.validateEditMembers(memberOperationMap, membersInDB, validationErrors);
+      requestHandler.validateEditMembers(memberOperationMap, membersInDB, memberErrorList);
     }
     // Validate Member Remove
     if (CollectionUtils.isNotEmpty((List<String>) memberOperationMap.get(JsonKey.REMOVE))) {
-      requestHandler.validateRemoveMembers(memberOperationMap, membersInDB, validationErrors);
+      requestHandler.validateRemoveMembers(memberOperationMap, membersInDB, memberErrorList);
     }
     int totalMemberCount = GroupUtil.totalMemberCount(memberOperationMap, membersInDB);
-    GroupUtil.checkMaxMemberLimit(totalMemberCount);
+    boolean memberLimit = GroupUtil.checkMaxMemberLimit(totalMemberCount, memberErrorList);
     cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
-    memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
-
-    return validationErrors;
+    if (!memberLimit) {
+      memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
+    }
+    return memberErrorList;
   }
 
   private void deleteUserCache(

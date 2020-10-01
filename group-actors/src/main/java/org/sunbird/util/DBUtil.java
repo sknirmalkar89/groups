@@ -9,7 +9,7 @@ import org.sunbird.helper.CassandraConnectionMngrFactory;
 
 public class DBUtil {
   public static final Map<String, DbInfo> dbInfoMap = new HashMap<>();
-  public static final String KEY_SPACE_NAME = "sunbird";
+  public static final String KEY_SPACE_NAME = JsonKey.SUNBIRD_GROUPS;
 
   private static void initializeDBProperty() {
     // setting db info (keyspace , table) into static map
