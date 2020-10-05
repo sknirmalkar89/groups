@@ -11,7 +11,9 @@ public interface GroupService {
 
   String createGroup(Group groupObj) throws BaseException;
 
-  GroupResponse readGroup(String groupId) throws Exception;
+  Map<String, Object>  readGroup(String groupId) throws BaseException;
+
+  GroupResponse readGroupWithActivities(String groupId) throws Exception;
 
   void readGroupActivities(Map<String, Object> dbResGroup);
 
@@ -21,4 +23,6 @@ public interface GroupService {
 
   List<Map<String, Object>> handleActivityOperations(
       String groupId, Map<String, Object> activityOperationMap) throws BaseException;
+
+
 }

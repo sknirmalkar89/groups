@@ -28,6 +28,7 @@ public interface JsonKey {
   String PARAMS = "params";
   String ERR_TYPE = "errtype";
   String PREV_STATE = "PREV_STATE";
+  String PREVSTATE="prevstate";
   String TELEMETRY_EVENT_TYPE = "telemetryEventType";
   String CONTEXT = "context";
   String RELATION = "relation";
