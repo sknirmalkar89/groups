@@ -52,7 +52,7 @@ public class GroupServiceImpl implements GroupService {
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
       if (CollectionUtils.isNotEmpty(dbGroupDetails)
           && JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS))) {
-        logger.info("Group details fetched for groupId :{}",groupId);
+        logger.info("Group details fetched for groupId :{}", groupId);
         dbResGroup = dbGroupDetails.get(0);
         // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
         dbResGroup.put(
@@ -92,7 +92,7 @@ public class GroupServiceImpl implements GroupService {
    * @param dbResActivities
    */
   private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
-    logger.info("Fetching activityInfo for activity count: {}",dbResActivities.size());
+    logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
 
@@ -213,8 +213,11 @@ public class GroupServiceImpl implements GroupService {
 
   @Override
   public Response updateGroup(Group groupObj) throws BaseException {
-    Response responseObj = groupDao.updateGroup(groupObj);
-    return responseObj;
+    if (StringUtils.isNotBlank(groupObj.getStatus())
+        && JsonKey.INACTIVE.equals(groupObj.getStatus())) {
+      return groupDao.deleteGroup(groupObj.getId());
+    }
+    return groupDao.updateGroup(groupObj);
   }
 
   private GroupResponse createGroupResponseObj(Group group) {
