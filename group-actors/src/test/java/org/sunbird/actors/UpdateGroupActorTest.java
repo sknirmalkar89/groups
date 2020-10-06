@@ -106,7 +106,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.executeSelectQuery(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
           .thenReturn(memberSizeResponse());
-
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+          .thenReturn(getMemberResponse());
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
@@ -125,7 +127,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxMember(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(1000), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
     List errorList = (List) error.get(JsonKey.MEMBERS);
@@ -185,12 +187,17 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+          .thenReturn(getMemberResponse());
+
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
 
     Request reqObj = updateSuspendGroupReq();
     subject.tell(reqObj, probe.getRef());
+    Response res = probe.expectMsgClass(Duration.ofSeconds(10000), Response.class);
   }
 
   private Response memberSizeResponse() {
@@ -357,6 +364,26 @@ public class UpdateGroupActorTest extends BaseActorTest {
     group1.put(JsonKey.ACTIVITIES, activities);
     groupList.add(group1);
     result.put(JsonKey.RESPONSE, groupList);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+
+  static Response getMemberResponse() {
+    List<Map<String, Object>> members = new ArrayList<>();
+    Map<String, Object> member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "user1");
+    member.put(JsonKey.ROLE, JsonKey.ADMIN);
+    member.put(JsonKey.STATUS, JsonKey.ACTIVE);
+    members.add(member);
+    member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID22");
+    member.put(JsonKey.ROLE, JsonKey.MEMBER);
+    member.put(JsonKey.STATUS, JsonKey.ACTIVE);
+
+    members.add(member);
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.RESPONSE, members);
     Response response = new Response();
     response.putAll(result);
     return response;
