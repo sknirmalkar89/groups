@@ -44,14 +44,23 @@ public class GroupServiceImpl implements GroupService {
     return groupId;
   }
 
-  public GroupResponse readGroup(String groupId) throws Exception {
+  public GroupResponse readGroupWithActivities(String groupId) throws Exception {
+    Map<String, Object> dbResGroup = readGroup(groupId);
+    logger.info("readGroupActivities started");
+    readGroupActivities(dbResGroup);
+    logger.info("readGroupActivities ended");
+    return JsonUtils.convert(dbResGroup, GroupResponse.class);
+  }
+
+  public Map<String, Object> readGroup(String groupId) throws BaseException {
     Map<String, Object> dbResGroup;
     Response responseObj = groupDao.readGroup(groupId);
     if (null != responseObj && null != responseObj.getResult()) {
       List<Map<String, Object>> dbGroupDetails =
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
       if (CollectionUtils.isNotEmpty(dbGroupDetails)
-          && JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS))) {
+          && (JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS))
+              || JsonKey.SUSPENDED.equals(dbGroupDetails.get(0).get(JsonKey.STATUS)))) {
         logger.info("Group details fetched for groupId :{}", groupId);
         dbResGroup = dbGroupDetails.get(0);
         // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
@@ -66,9 +75,9 @@ public class GroupServiceImpl implements GroupService {
             dbResGroup.get(JsonKey.UPDATED_ON) != null
                 ? GroupUtil.convertDateToUTC((Date) dbResGroup.get(JsonKey.UPDATED_ON))
                 : dbResGroup.get(JsonKey.UPDATED_ON));
-        readGroupActivities(dbResGroup);
-        logger.info("readGroupActivities ended");
-        return JsonUtils.convert(dbResGroup, GroupResponse.class);
+
+        return dbResGroup;
+
       } else {
         throw new ValidationException.GroupNotFound(groupId);
       }
@@ -201,7 +210,7 @@ public class GroupServiceImpl implements GroupService {
         dbGroupDetails.forEach(
             map -> {
               Group group = objectMapper.convertValue(map, Group.class);
-              if (JsonKey.ACTIVE.equals(group.getStatus())) {
+              if (!JsonKey.INACTIVE.equals(group.getStatus())) {
                 GroupResponse groupResponse = createGroupResponseObj(group);
                 groups.add(groupResponse);
               }
