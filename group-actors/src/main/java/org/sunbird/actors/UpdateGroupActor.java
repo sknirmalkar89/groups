@@ -114,7 +114,7 @@ public class UpdateGroupActor extends BaseActor {
       // belongs to that group
       deleteFromUserCache = true;
       if (StringUtils.isNotBlank(group.getStatus()) && JsonKey.INACTIVE.equals(group.getStatus())) {
-        // Delete group delete the group and make them inactive the members from group_member table.
+        // Delete group  and make them remove groups members from user_group table.
         Response response = groupService.deleteGroup(group, membersInDB);
       } else {
         Response response = groupService.updateGroup(group);
