@@ -32,6 +32,7 @@ public interface JsonKey {
   String ADMIN = "admin";
   String ACTIVE = "active";
   String INACTIVE = "inactive";
+  String SUSPENDED = "suspended";
   String GROUP_MEMBERSHIP_TYPE = "membershipType";
   String GROUP_STATUS = "status";
   String URL = "url";

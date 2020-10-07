@@ -56,7 +56,7 @@ public class ReadGroupActor extends BaseActor {
       groupResponse = JsonUtils.deserialize(groupInfo, GroupResponse.class);
     } else {
       logger.info("read group cache is empty. Fetching details from DB for groupId - {} ", groupId);
-      groupResponse = groupService.readGroup(groupId);
+      groupResponse = groupService.readGroupWithActivities(groupId);
       cacheUtil.setCache(groupId, JsonUtils.serialize(groupResponse), CacheUtil.groupTtl);
     }
     if (CollectionUtils.isNotEmpty(requestFields) && requestFields.contains(JsonKey.MEMBERS)) {
