@@ -113,7 +113,12 @@ public class UpdateGroupActor extends BaseActor {
       // if name, description and status update happens in group , delete cache for all the members
       // belongs to that group
       deleteFromUserCache = true;
-      Response response = groupService.updateGroup(group);
+      if (StringUtils.isNotBlank(group.getStatus()) && JsonKey.INACTIVE.equals(group.getStatus())) {
+        // Delete group delete the group and make them inactive the members from group_member table.
+        Response response = groupService.deleteGroup(group, membersInDB);
+      } else {
+        Response response = groupService.updateGroup(group);
+      }
     }
 
     boolean isUseridRedisEnabled =

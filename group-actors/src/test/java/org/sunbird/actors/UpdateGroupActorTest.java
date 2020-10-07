@@ -7,14 +7,12 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -107,11 +105,17 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
           .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -188,9 +192,14 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getMemberResponse());
-
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -238,9 +247,14 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getMemberResponse());
-
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -285,20 +299,29 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("user_group"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+          .thenReturn(getUserGroupResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+          .thenReturn(getMemberResponse());
       when(cassandraOperation.deleteRecord(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getCassandraResponse());
-      when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
-          .thenReturn(getMemberResponse());
 
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
-
     Request reqObj = updateDeleteGroupReq();
     subject.tell(reqObj, probe.getRef());
     Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
@@ -515,6 +538,22 @@ public class UpdateGroupActorTest extends BaseActorTest {
     members.add(member);
     Map<String, Object> result = new HashMap<>();
     result.put(JsonKey.RESPONSE, members);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+
+  static Response getUserGroupResponse() {
+    List<Map<String, Object>> userGroups = new ArrayList<>();
+    Map<String, Object> userGroup = new HashMap<>();
+    userGroup.put(JsonKey.USER_ID, "user1");
+    userGroup.put(JsonKey.GROUP_ID, Arrays.asList("group1", "group2"));
+    userGroups.add(userGroup);
+    userGroup.put(JsonKey.USER_ID, "user2");
+    userGroup.put(JsonKey.GROUP_ID, Arrays.asList("group1", "group2"));
+    userGroups.add(userGroup);
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.RESPONSE, userGroups);
     Response response = new Response();
     response.putAll(result);
     return response;

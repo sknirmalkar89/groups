@@ -23,6 +23,8 @@ import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.GroupResponse;
+import org.sunbird.models.Member;
+import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.util.ActivityConfigReader;
 import org.sunbird.util.GroupUtil;
@@ -222,11 +224,37 @@ public class GroupServiceImpl implements GroupService {
 
   @Override
   public Response updateGroup(Group groupObj) throws BaseException {
-    if (StringUtils.isNotBlank(groupObj.getStatus())
-        && JsonKey.INACTIVE.equals(groupObj.getStatus())) {
-      return groupDao.deleteGroup(groupObj.getId());
-    }
     return groupDao.updateGroup(groupObj);
+  }
+
+  @Override
+  public Response deleteGroup(Group groupObj, List<MemberResponse> members) throws BaseException {
+    Response responseObj = groupDao.deleteGroup(groupObj.getId());
+    // Remove member mapping to the deleted group
+    if (null != responseObj) {
+      // Create member list
+      List<String> memberIds = new ArrayList<>();
+      List<Member> memberList = createDeleteMemberList(members, memberIds);
+      List<Map<String, Object>> dbResGroupIds = memberService.getGroupIdsforUserIds(memberIds);
+      memberService.removeGroupInUserGroup(memberList, dbResGroupIds);
+      return responseObj;
+    }
+
+    logger.error("Error while deleting group {}", groupObj.getId());
+    throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
+  }
+
+  private List<Member> createDeleteMemberList(
+      List<MemberResponse> members, List<String> memberIds) {
+    List<Member> memberList = new ArrayList<>();
+    for (MemberResponse member : members) {
+      Member memberObj = new Member();
+      memberObj.setUserId(member.getUserId());
+      memberObj.setGroupId(member.getGroupId());
+      memberList.add(memberObj);
+      memberIds.add(member.getUserId());
+    }
+    return memberList;
   }
 
   private GroupResponse createGroupResponseObj(Group group) {
