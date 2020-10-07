@@ -131,7 +131,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxMember(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
     List errorList = (List) error.get(JsonKey.MEMBERS);
@@ -145,7 +145,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxActivity(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     System.out.println(res.getResult().get(JsonKey.ERROR));
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
@@ -206,7 +206,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
 
     Request reqObj = updateSuspendGroupReq();
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
