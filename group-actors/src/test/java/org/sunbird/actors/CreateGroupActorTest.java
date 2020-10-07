@@ -117,7 +117,7 @@ public class CreateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(50), Response.class);
     System.out.println(res.getResult());
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Assert.assertNotNull(res.getResult().get(JsonKey.GROUP_ID));
