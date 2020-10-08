@@ -210,7 +210,8 @@ public class GroupServiceImpl implements GroupService {
         dbGroupDetails.forEach(
             map -> {
               Group group = objectMapper.convertValue(map, Group.class);
-              if (!JsonKey.INACTIVE.equals(group.getStatus())) {
+              if (JsonKey.ACTIVE.equals(group.getStatus())
+                  || JsonKey.SUSPENDED.equals(group.getStatus())) {
                 GroupResponse groupResponse = createGroupResponseObj(group);
                 groups.add(groupResponse);
               }
