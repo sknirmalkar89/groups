@@ -52,7 +52,6 @@ public class GroupServiceImpl implements GroupService {
     return JsonUtils.convert(dbResGroup, GroupResponse.class);
   }
 
-
   public Map<String, Object> readGroup(String groupId) throws BaseException {
     Map<String, Object> dbResGroup;
     Response responseObj = groupDao.readGroup(groupId);
@@ -60,8 +59,9 @@ public class GroupServiceImpl implements GroupService {
       List<Map<String, Object>> dbGroupDetails =
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
       if (CollectionUtils.isNotEmpty(dbGroupDetails)
-          && (JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS)) || JsonKey.SUSPENDED.equals(dbGroupDetails.get(0).get(JsonKey.STATUS)))) {
-        logger.info("Group details fetched for groupId :{}",groupId);
+          && (JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS))
+              || JsonKey.SUSPENDED.equals(dbGroupDetails.get(0).get(JsonKey.STATUS)))) {
+        logger.info("Group details fetched for groupId :{}", groupId);
         dbResGroup = dbGroupDetails.get(0);
         // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
         dbResGroup.put(
@@ -101,7 +101,7 @@ public class GroupServiceImpl implements GroupService {
    * @param dbResActivities
    */
   private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
-    logger.info("Fetching activityInfo for activity count: {}",dbResActivities.size());
+    logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
 
@@ -210,7 +210,8 @@ public class GroupServiceImpl implements GroupService {
         dbGroupDetails.forEach(
             map -> {
               Group group = objectMapper.convertValue(map, Group.class);
-              if (JsonKey.ACTIVE.equals(group.getStatus())) {
+              if (JsonKey.ACTIVE.equals(group.getStatus())
+                  || JsonKey.SUSPENDED.equals(group.getStatus())) {
                 GroupResponse groupResponse = createGroupResponseObj(group);
                 groups.add(groupResponse);
               }
@@ -294,9 +295,6 @@ public class GroupServiceImpl implements GroupService {
     return finalList;
   }
 
-
-
-
   private List<Map<String, Object>> readActivityFromDb(String groupId) throws BaseException {
     List<Map<String, Object>> dbActivityList = null;
     Response responseObj = groupDao.readGroup(groupId);
@@ -314,7 +312,4 @@ public class GroupServiceImpl implements GroupService {
     }
     return dbActivityList;
   }
-
-
-
 }
