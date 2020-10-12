@@ -100,7 +100,6 @@ public class GroupServiceImpl implements GroupService {
     logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
-
     for (Map.Entry<SearchServiceUtil, Map<String, String>> itr : idClassTypeMap.entrySet()) {
       try {
         SearchServiceUtil searchServiceUtil = itr.getKey();
