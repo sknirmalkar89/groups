@@ -9,7 +9,8 @@ import org.sunbird.response.Response;
 
 public interface MemberService {
 
-  Response addMembers(List<Member> member, List<Map<String, Object>> userGroupsList) throws BaseException;
+  Response addMembers(List<Member> member, List<Map<String, Object>> userGroupsList)
+      throws BaseException;
 
   Response editMembers(List<Member> member) throws BaseException;
 
@@ -19,18 +20,19 @@ public interface MemberService {
       throws BaseException;
 
   Response handleMemberAddition(
-      List<Map<String, Object>> memberList, String groupId, String contextUserId, List<Map<String, Object>> userGroupsList)
+      List<Map<String, Object>> memberList,
+      String groupId,
+      String contextUserId,
+      List<Map<String, Object>> userGroupsList)
       throws BaseException;
 
   List<MemberResponse> readGroupMembers(String groupId) throws BaseException;
 
-  List<MemberResponse> fetchMembersByGroupId(String groupId)
-      throws BaseException;
+  List<MemberResponse> fetchMembersByGroupId(String groupId) throws BaseException;
 
-  List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds)
-          throws BaseException;
+  List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds) throws BaseException;
 
-  Map<String, String> fetchGroupRoleByUser(List<String> groupIds, String userId)
+  List<Map<String, Object>> fetchGroupByUser(List<String> groupIds, String userId)
       throws BaseException;
 
   public List<Map<String, Object>> getGroupIdsforUserIds(List<String> memberList);

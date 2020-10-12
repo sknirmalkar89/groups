@@ -2,11 +2,7 @@ package org.sunbird.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -137,9 +133,14 @@ public class GroupServiceImpl implements GroupService {
     if (StringUtils.isNotBlank(userId)) {
       List<String> groupIds = fetchAllGroupIdsByUserId(userId);
       if (!groupIds.isEmpty()) {
-        Map<String, String> groupRoleMap = memberService.fetchGroupRoleByUser(groupIds, userId);
+        List<Map<String, Object>> dbResMembers = memberService.fetchGroupByUser(groupIds, userId);
+        logger.info("group member-role count {} for userId {}", dbResMembers.size(), userId);
+        Map<String, String> groupRoleMap = getGroupRoleMapByUser(dbResMembers);
+        logger.info("group visited for userId {}", userId);
+        Map<String, Boolean> groupVisitedMap = getGroupVisitedByUser(dbResMembers);
         groups = readGroupDetailsByGroupIds(groupIds);
         GroupUtil.updateRoles(groups, groupRoleMap);
+        GroupUtil.updateGroupVisitedDetails(groups, groupVisitedMap);
       }
 
     } else {
@@ -150,6 +151,25 @@ public class GroupServiceImpl implements GroupService {
           ResponseCode.BAD_REQUEST.getCode());
     }
     return groups;
+  }
+
+  private Map<String, Boolean> getGroupVisitedByUser(List<Map<String, Object>> dbResMembers) {
+    Map<String, Boolean> groupVisitedMap = new HashMap<>();
+    dbResMembers.forEach(
+        map -> {
+          groupVisitedMap.put(
+              (String) map.get(JsonKey.GROUP_ID), (Boolean) map.get(JsonKey.VISITED));
+        });
+    return groupVisitedMap;
+  }
+
+  private Map<String, String> getGroupRoleMapByUser(List<Map<String, Object>> dbResMembers) {
+    Map<String, String> groupRoleMap = new HashMap<>();
+    dbResMembers.forEach(
+        map -> {
+          groupRoleMap.put((String) map.get(JsonKey.GROUP_ID), (String) map.get(JsonKey.ROLE));
+        });
+    return groupRoleMap;
   }
 
   /**

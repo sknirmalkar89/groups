@@ -158,4 +158,13 @@ public class GroupUtil {
             .collect(Collectors.toList());
     return members;
   }
+
+  public static void updateGroupVisitedDetails(
+      List<GroupResponse> groups, Map<String, Boolean> groupVisitedMap) {
+    if (!groups.isEmpty()) {
+      for (GroupResponse group : groups) {
+        group.setVisited(groupVisitedMap.get(group.getId()));
+      }
+    }
+  }
 }

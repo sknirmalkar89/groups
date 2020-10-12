@@ -32,12 +32,15 @@ public class MemberServiceImpl implements MemberService {
   private static UserService userService = UserServiceImpl.getInstance();
 
   @Override
-  public Response addMembers(List<Member> member, List<Map<String, Object>> dbResGroupIds) throws BaseException {
+  public Response addMembers(List<Member> member, List<Map<String, Object>> dbResGroupIds)
+      throws BaseException {
     Response response = memberDao.addMembers(member);
-    if (response != null && response.getResult().get(JsonKey.RESPONSE) != null && dbResGroupIds == null) {
+    if (response != null
+        && response.getResult().get(JsonKey.RESPONSE) != null
+        && dbResGroupIds == null) {
       dbResGroupIds = getGroupIdsforUserIds(GroupUtil.getMemberIdList(member));
     }
-    //Update if userId is already in DB, otherwise insert
+    // Update if userId is already in DB, otherwise insert
     addGroupInUserGroup(member, dbResGroupIds);
     return response;
   }
@@ -47,29 +50,35 @@ public class MemberServiceImpl implements MemberService {
 
     List<Map<String, Object>> dbResGroupIds = null;
     if (null != userGroupResponseObj && null != userGroupResponseObj.getResult()) {
-      dbResGroupIds = (List<Map<String, Object>>) userGroupResponseObj.getResult().get(JsonKey.RESPONSE);
+      dbResGroupIds =
+          (List<Map<String, Object>>) userGroupResponseObj.getResult().get(JsonKey.RESPONSE);
     }
     return dbResGroupIds;
   }
 
-  private void addGroupInUserGroup(List<Member> memberList, List<Map<String, Object>> dbResGroupIds) throws BaseException {
+  private void addGroupInUserGroup(List<Member> memberList, List<Map<String, Object>> dbResGroupIds)
+      throws BaseException {
     logger.info(
-            "User Group table update started for the group id {}",
-            memberList.get(0).getGroupId());
+        "User Group table update started for the group id {}", memberList.get(0).getGroupId());
     memberList
-            .stream()
-            .forEach(data -> {
+        .stream()
+        .forEach(
+            data -> {
               Map<String, Object> userGroupMap = createUserGroupRecord(new HashSet<>(), data);
               if (CollectionUtils.isNotEmpty(dbResGroupIds)) {
-                Map<String, Object> userDbMap =dbResGroupIds
+                Map<String, Object> userDbMap =
+                    dbResGroupIds
                         .stream()
-                        .filter(dbMap -> (data.getUserId()).equals((String)dbMap.get(JsonKey.USER_ID)))
-                        .findFirst().orElse(null);
-                if(MapUtils.isNotEmpty(userDbMap)){
-                  userGroupMap = createUserGroupRecord((Set<String>) userDbMap.get(JsonKey.GROUP_ID), data);
+                        .filter(
+                            dbMap -> (data.getUserId()).equals((String) dbMap.get(JsonKey.USER_ID)))
+                        .findFirst()
+                        .orElse(null);
+                if (MapUtils.isNotEmpty(userDbMap)) {
+                  userGroupMap =
+                      createUserGroupRecord((Set<String>) userDbMap.get(JsonKey.GROUP_ID), data);
                 }
               }
-              if(MapUtils.isNotEmpty(userGroupMap)) {
+              if (MapUtils.isNotEmpty(userGroupMap)) {
                 memberDao.upsertGroupInUserGroup(userGroupMap);
               }
             });
@@ -94,38 +103,41 @@ public class MemberServiceImpl implements MemberService {
     Response response = memberDao.editMembers(member);
 
     if (response != null && response.getResult().get(JsonKey.RESPONSE) != null) {
-      List<Map<String, Object>> dbResGroupIds = getGroupIdsforUserIds(GroupUtil.getMemberIdList(member));
+      List<Map<String, Object>> dbResGroupIds =
+          getGroupIdsforUserIds(GroupUtil.getMemberIdList(member));
       removeGroupInUserGroup(member, dbResGroupIds);
     }
     return response;
   }
 
-  public void removeGroupInUserGroup(List<Member> memberList, List<Map<String, Object>> dbResGroupIds) throws BaseException {
+  public void removeGroupInUserGroup(
+      List<Member> memberList, List<Map<String, Object>> dbResGroupIds) throws BaseException {
     logger.info(
-            "User Group table update started for the group id {}",
-            memberList.get(0).getGroupId());
+        "User Group table update started for the group id {}", memberList.get(0).getGroupId());
 
     memberList
-            .stream()
-            .forEach(data -> {
+        .stream()
+        .forEach(
+            data -> {
               Map<String, Object> userGroupMap = new HashMap<>();
               if (CollectionUtils.isNotEmpty(dbResGroupIds)) {
                 dbResGroupIds
-                        .stream()
-                        .forEach(map -> {
-                          if((data.getUserId()).equals((String)map.get(JsonKey.USER_ID))){
+                    .stream()
+                    .forEach(
+                        map -> {
+                          if ((data.getUserId()).equals((String) map.get(JsonKey.USER_ID))) {
                             Set<String> groupIdsSet = (Set<String>) map.get(JsonKey.GROUP_ID);
                             groupIdsSet.remove(data.getGroupId());
-                            if(groupIdsSet.size()==0){
+                            if (groupIdsSet.size() == 0) {
                               memberDao.deleteFromUserGroup(data.getUserId());
-                            }else{
+                            } else {
                               userGroupMap.put(JsonKey.GROUP_ID, groupIdsSet);
                             }
                           }
                         });
               }
-              if(MapUtils.isNotEmpty(userGroupMap) && userGroupMap.size()>0){
-                memberDao.updateGroupInUserGroup(userGroupMap,data.getUserId());
+              if (MapUtils.isNotEmpty(userGroupMap) && userGroupMap.size() > 0) {
+                memberDao.updateGroupInUserGroup(userGroupMap, data.getUserId());
               }
             });
   }
@@ -170,7 +182,10 @@ public class MemberServiceImpl implements MemberService {
 
   @Override
   public Response handleMemberAddition(
-      List<Map<String, Object>> memberList, String groupId, String contextUserId, List<Map<String, Object>> userGroupsList)
+      List<Map<String, Object>> memberList,
+      String groupId,
+      String contextUserId,
+      List<Map<String, Object>> userGroupsList)
       throws BaseException {
     logger.info("Number of members to be added to the group {} are {}", groupId, memberList.size());
     Response addMemberRes = new Response();
@@ -211,8 +226,7 @@ public class MemberServiceImpl implements MemberService {
    * @throws BaseException
    */
   @Override
-  public List<MemberResponse> fetchMembersByGroupId(String groupId)
-          throws BaseException {
+  public List<MemberResponse> fetchMembersByGroupId(String groupId) throws BaseException {
     List<MemberResponse> members = fetchMembersByGroupIds(Lists.newArrayList(groupId));
     return members;
   }
@@ -225,15 +239,14 @@ public class MemberServiceImpl implements MemberService {
    * @throws BaseException
    */
   @Override
-  public List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds)
-      throws BaseException {
+  public List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds) throws BaseException {
     Response response = memberDao.fetchMembersByGroupIds(groupIds);
     List<MemberResponse> members = new ArrayList<>();
     if (null != response && null != response.getResult()) {
       List<Map<String, Object>> dbResMembers =
           (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
       if (null != dbResMembers) {
-        logger.info("Group members fetched count : {}",dbResMembers.size());
+        logger.info("Group members fetched count : {}", dbResMembers.size());
         dbResMembers.forEach(
             map -> {
               Member member = objectMapper.convertValue(map, Member.class);
@@ -287,22 +300,14 @@ public class MemberServiceImpl implements MemberService {
   }
 
   @Override
-  public Map<String, String> fetchGroupRoleByUser(List<String> groupIds, String userId)
+  public List<Map<String, Object>> fetchGroupByUser(List<String> groupIds, String userId)
       throws BaseException {
-    Response response = memberDao.fetchGroupRoleByUser(groupIds, userId);
-    Map<String, String> groupRoleMap = new HashMap<>();
+    List<Map<String, Object>> dbResMembers = new ArrayList<>();
+    Response response = memberDao.fetchGroupByUser(groupIds, userId);
     if (null != response && null != response.getResult()) {
-      List<Map<String, Object>> dbResMembers =
-          (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
-      if (null != dbResMembers) {
-        logger.info("group member-role count {} for userId {}", dbResMembers.size(), userId);
-        dbResMembers.forEach(
-            map -> {
-              groupRoleMap.put((String) map.get(JsonKey.GROUP_ID), (String) map.get(JsonKey.ROLE));
-            });
-      }
+      dbResMembers = (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
     }
-    return groupRoleMap;
+    return dbResMembers;
   }
 
   private Member getMemberModelForAdd(
@@ -319,7 +324,11 @@ public class MemberServiceImpl implements MemberService {
     member.setStatus(JsonKey.ACTIVE);
     member.setCreatedBy(contextUserId);
     member.setCreatedOn(new Timestamp(System.currentTimeMillis()));
-
+    if (null != data.get(JsonKey.VISITED)) {
+      member.setVisited((Boolean) data.get(JsonKey.VISITED));
+    } else {
+      member.setVisited(member.getUserId().equals(member.getCreatedBy()) ? true : false);
+    }
     return member;
   }
 
@@ -332,6 +341,9 @@ public class MemberServiceImpl implements MemberService {
       member.setRole(role);
     } else {
       member.setRole(JsonKey.MEMBER);
+    }
+    if (null != data.get(JsonKey.VISITED)) {
+      member.setVisited((Boolean) data.get(JsonKey.VISITED));
     }
     member.setUserId((String) data.get(JsonKey.USER_ID));
     member.setUpdatedBy(contextUserId);
