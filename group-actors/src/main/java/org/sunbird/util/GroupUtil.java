@@ -23,15 +23,18 @@ public class GroupUtil {
 
   private static Logger logger = LoggerFactory.getLogger(GroupUtil.class);
   /**
-   * Update Role details in the group of a user
+   * Update Group details in the group of a user
    *
    * @param groups
-   * @param groupRoleMap
+   * @param groupDetailsMap
    */
-  public static void updateRoles(List<GroupResponse> groups, Map<String, String> groupRoleMap) {
+  public static void updateGroupDetails(
+      List<GroupResponse> groups, Map<String, Map<String, Object>> groupDetailsMap) {
     if (!groups.isEmpty()) {
       for (GroupResponse group : groups) {
-        group.setMemberRole(groupRoleMap.get(group.getId()));
+        Map<String, Object> groupDetails = groupDetailsMap.get(group.getId());
+        group.setMemberRole((String) groupDetails.get(JsonKey.ROLE));
+        group.setVisited((Boolean) groupDetails.get(JsonKey.VISITED));
       }
     }
   }
@@ -157,14 +160,5 @@ public class GroupUtil {
             .map(data -> (String) data.get(JsonKey.USER_ID))
             .collect(Collectors.toList());
     return members;
-  }
-
-  public static void updateGroupVisitedDetails(
-      List<GroupResponse> groups, Map<String, Boolean> groupVisitedMap) {
-    if (!groups.isEmpty()) {
-      for (GroupResponse group : groups) {
-        group.setVisited(groupVisitedMap.get(group.getId()));
-      }
-    }
   }
 }

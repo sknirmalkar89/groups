@@ -133,13 +133,12 @@ public class GroupServiceImpl implements GroupService {
       List<String> groupIds = fetchAllGroupIdsByUserId(userId);
       if (!groupIds.isEmpty()) {
         List<Map<String, Object>> dbResMembers = memberService.fetchGroupByUser(groupIds, userId);
-        logger.info("group member-role count {} for userId {}", dbResMembers.size(), userId);
-        Map<String, String> groupRoleMap = getGroupRoleMapByUser(dbResMembers);
-        logger.info("group visited for userId {}", userId);
-        Map<String, Boolean> groupVisitedMap = getGroupVisitedByUser(dbResMembers);
+        logger.info("group count {} for userId {}", dbResMembers.size(), userId);
+        Map<String, Map<String, Object>> groupMemberRelationMap =
+            getGroupDetailsMapByUser(dbResMembers);
         groups = readGroupDetailsByGroupIds(groupIds);
-        GroupUtil.updateRoles(groups, groupRoleMap);
-        GroupUtil.updateGroupVisitedDetails(groups, groupVisitedMap);
+        GroupUtil.updateGroupDetails(groups, groupMemberRelationMap);
+        //        GroupUtil.updateGroupVisitedDetails(groups, groupVisitedMap);
       }
 
     } else {
@@ -152,23 +151,17 @@ public class GroupServiceImpl implements GroupService {
     return groups;
   }
 
-  private Map<String, Boolean> getGroupVisitedByUser(List<Map<String, Object>> dbResMembers) {
-    Map<String, Boolean> groupVisitedMap = new HashMap<>();
+  private Map<String, Map<String, Object>> getGroupDetailsMapByUser(
+      List<Map<String, Object>> dbResMembers) {
+    Map<String, Map<String, Object>> groupDetailMap = new HashMap<>();
     dbResMembers.forEach(
         map -> {
-          groupVisitedMap.put(
-              (String) map.get(JsonKey.GROUP_ID), (Boolean) map.get(JsonKey.VISITED));
+          Map<String, Object> groupDetails = new HashMap<>();
+          groupDetails.put(JsonKey.ROLE, map.get(JsonKey.ROLE));
+          groupDetails.put(JsonKey.VISITED, map.get(JsonKey.VISITED));
+          groupDetailMap.put((String) map.get(JsonKey.GROUP_ID), groupDetails);
         });
-    return groupVisitedMap;
-  }
-
-  private Map<String, String> getGroupRoleMapByUser(List<Map<String, Object>> dbResMembers) {
-    Map<String, String> groupRoleMap = new HashMap<>();
-    dbResMembers.forEach(
-        map -> {
-          groupRoleMap.put((String) map.get(JsonKey.GROUP_ID), (String) map.get(JsonKey.ROLE));
-        });
-    return groupRoleMap;
+    return groupDetailMap;
   }
 
   /**
