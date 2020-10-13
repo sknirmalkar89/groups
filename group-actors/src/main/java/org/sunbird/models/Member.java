@@ -30,7 +30,17 @@ public class Member implements Serializable {
 
   private String removedBy;
 
+  private Boolean visited;
+
   public Member() {}
+
+  public Boolean isVisited() {
+    return visited;
+  }
+
+  public void setVisited(Boolean visited) {
+    this.visited = visited;
+  }
 
   public String getUserId() {
     return userId;

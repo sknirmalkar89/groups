@@ -2,11 +2,7 @@ package org.sunbird.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -104,7 +100,6 @@ public class GroupServiceImpl implements GroupService {
     logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
-
     for (Map.Entry<SearchServiceUtil, Map<String, String>> itr : idClassTypeMap.entrySet()) {
       try {
         SearchServiceUtil searchServiceUtil = itr.getKey();
@@ -137,9 +132,12 @@ public class GroupServiceImpl implements GroupService {
     if (StringUtils.isNotBlank(userId)) {
       List<String> groupIds = fetchAllGroupIdsByUserId(userId);
       if (!groupIds.isEmpty()) {
-        Map<String, String> groupRoleMap = memberService.fetchGroupRoleByUser(groupIds, userId);
+        List<Map<String, Object>> dbResMembers = memberService.fetchGroupByUser(groupIds, userId);
+        logger.info("group count {} for userId {}", dbResMembers.size(), userId);
+        Map<String, Map<String, Object>> groupMemberRelationMap =
+            getGroupDetailsMapByUser(dbResMembers);
         groups = readGroupDetailsByGroupIds(groupIds);
-        GroupUtil.updateRoles(groups, groupRoleMap);
+        GroupUtil.updateGroupDetails(groups, groupMemberRelationMap);
       }
 
     } else {
@@ -150,6 +148,19 @@ public class GroupServiceImpl implements GroupService {
           ResponseCode.BAD_REQUEST.getCode());
     }
     return groups;
+  }
+
+  private Map<String, Map<String, Object>> getGroupDetailsMapByUser(
+      List<Map<String, Object>> dbResMembers) {
+    Map<String, Map<String, Object>> groupDetailMap = new HashMap<>();
+    dbResMembers.forEach(
+        map -> {
+          Map<String, Object> groupDetails = new HashMap<>();
+          groupDetails.put(JsonKey.ROLE, map.get(JsonKey.ROLE));
+          groupDetails.put(JsonKey.VISITED, map.get(JsonKey.VISITED));
+          groupDetailMap.put((String) map.get(JsonKey.GROUP_ID), groupDetails);
+        });
+    return groupDetailMap;
   }
 
   /**

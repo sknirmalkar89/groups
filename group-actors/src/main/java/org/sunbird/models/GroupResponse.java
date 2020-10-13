@@ -23,6 +23,7 @@ public class GroupResponse {
   private String updatedBy;
   private List<MemberResponse> members;
   private String memberRole;
+  private Boolean visited;
 
   public String getId() {
     return id;
@@ -118,5 +119,13 @@ public class GroupResponse {
 
   public void setMembers(List<MemberResponse> members) {
     this.members = members;
+  }
+
+  public Boolean getVisited() {
+    return visited;
+  }
+
+  public void setVisited(Boolean visited) {
+    this.visited = visited;
   }
 }
