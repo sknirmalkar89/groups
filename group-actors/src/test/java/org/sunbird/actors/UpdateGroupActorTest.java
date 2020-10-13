@@ -263,68 +263,6 @@ public class UpdateGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
   }
 
-  @Test
-  public void testDeleteGroup() {
-    TestKit probe = new TestKit(system);
-    ActorRef subject = system.actorOf(props);
-
-    try {
-      when(cassandraOperation.updateRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
-          .thenReturn(getCassandraResponse());
-      when(cassandraOperation.batchInsert(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
-          .thenReturn(getCassandraResponse());
-      when(cassandraOperation.updateAddSetRecord(
-              Mockito.anyString(),
-              Mockito.anyString(),
-              Mockito.anyMap(),
-              Mockito.anyString(),
-              Mockito.anyObject()))
-          .thenReturn(getCassandraResponse())
-          .thenReturn(getCassandraResponse());
-      when(cassandraOperation.updateRemoveSetRecord(
-              Mockito.anyString(),
-              Mockito.anyString(),
-              Mockito.anyMap(),
-              Mockito.anyString(),
-              Mockito.anyObject()))
-          .thenReturn(getCassandraResponse());
-      when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
-          .thenReturn(getCassandraResponse());
-      when(cassandraOperation.executeSelectQuery(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
-          .thenReturn(memberSizeResponse());
-      when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(getGroupsDetailsResponse());
-      when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(),
-              Matchers.eq("user_group"),
-              Mockito.anyList(),
-              Mockito.anyString()))
-          .thenReturn(getUserGroupResponse());
-      when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(),
-              Matchers.eq("group_member"),
-              Mockito.anyList(),
-              Mockito.anyString()))
-          .thenReturn(getMemberResponse());
-      when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(getCassandraResponse());
-
-    } catch (BaseException be) {
-      Assert.assertTrue(false);
-    }
-    Request reqObj = updateDeleteGroupReq();
-    subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
-
-    Assert.assertTrue(null != res && res.getResponseCode() == 200);
-  }
-
   private Response memberSizeResponse() {
     Response response = new Response();
     Map<String, Object> result = new HashMap<>();
@@ -465,19 +403,6 @@ public class UpdateGroupActorTest extends BaseActorTest {
     reqObj.setOperation(ActorOperations.UPDATE_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup");
     reqObj.getRequest().put(JsonKey.STATUS, "suspended");
-    reqObj.getRequest().put(JsonKey.GROUP_ID, "group1");
-    return reqObj;
-  }
-
-  private static Request updateDeleteGroupReq() {
-    Request reqObj = new Request();
-    reqObj.setHeaders(headerMap);
-    Map<String, Object> context = new HashMap<>();
-    context.put(JsonKey.USER_ID, "user1");
-    reqObj.setContext(context);
-    reqObj.setOperation(ActorOperations.UPDATE_GROUP.getValue());
-    reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup");
-    reqObj.getRequest().put(JsonKey.STATUS, "inactive");
     reqObj.getRequest().put(JsonKey.GROUP_ID, "group1");
     return reqObj;
   }

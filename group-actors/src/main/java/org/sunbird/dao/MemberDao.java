@@ -29,8 +29,10 @@ public interface MemberDao {
 
   Response upsertGroupInUserGroup(Map<String, Object> userGroupMap) throws BaseException;
 
-  Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId) throws BaseException;
+  Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId)
+      throws BaseException;
 
   void deleteFromUserGroup(String userId) throws BaseException;
 
+  void deleteMemberFromGroup(String groupId, List<String> members) throws BaseException;
 }

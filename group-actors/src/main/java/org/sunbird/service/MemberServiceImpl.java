@@ -144,6 +144,11 @@ public class MemberServiceImpl implements MemberService {
             });
   }
 
+  @Override
+  public void deleteGroupMembers(String groupId, List<String> members) throws BaseException {
+    memberDao.deleteMemberFromGroup(groupId, members);
+  }
+
   public void handleMemberOperations(Map memberOperationMap, String groupId, String contextUserId)
       throws BaseException {
     List<Map<String, Object>> memberAddList =

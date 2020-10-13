@@ -60,9 +60,7 @@ public class GroupServiceImpl implements GroupService {
     if (null != responseObj && null != responseObj.getResult()) {
       List<Map<String, Object>> dbGroupDetails =
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
-      if (CollectionUtils.isNotEmpty(dbGroupDetails)
-          && (JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS))
-              || JsonKey.SUSPENDED.equals(dbGroupDetails.get(0).get(JsonKey.STATUS)))) {
+      if (CollectionUtils.isNotEmpty(dbGroupDetails)) {
         logger.info("Group details fetched for groupId :{}", groupId);
         dbResGroup = dbGroupDetails.get(0);
         // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
@@ -212,12 +210,8 @@ public class GroupServiceImpl implements GroupService {
         dbGroupDetails.forEach(
             map -> {
               Group group = objectMapper.convertValue(map, Group.class);
-
-              if (JsonKey.ACTIVE.equals(group.getStatus())
-                  || JsonKey.SUSPENDED.equals(group.getStatus())) {
-                GroupResponse groupResponse = createGroupResponseObj(group);
-                groups.add(groupResponse);
-              }
+              GroupResponse groupResponse = createGroupResponseObj(group);
+              groups.add(groupResponse);
             });
       }
     }
@@ -230,8 +224,8 @@ public class GroupServiceImpl implements GroupService {
   }
 
   @Override
-  public Response deleteGroup(Group groupObj, List<MemberResponse> members) throws BaseException {
-    Response responseObj = groupDao.deleteGroup(groupObj.getId());
+  public Response deleteGroup(String groupId, List<MemberResponse> members) throws BaseException {
+    Response responseObj = groupDao.deleteGroup(groupId);
     // Remove member mapping to the deleted group
     if (null != responseObj) {
       // Create member list
@@ -239,10 +233,11 @@ public class GroupServiceImpl implements GroupService {
       List<Member> memberList = createDeleteMemberList(members, memberIds);
       List<Map<String, Object>> dbResGroupIds = memberService.getGroupIdsforUserIds(memberIds);
       memberService.removeGroupInUserGroup(memberList, dbResGroupIds);
+      memberService.deleteGroupMembers(groupId, memberIds);
       return responseObj;
     }
 
-    logger.error("Error while deleting group {}", groupObj.getId());
+    logger.error("Error while deleting group {}", groupId);
     throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
   }
 

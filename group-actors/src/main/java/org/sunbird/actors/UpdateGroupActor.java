@@ -113,12 +113,7 @@ public class UpdateGroupActor extends BaseActor {
       // if name, description and status update happens in group , delete cache for all the members
       // belongs to that group
       deleteFromUserCache = true;
-      if (StringUtils.isNotBlank(group.getStatus()) && JsonKey.INACTIVE.equals(group.getStatus())) {
-        // Delete group  and make them remove groups members from user_group table.
-        Response response = groupService.deleteGroup(group, membersInDB);
-      } else {
-        Response response = groupService.updateGroup(group);
-      }
+      Response response = groupService.updateGroup(group);
     }
 
     boolean isUseridRedisEnabled =
@@ -153,9 +148,6 @@ public class UpdateGroupActor extends BaseActor {
     // Check User is authorized Suspend , Re-activate or delete the group .
     if ((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status))
         && (member == null || !JsonKey.ADMIN.equals(member.getRole()))) {
-      throw new AuthorizationException.NotAuthorized();
-    } else if (JsonKey.INACTIVE.equals(status)
-        && !userId.equals(dbResGroup.get(JsonKey.CREATE_BY))) {
       throw new AuthorizationException.NotAuthorized();
     }
   }
@@ -235,15 +227,6 @@ public class UpdateGroupActor extends BaseActor {
     List<Map<String, Object>> correlatedObject = new ArrayList<>();
     if (null != group.getStatus()) {
       switch (group.getStatus()) {
-        case JsonKey.INACTIVE:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(),
-                  TelemetryEnvKey.GROUP,
-                  JsonKey.DELETE,
-                  (String) dbResGroup.get(JsonKey.STATUS));
-          break;
-
         case JsonKey.ACTIVE:
           targetObject =
               TelemetryUtil.generateTargetObject(
