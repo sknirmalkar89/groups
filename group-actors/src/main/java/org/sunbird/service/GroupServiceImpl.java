@@ -138,7 +138,6 @@ public class GroupServiceImpl implements GroupService {
             getGroupDetailsMapByUser(dbResMembers);
         groups = readGroupDetailsByGroupIds(groupIds);
         GroupUtil.updateGroupDetails(groups, groupMemberRelationMap);
-        //        GroupUtil.updateGroupVisitedDetails(groups, groupVisitedMap);
       }
 
     } else {
