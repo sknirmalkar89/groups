@@ -127,7 +127,7 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
-  public Response fetchGroupRoleByUser(List<String> groupIds, String userId) throws BaseException {
+  public Response fetchGroupByUser(List<String> groupIds, String userId) throws BaseException {
     Map<String, Object> properties = new LinkedHashMap<>();
     properties.put(JsonKey.GROUP_ID, groupIds);
     properties.put(JsonKey.USER_ID, userId);

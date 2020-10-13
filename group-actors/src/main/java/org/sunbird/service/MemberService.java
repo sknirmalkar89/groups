@@ -32,7 +32,7 @@ public interface MemberService {
 
   List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds) throws BaseException;
 
-  Map<String, String> fetchGroupRoleByUser(List<String> groupIds, String userId)
+  List<Map<String, Object>> fetchGroupByUser(List<String> groupIds, String userId)
       throws BaseException;
 
   public List<Map<String, Object>> getGroupIdsforUserIds(List<String> memberList);

@@ -121,4 +121,5 @@ public interface JsonKey {
   String MEMBER_NOT_FOUND = "MEMBER_NOT_FOUND";
   String MAX_GROUP_LIMIT = "max_group_limit";
   String START_TIME = "startTime";
+  String VISITED = "visited";
 }

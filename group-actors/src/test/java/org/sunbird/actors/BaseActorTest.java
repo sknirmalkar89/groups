@@ -48,7 +48,9 @@ public abstract class BaseActorTest {
 
   public static Response getCassandraResponse() {
     Response response = new Response();
-    response.setResponseCode(ResponseCode.OK.getCode());
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.RESPONSE, ResponseCode.OK.getCode());
+    response.putAll(result);
     return response;
   }
 

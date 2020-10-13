@@ -15,6 +15,7 @@ public class MemberResponse {
   private String updatedBy;
   private String removedOn;
   private String removedBy;
+  private Boolean visited;
 
   public String getUserId() {
     return userId;
@@ -32,6 +33,14 @@ public class MemberResponse {
     if (StringUtils.isNotBlank(role)) {
       this.role = role;
     }
+  }
+
+  public Boolean isVisited() {
+    return visited;
+  }
+
+  public void setVisited(Boolean visited) {
+    this.visited = visited;
   }
 
   public String getGroupId() {

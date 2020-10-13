@@ -307,22 +307,14 @@ public class MemberServiceImpl implements MemberService {
   }
 
   @Override
-  public Map<String, String> fetchGroupRoleByUser(List<String> groupIds, String userId)
+  public List<Map<String, Object>> fetchGroupByUser(List<String> groupIds, String userId)
       throws BaseException {
-    Response response = memberDao.fetchGroupRoleByUser(groupIds, userId);
-    Map<String, String> groupRoleMap = new HashMap<>();
+    List<Map<String, Object>> dbResMembers = new ArrayList<>();
+    Response response = memberDao.fetchGroupByUser(groupIds, userId);
     if (null != response && null != response.getResult()) {
-      List<Map<String, Object>> dbResMembers =
-          (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
-      if (null != dbResMembers) {
-        logger.info("group member-role count {} for userId {}", dbResMembers.size(), userId);
-        dbResMembers.forEach(
-            map -> {
-              groupRoleMap.put((String) map.get(JsonKey.GROUP_ID), (String) map.get(JsonKey.ROLE));
-            });
-      }
+      dbResMembers = (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
     }
-    return groupRoleMap;
+    return dbResMembers;
   }
 
   private Member getMemberModelForAdd(
@@ -339,7 +331,11 @@ public class MemberServiceImpl implements MemberService {
     member.setStatus(JsonKey.ACTIVE);
     member.setCreatedBy(contextUserId);
     member.setCreatedOn(new Timestamp(System.currentTimeMillis()));
-
+    if (null != data.get(JsonKey.VISITED)) {
+      member.setVisited((Boolean) data.get(JsonKey.VISITED));
+    } else {
+      member.setVisited(member.getUserId().equals(member.getCreatedBy()) ? true : false);
+    }
     return member;
   }
 
@@ -352,6 +348,9 @@ public class MemberServiceImpl implements MemberService {
       member.setRole(role);
     } else {
       member.setRole(JsonKey.MEMBER);
+    }
+    if (null != data.get(JsonKey.VISITED)) {
+      member.setVisited((Boolean) data.get(JsonKey.VISITED));
     }
     member.setUserId((String) data.get(JsonKey.USER_ID));
     member.setUpdatedBy(contextUserId);

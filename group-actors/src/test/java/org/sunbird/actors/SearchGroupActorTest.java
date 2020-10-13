@@ -63,11 +63,8 @@ public class SearchGroupActorTest extends BaseActorTest {
     filters.put(JsonKey.USER_ID, "userid1");
     reqObj.getRequest().put(JsonKey.FILTERS, filters);
     try {
-      when(cassandraOperation.getRecordsByProperty(
-              Mockito.anyString(),
-              Mockito.anyString(),
-              Mockito.anyString(),
-              Matchers.eq("userid1")))
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
           .thenReturn(getGroupSetByUserId());
 
       when(cassandraOperation.getRecordsByProperties(

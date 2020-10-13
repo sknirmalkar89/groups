@@ -14,7 +14,7 @@ public interface MemberDao {
 
   Response fetchMembersByGroupIds(List<String> groupIds) throws BaseException;
 
-  Response fetchGroupRoleByUser(List<String> groupIds, String userId) throws BaseException;
+  Response fetchGroupByUser(List<String> groupIds, String userId) throws BaseException;
 
   /**
    * This method will return group uuids based on userId and return response Object as success
