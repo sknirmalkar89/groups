@@ -15,7 +15,7 @@ public class MemberResponse {
   private String updatedBy;
   private String removedOn;
   private String removedBy;
-  private boolean visited;
+  private Boolean visited;
 
   public String getUserId() {
     return userId;
@@ -35,11 +35,11 @@ public class MemberResponse {
     }
   }
 
-  public boolean isVisited() {
+  public Boolean isVisited() {
     return visited;
   }
 
-  public void setVisited(boolean visited) {
+  public void setVisited(Boolean visited) {
     this.visited = visited;
   }
 
