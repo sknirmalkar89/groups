@@ -36,4 +36,9 @@ public interface MemberService {
       throws BaseException;
 
   public List<Map<String, Object>> getGroupIdsforUserIds(List<String> memberList);
+
+  public void removeGroupInUserGroup(
+      List<Member> memberList, List<Map<String, Object>> dbResGroupIds) throws BaseException;
+
+  public void deleteGroupMembers(String groupId, List<String> members) throws BaseException;
 }

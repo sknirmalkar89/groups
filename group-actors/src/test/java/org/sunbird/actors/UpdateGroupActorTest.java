@@ -7,14 +7,12 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -107,11 +105,17 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
           .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -127,7 +131,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxMember(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
     List errorList = (List) error.get(JsonKey.MEMBERS);
@@ -141,7 +145,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxActivity(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     System.out.println(res.getResult().get(JsonKey.ERROR));
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
@@ -188,9 +192,14 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getMemberResponse());
-
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -198,6 +207,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     Request reqObj = updateSuspendGroupReq();
     subject.tell(reqObj, probe.getRef());
     Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
   @Test
@@ -237,9 +247,14 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getMemberResponse());
-
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
@@ -412,6 +427,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     group1.put("name", "TestGroup1");
     group1.put("id", "TestGroup");
     group1.put("status", "active");
+    group1.put("createdBy", "user1");
     List<Map<String, Object>> activities = new ArrayList<>();
     Map<String, Object> activity1 = new HashMap<>();
     activity1.put(JsonKey.ID, "do_112470675618004992181");
@@ -436,15 +452,33 @@ public class UpdateGroupActorTest extends BaseActorTest {
     member.put(JsonKey.USER_ID, "user1");
     member.put(JsonKey.ROLE, JsonKey.ADMIN);
     member.put(JsonKey.STATUS, JsonKey.ACTIVE);
+    member.put(JsonKey.CREATED_BY, "user1");
     members.add(member);
     member = new HashMap<>();
     member.put(JsonKey.USER_ID, "userID22");
     member.put(JsonKey.ROLE, JsonKey.MEMBER);
     member.put(JsonKey.STATUS, JsonKey.ACTIVE);
+    member.put(JsonKey.CREATED_BY, "user1");
 
     members.add(member);
     Map<String, Object> result = new HashMap<>();
     result.put(JsonKey.RESPONSE, members);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+
+  static Response getUserGroupResponse() {
+    List<Map<String, Object>> userGroups = new ArrayList<>();
+    Map<String, Object> userGroup = new HashMap<>();
+    userGroup.put(JsonKey.USER_ID, "user1");
+    userGroup.put(JsonKey.GROUP_ID, Arrays.asList("group1", "group2"));
+    userGroups.add(userGroup);
+    userGroup.put(JsonKey.USER_ID, "user2");
+    userGroup.put(JsonKey.GROUP_ID, Arrays.asList("group1", "group2"));
+    userGroups.add(userGroup);
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.RESPONSE, userGroups);
     Response response = new Response();
     response.putAll(result);
     return response;

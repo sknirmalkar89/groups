@@ -83,6 +83,19 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
+  public void deleteMemberFromGroup(String groupId, List<String> members) throws BaseException {
+    List<Map<String, Object>> compositeKeyMap = new ArrayList<>();
+    members.forEach(
+        memberId -> {
+          Map<String, Object> primaryKeys = new HashMap<>();
+          primaryKeys.put(JsonKey.GROUP_ID, groupId);
+          primaryKeys.put(JsonKey.USER_ID, memberId);
+          compositeKeyMap.add(primaryKeys);
+        });
+    cassandraOperation.batchDelete(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, compositeKeyMap);
+  }
+
+  @Override
   public Response editMembers(List<Member> member) throws BaseException {
     List<Map<String, Map<String, Object>>> list = new ArrayList<>();
     for (Member memberObj : member) {

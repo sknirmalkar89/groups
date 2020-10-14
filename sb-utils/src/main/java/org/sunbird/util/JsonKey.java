@@ -66,6 +66,7 @@ public interface JsonKey {
   String ACTIVITIES = "activities";
   String TYPE = "type";
   String CREATED_ON = "createdOn";
+  String CREATED_BY = "createdBy";
   String UPDATED_ON = "updatedOn";
   String USER_SERVICE_BASE_URL = "LEARNER_SERVICE_PORT";
   String USER_SERVICE_SEARCH_URL = "sunbird_user_service_search_url";

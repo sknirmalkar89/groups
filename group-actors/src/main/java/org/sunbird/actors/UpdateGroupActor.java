@@ -66,56 +66,55 @@ public class UpdateGroupActor extends BaseActor {
       throw new AuthorizationException.NotAuthorized();
     }
 
-    Map<String,Object> dbResGroup =  groupService.readGroup(group.getId());
-    //check if Group is active
+    Map<String, Object> dbResGroup = groupService.readGroup(group.getId());
+    // check if Group is active
 
-    if(JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS)) &&
-            (StringUtils.isBlank(group.getStatus()) || JsonKey.SUSPENDED.equals(group.getStatus()))){
-        throw new ValidationException.GroupNotActive(group.getId());
+    if (JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
+        && (StringUtils.isBlank(group.getStatus())
+            || JsonKey.SUSPENDED.equals(group.getStatus()))) {
+      throw new ValidationException.GroupNotActive(group.getId());
     }
 
-
     Map<String, List<Map<String, String>>> responseMap = new HashMap<>();
-        // member validation and updates to group
+    // member validation and updates to group
     MemberService memberService = new MemberServiceImpl();
     List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId());
 
-    // Check if suspend and re-activate operation  performed by only admin
-    checkIfAdminUser(userId, membersInDB,group.getStatus());
+    // Check if user is authorized to delete ,suspend and re-activate operation
+    checkUserAuthorization(dbResGroup, membersInDB, group.getStatus(), userId);
 
     if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
-          responseMap.put(
-              JsonKey.MEMBERS,
-              validateMembersAndSave(
-                  group.getId(),
-                  (Map) actorMessage.getRequest().get(JsonKey.MEMBERS),
-                  userId,
-                  membersInDB));
-        }
-        // Activity validation
-        if (MapUtils.isNotEmpty(
-            (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES))) {
-          responseMap.put(
-              JsonKey.ACTIVITIES,
-              validateActivityList(
-                  group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)));
-        }
-        boolean deleteFromUserCache = false;
-        // Group and activity updates
-        if (group != null
-            && (StringUtils.isNotEmpty(group.getDescription())
-                || StringUtils.isNotEmpty(group.getName())
-                || StringUtils.isNotEmpty(group.getMembershipType())
-                || StringUtils.isNotEmpty(group.getStatus())
-                || MapUtils.isNotEmpty(
-                    (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)))) {
-          cacheUtil.deleteCacheSync(group.getId());
-          // if name, description and status update happens in group , delete cache for all the members
-          // belongs to that group
-          deleteFromUserCache = true;
-          Response response = groupService.updateGroup(group);
-       }
-
+      responseMap.put(
+          JsonKey.MEMBERS,
+          validateMembersAndSave(
+              group.getId(),
+              (Map) actorMessage.getRequest().get(JsonKey.MEMBERS),
+              userId,
+              membersInDB));
+    }
+    // Activity validation
+    if (MapUtils.isNotEmpty(
+        (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES))) {
+      responseMap.put(
+          JsonKey.ACTIVITIES,
+          validateActivityList(
+              group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)));
+    }
+    boolean deleteFromUserCache = false;
+    // Group and activity updates
+    if (group != null
+        && (StringUtils.isNotEmpty(group.getDescription())
+            || StringUtils.isNotEmpty(group.getName())
+            || StringUtils.isNotEmpty(group.getMembershipType())
+            || StringUtils.isNotEmpty(group.getStatus())
+            || MapUtils.isNotEmpty(
+                (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)))) {
+      cacheUtil.deleteCacheSync(group.getId());
+      // if name, description and status update happens in group , delete cache for all the members
+      // belongs to that group
+      deleteFromUserCache = true;
+      Response response = groupService.updateGroup(group);
+    }
 
     boolean isUseridRedisEnabled =
         Boolean.parseBoolean(
@@ -136,16 +135,22 @@ public class UpdateGroupActor extends BaseActor {
     }
     sender().tell(response, self());
 
-    logTelemetry(actorMessage, group,dbResGroup);
+    logTelemetry(actorMessage, group, dbResGroup);
   }
 
-  private void checkIfAdminUser(String userId, List<MemberResponse> membersInDB,String status) {
-    MemberResponse adminMember = membersInDB.stream().filter(x->x.getUserId().equals(userId)).findAny().orElse(null);
-    if((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status)) && (adminMember == null || !JsonKey.ADMIN.equals(adminMember.getRole()))){
-       throw new AuthorizationException.NotAuthorized();
+  private void checkUserAuthorization(
+      Map<String, Object> dbResGroup,
+      List<MemberResponse> membersInDB,
+      String status,
+      String userId) {
+    MemberResponse member =
+        membersInDB.stream().filter(x -> x.getUserId().equals(userId)).findAny().orElse(null);
+    // Check User is authorized Suspend , Re-activate or delete the group .
+    if ((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status))
+        && (member == null || !JsonKey.ADMIN.equals(member.getRole()))) {
+      throw new AuthorizationException.NotAuthorized();
     }
   }
-
 
   private List<Map<String, String>> validateActivityList(
       Group group, Map<String, Object> activityOperationMap) {
@@ -220,33 +225,33 @@ public class UpdateGroupActor extends BaseActor {
   private void logTelemetry(Request actorMessage, Group group, Map<String, Object> dbResGroup) {
     Map<String, Object> targetObject = null;
     List<Map<String, Object>> correlatedObject = new ArrayList<>();
-    if (null != group.getStatus() ){
-      switch (group.getStatus()){
-        case JsonKey.INACTIVE :
-            targetObject = TelemetryUtil.generateTargetObject(
-                        group.getId(), TelemetryEnvKey.GROUP, JsonKey.DELETE, (String) dbResGroup.get(JsonKey.STATUS));
-            break;
-
+    if (null != group.getStatus()) {
+      switch (group.getStatus()) {
         case JsonKey.ACTIVE:
-          targetObject = TelemetryUtil.generateTargetObject(
-                          group.getId(), TelemetryEnvKey.GROUP, JsonKey.ACTIVE, (String) dbResGroup.get(JsonKey.STATUS));
+          targetObject =
+              TelemetryUtil.generateTargetObject(
+                  group.getId(),
+                  TelemetryEnvKey.GROUP,
+                  JsonKey.ACTIVE,
+                  (String) dbResGroup.get(JsonKey.STATUS));
           break;
 
         case JsonKey.SUSPENDED:
-          targetObject = TelemetryUtil.generateTargetObject(
-                  group.getId(), TelemetryEnvKey.GROUP, JsonKey.SUSPENDED, (String) dbResGroup.get(JsonKey.STATUS));
+          targetObject =
+              TelemetryUtil.generateTargetObject(
+                  group.getId(),
+                  TelemetryEnvKey.GROUP,
+                  JsonKey.SUSPENDED,
+                  (String) dbResGroup.get(JsonKey.STATUS));
           break;
 
         default:
-          targetObject = TelemetryUtil.generateTargetObject(
-                          group.getId(), TelemetryEnvKey.GROUP, JsonKey.UPDATE, null);
-
+          targetObject =
+              TelemetryUtil.generateTargetObject(
+                  group.getId(), TelemetryEnvKey.GROUP, JsonKey.UPDATE, null);
       }
       TelemetryUtil.telemetryProcessingCall(
-              actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
+          actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
     }
-
   }
-
-
 }

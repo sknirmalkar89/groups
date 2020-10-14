@@ -45,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
     return response;
   }
 
+  @Override
   public List<Map<String, Object>> getGroupIdsforUserIds(List<String> member) {
     Response userGroupResponseObj = memberDao.readGroupIdsByUserIds(member);
 
@@ -110,6 +111,7 @@ public class MemberServiceImpl implements MemberService {
     return response;
   }
 
+  @Override
   public void removeGroupInUserGroup(
       List<Member> memberList, List<Map<String, Object>> dbResGroupIds) throws BaseException {
     logger.info(
@@ -140,6 +142,11 @@ public class MemberServiceImpl implements MemberService {
                 memberDao.updateGroupInUserGroup(userGroupMap, data.getUserId());
               }
             });
+  }
+
+  @Override
+  public void deleteGroupMembers(String groupId, List<String> members) throws BaseException {
+    memberDao.deleteMemberFromGroup(groupId, members);
   }
 
   public void handleMemberOperations(Map memberOperationMap, String groupId, String contextUserId)

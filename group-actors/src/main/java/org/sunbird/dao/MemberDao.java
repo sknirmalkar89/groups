@@ -33,4 +33,13 @@ public interface MemberDao {
       throws BaseException;
 
   void deleteFromUserGroup(String userId) throws BaseException;
+
+  /**
+   * Delete members from a group
+   *
+   * @param groupId
+   * @param members
+   * @throws BaseException
+   */
+  void deleteMemberFromGroup(String groupId, List<String> members) throws BaseException;
 }

@@ -275,9 +275,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
           }
         }
       }
-      //TODO : selectQuery.allowFiltering() is removed for now. Need to add a separate method for it
-      ResultSet results =
-          connectionManager.getSession(keyspaceName).execute(selectQuery);
+      // TODO : selectQuery.allowFiltering() is removed for now. Need to add a separate method for
+      // it
+      ResultSet results = connectionManager.getSession(keyspaceName).execute(selectQuery);
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
@@ -1213,6 +1213,33 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     }
     ResultSet results = connectionManager.getSession(keyspaceName).execute(selectQuery);
     response = CassandraUtil.createResponse(results);
+    return response;
+  }
+
+  @Override
+  public Response batchDelete(String keyspaceName, String tableName, List<Map<String, Object>> list)
+      throws BaseException {
+
+    Session session = connectionManager.getSession(keyspaceName);
+    BatchStatement batchStatement = new BatchStatement();
+    long startTime = System.currentTimeMillis();
+    logger.info("Cassandra Service batchDelete method started at == {}", startTime);
+    Response response = new Response();
+    ResultSet resultSet = null;
+    try {
+      for (Map<String, Object> primaryKey : list) {
+        batchStatement.add(CassandraUtil.createDeleteQuery(primaryKey, keyspaceName, tableName));
+      }
+      resultSet = session.execute(batchStatement);
+      response.put(Constants.RESPONSE, Constants.SUCCESS);
+    } catch (Exception ex) {
+      logger.error("Cassandra Batch Delete failed " + ex.getMessage(), ex);
+      throw new BaseException(
+          IResponseMessage.SERVER_ERROR,
+          IResponseMessage.SERVER_ERROR,
+          ResponseCode.SERVER_ERROR.getCode());
+    }
+    logQueryElapseTime("batchDelete", startTime);
     return response;
   }
 

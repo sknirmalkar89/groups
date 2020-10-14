@@ -71,11 +71,11 @@ public class ValidationException {
   public static class GroupNotActive extends BaseException {
     public GroupNotActive(String paramValue) {
       super(
-              IResponseMessage.GROUP_NOT_ACTIVE,
-              MessageFormat.format(
-                      ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_ACTIVE, null),
-                      paramValue),
-              400);
+          IResponseMessage.GROUP_NOT_ACTIVE,
+          MessageFormat.format(
+              ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_ACTIVE, null),
+              paramValue),
+          400);
     }
   }
 

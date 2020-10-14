@@ -25,7 +25,6 @@ public interface IResponseMessage {
   String GROUP_NOT_FOUND = "GROUP_NOT_FOUND";
   String GROUP_NOT_ACTIVE = "GROUP_NOT_ACTIVE";
 
-
   interface Key {
     String UNAUTHORIZED = "UNAUTHORIZED";
     String KEY_CLOAK_DEFAULT_ERROR = "KEY_CLOAK_DEFAULT_ERROR";
@@ -45,7 +44,7 @@ public interface IResponseMessage {
     String INVALID_REQUESTED_DATA = "Requested data for this operation is not valid.";
     String DATA_TYPE_ERROR = "Data type of {0} should be {1}.";
     String GROUP_NOT_FOUND = "group does not exist with this group Id {0}.";
-    String GROUP_NOT_ACTIVE= "group not active with this group Id {0}.";
+    String GROUP_NOT_ACTIVE = "group not active with this group Id {0}.";
     String INVALID_PARAMETER_VALUE =
         "Invalid value {0} for parameter {1}. Please provide a valid value.";
     String MISSING_MANDATORY_PARAMS = "MANDATORY PARAM {0}.{1} IS MISSING";

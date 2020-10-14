@@ -9,8 +9,7 @@ import org.sunbird.response.Response;
 public interface GroupDao {
 
   /**
-   * This method will create group and return groupId as success response or throw
-   * BaseException.
+   * This method will create group and return groupId as success response or throw BaseException.
    *
    * @param groupObj Group Details.
    * @return group ID.
@@ -36,12 +35,18 @@ public interface GroupDao {
   Response readGroups(List<String> groupIds) throws BaseException;
 
   /**
-   * This method will update group and return success response or throw
-   * BaseException.
+   * This method will update group and return success response or throw BaseException.
    *
    * @param groupObj Group Details.
    * @return Response.
    */
   Response updateGroup(Group groupObj) throws BaseException;
 
+  /**
+   * This method will delete group and return success response or throw BaseException.
+   *
+   * @param groupId Group Id.
+   * @return Response.
+   */
+  Response deleteGroup(String groupId) throws BaseException;
 }
