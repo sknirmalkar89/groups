@@ -39,6 +39,7 @@ import org.sunbird.util.JsonKey;
 @PowerMockIgnore({"javax.management.*"})
 public class SearchGroupActorTest extends BaseActorTest {
   private static final String GROUP_MEMBER_TABLE = "group_member";
+  private static final String GROUP_TABLE_NAME = "group";
   private final Props props = Props.create(org.sunbird.actors.SearchGroupActor.class);
   public CassandraOperation cassandraOperation;
 
@@ -64,8 +65,18 @@ public class SearchGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FILTERS, filters);
     try {
       when(cassandraOperation.getRecordsByPrimaryKeys(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+              Mockito.anyString(),
+              Matchers.eq("user_group"),
+              Mockito.anyList(),
+              Mockito.anyString()))
           .thenReturn(getGroupSetByUserId());
+
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq(GROUP_TABLE_NAME),
+              Mockito.anyList(),
+              Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
 
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap()))
