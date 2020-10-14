@@ -61,7 +61,7 @@ public class DeleteGroupActor extends BaseActor {
 
     Map<String, Object> dbResGroup = groupService.readGroup(groupId);
     // Only Group Creator should be able to delete the group
-    if (!userId.equals((String) dbResGroup.get(JsonKey.CREATE_BY))) {
+    if (!userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
       throw new AuthorizationException.NotAuthorized();
     }
 
@@ -75,6 +75,7 @@ public class DeleteGroupActor extends BaseActor {
             PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
     if (isUseridRedisEnabled) {
       cacheUtil.deleteCacheSync(groupId);
+      cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
       // Remove group list user cache from redis
       membersInDB.forEach(member -> cacheUtil.delCache(member.getUserId()));
     }

@@ -111,13 +111,13 @@ public class DeleteGroupActorTest extends BaseActorTest {
     member.put(JsonKey.USER_ID, "user1");
     member.put(JsonKey.ROLE, JsonKey.ADMIN);
     member.put(JsonKey.STATUS, JsonKey.ACTIVE);
-    member.put(JsonKey.CREATE_BY, "user1");
+    member.put(JsonKey.CREATED_BY, "user1");
     members.add(member);
     member = new HashMap<>();
     member.put(JsonKey.USER_ID, "userID22");
     member.put(JsonKey.ROLE, JsonKey.MEMBER);
     member.put(JsonKey.STATUS, JsonKey.ACTIVE);
-    member.put(JsonKey.CREATE_BY, "user1");
+    member.put(JsonKey.CREATED_BY, "user1");
 
     members.add(member);
     Map<String, Object> result = new HashMap<>();
