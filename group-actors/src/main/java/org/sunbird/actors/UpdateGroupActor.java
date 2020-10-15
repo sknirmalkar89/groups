@@ -67,9 +67,14 @@ public class UpdateGroupActor extends BaseActor {
     }
 
     Map<String, Object> dbResGroup = groupService.readGroup(group.getId());
-    // check if Group is active
 
-    if (JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
+    // Check if it is an exit group request
+    boolean isExitGroupRequest =
+        isExitGroupRequest(
+            group, userId, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.MEMBERS));
+    // Only exit group and activate group request is allowed in suspended group state
+    if (!isExitGroupRequest
+        && JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
         && (StringUtils.isBlank(group.getStatus())
             || JsonKey.SUSPENDED.equals(group.getStatus()))) {
       throw new ValidationException.GroupNotActive(group.getId());
@@ -81,7 +86,10 @@ public class UpdateGroupActor extends BaseActor {
     List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId());
 
     // Check if user is authorized to delete ,suspend and re-activate operation
-    checkUserAuthorization(dbResGroup, membersInDB, group.getStatus(), userId);
+    // Allow all member to exit the group
+    if (!isExitGroupRequest) {
+      checkUserAuthorization(dbResGroup, membersInDB, group.getStatus(), userId);
+    }
 
     if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
       responseMap.put(
@@ -136,6 +144,25 @@ public class UpdateGroupActor extends BaseActor {
     sender().tell(response, self());
 
     logTelemetry(actorMessage, group, dbResGroup);
+  }
+
+  private boolean isExitGroupRequest(Group group, String userId, Map<String, Object> members) {
+    boolean isExitRequest = false;
+    if (group != null
+        && (StringUtils.isNotEmpty(group.getDescription())
+            || StringUtils.isNotEmpty(group.getName())
+            || StringUtils.isNotEmpty(group.getMembershipType())
+            || StringUtils.isNotEmpty(group.getStatus())
+            || CollectionUtils.isNotEmpty(group.getActivities()))) {
+      isExitRequest = false;
+    } else if (group != null
+        && MapUtils.isNotEmpty(members)
+        && !members.containsKey(JsonKey.ADD)
+        && !members.containsKey(JsonKey.EDIT)) {
+      List<String> removeMemberList = (List<String>) members.get(JsonKey.REMOVE);
+      isExitRequest = removeMemberList.size() == 1 && userId.equals(removeMemberList.get(0));
+    }
+    return isExitRequest;
   }
 
   private void checkUserAuthorization(
