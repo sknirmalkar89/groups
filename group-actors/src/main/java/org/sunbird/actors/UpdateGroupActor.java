@@ -147,21 +147,22 @@ public class UpdateGroupActor extends BaseActor {
   }
 
   private boolean isExitGroupRequest(Group group, String userId, Map<String, Object> members) {
+    boolean isExitRequest = false;
     if (group != null
         && (StringUtils.isNotEmpty(group.getDescription())
             || StringUtils.isNotEmpty(group.getName())
             || StringUtils.isNotEmpty(group.getMembershipType())
             || StringUtils.isNotEmpty(group.getStatus())
             || CollectionUtils.isNotEmpty(group.getActivities()))) {
-      return false;
+      isExitRequest = false;
     } else if (group != null
         && MapUtils.isNotEmpty(members)
         && !members.containsKey(JsonKey.ADD)
         && !members.containsKey(JsonKey.EDIT)) {
       List<String> removeMemberList = (List<String>) members.get(JsonKey.REMOVE);
-      return removeMemberList.size() == 1 && userId.equals(removeMemberList.get(0));
+      isExitRequest = removeMemberList.size() == 1 && userId.equals(removeMemberList.get(0));
     }
-    return false;
+    return isExitRequest;
   }
 
   private void checkUserAuthorization(
