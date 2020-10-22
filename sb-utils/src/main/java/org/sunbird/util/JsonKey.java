@@ -122,4 +122,5 @@ public interface JsonKey {
   String MAX_GROUP_LIMIT = "max_group_limit";
   String START_TIME = "startTime";
   String VISITED = "visited";
+  String GROUPS = "groups";
 }

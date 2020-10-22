@@ -16,4 +16,5 @@ GET	/private/v1/group/read/:groupId			  @controllers.ReadGroupController.readGro
 #Search APIs
 
 POST   /v1/group/list                         @controllers.SearchGroupController.searchGroup(request: play.mvc.Http.Request)
-DELETE   /v1/group/delete                       @controllers.DeleteGroupController.deleteGroup(request: play.mvc.Http.Request)
+DELETE   /v1/group/delete                     @controllers.DeleteGroupController.deleteGroup(request: play.mvc.Http.Request)
+PATCH   /v1/group/membership/update           @controllers.UpdateGroupMembershipController.updateGroupMembership(request: play.mvc.Http.Request)
