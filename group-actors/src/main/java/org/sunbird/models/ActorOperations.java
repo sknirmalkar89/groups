@@ -9,7 +9,8 @@ public enum ActorOperations {
   SET_CACHE("setCache"),
   DEL_CACHE("delCache"),
   GET_CACHE("getCache"),
-  DELETE_GROUP("deleteGroup");
+  DELETE_GROUP("deleteGroup"),
+  UPDATE_GROUP_MEMBERSHIP("updateGroupMembership");
 
   private String value;
 
