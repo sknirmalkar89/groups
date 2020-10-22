@@ -66,7 +66,6 @@ public class UpdateGroupMembershipActor extends BaseActor {
       groups.forEach(
           group -> {
             String groupId = (String) group.get(JsonKey.GROUP_ID);
-            cacheUtil.deleteCacheSync(groupId);
             cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
           });
 
@@ -82,6 +81,13 @@ public class UpdateGroupMembershipActor extends BaseActor {
     ObjectMapper mapper = new ObjectMapper();
     for (Map<String, Object> groupMembership : groups) {
       Member member = mapper.convertValue(groupMembership, Member.class);
+      // TODO: Needs to be removed in future with role based access, Now allowing only visited flag
+      // to be updated
+      if (member != null
+          && (StringUtils.isNotEmpty(member.getRole())
+              || StringUtils.isNotEmpty(member.getStatus()))) {
+        throw new AuthorizationException.NotAuthorized();
+      }
       member.setUserId(userId);
       if (StringUtils.isBlank(member.getGroupId())) {
         throw new ValidationException.MandatoryParamMissing(JsonKey.GROUP_ID, JsonKey.GROUPS);
@@ -104,7 +110,8 @@ public class UpdateGroupMembershipActor extends BaseActor {
     }
     Map<String, Object> targetObject = null;
     targetObject =
-        TelemetryUtil.generateTargetObject(userId, TelemetryEnvKey.USER, JsonKey.UPDATE, null);
+        TelemetryUtil.generateTargetObject(
+            userId, TelemetryEnvKey.GROUP_MEMBER, JsonKey.UPDATE, null);
 
     TelemetryUtil.generateCorrelatedObject(
         (String) actorMessage.getContext().get(JsonKey.USER_ID),
