@@ -25,7 +25,7 @@ public class DeleteGroupControllerTest extends BaseApplicationTest {
     Map<String, Object> request = new HashMap<>();
     request.put("request", reqMap);
 
-    Result result = performTest("/v1/group/delete", "DELETE", request);
+    Result result = performTest("/v1/group/delete", "POST", request);
     assertTrue(getResponseStatus(result) == Response.Status.OK.getStatusCode());
   }
 
@@ -35,7 +35,7 @@ public class DeleteGroupControllerTest extends BaseApplicationTest {
     reqMap.put(JsonKey.GROUP_ID, "");
     Map<String, Object> request = new HashMap<>();
     request.put("request", reqMap);
-    Result result = performTest("/v1/group/delete", "DELETE", request);
+    Result result = performTest("/v1/group/delete", "POST", request);
     assertTrue(getResponseStatus(result) == Response.Status.BAD_REQUEST.getStatusCode());
   }
 
@@ -44,7 +44,7 @@ public class DeleteGroupControllerTest extends BaseApplicationTest {
     Map<String, Object> reqMap = new HashMap<>();
     Map<String, Object> request = new HashMap<>();
     request.put("request", reqMap);
-    Result result = performTest("/v1/group/delete", "DELETE", request);
+    Result result = performTest("/v1/group/delete", "POST", request);
     assertTrue(getResponseStatus(result) == Response.Status.BAD_REQUEST.getStatusCode());
   }
 }
