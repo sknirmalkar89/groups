@@ -117,7 +117,7 @@ public class CreateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(30), Response.class);
     System.out.println(res.getResult());
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Assert.assertNotNull(res.getResult().get(JsonKey.GROUP_ID));
@@ -170,7 +170,7 @@ public class CreateGroupActorTest extends BaseActorTest {
     activities.add(activity);
     reqObj.getRequest().put(JsonKey.ACTIVITIES, activities);
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(30), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     System.out.println("response " + res.getResult());
     Assert.assertNotNull(res.getResult().get(JsonKey.GROUP_ID));
