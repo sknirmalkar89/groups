@@ -47,7 +47,9 @@ public class GroupRequestHandler {
     group.setMembershipType((String) actorMessage.getRequest().get(JsonKey.GROUP_MEMBERSHIP_TYPE));
     String status = (String) actorMessage.getRequest().get(JsonKey.GROUP_STATUS);
     if (StringUtils.isNotEmpty(status)
-        && (status.equals(JsonKey.SUSPENDED) || status.equals(JsonKey.ACTIVE))) {
+        && (status.equals(JsonKey.SUSPENDED)
+            || status.equals(JsonKey.INACTIVE)
+            || status.equals(JsonKey.ACTIVE))) {
       group.setStatus(status);
     }
     group.setUpdatedBy(getRequestedBy(actorMessage));

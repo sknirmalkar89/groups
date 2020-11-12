@@ -121,7 +121,11 @@ public class UpdateGroupActor extends BaseActor {
       // if name, description and status update happens in group , delete cache for all the members
       // belongs to that group
       deleteFromUserCache = true;
-      Response response = groupService.updateGroup(group);
+      if (JsonKey.INACTIVE.equals(group.getStatus())) {
+        Response response = groupService.deleteGroup(group.getId(), membersInDB);
+      } else {
+        Response response = groupService.updateGroup(group);
+      }
     }
 
     boolean isUseridRedisEnabled =
@@ -175,6 +179,11 @@ public class UpdateGroupActor extends BaseActor {
     // Check User is authorized Suspend , Re-activate or delete the group .
     if ((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status))
         && (member == null || !JsonKey.ADMIN.equals(member.getRole()))) {
+      throw new AuthorizationException.NotAuthorized();
+    }
+
+    if (JsonKey.INACTIVE.equals(status)
+        && !userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
       throw new AuthorizationException.NotAuthorized();
     }
   }
