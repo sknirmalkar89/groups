@@ -121,6 +121,8 @@ public class UpdateGroupActor extends BaseActor {
       // if name, description and status update happens in group , delete cache for all the members
       // belongs to that group
       deleteFromUserCache = true;
+      // if inactive status then delete group included to support backward compatability for old
+      // mobile apps
       if (JsonKey.INACTIVE.equals(group.getStatus())) {
         Response response = groupService.deleteGroup(group.getId(), membersInDB);
       } else {

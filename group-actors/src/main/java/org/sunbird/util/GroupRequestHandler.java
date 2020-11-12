@@ -46,6 +46,8 @@ public class GroupRequestHandler {
     group.setDescription((String) actorMessage.getRequest().get(JsonKey.GROUP_DESC));
     group.setMembershipType((String) actorMessage.getRequest().get(JsonKey.GROUP_MEMBERSHIP_TYPE));
     String status = (String) actorMessage.getRequest().get(JsonKey.GROUP_STATUS);
+
+    // inactive status to be included to support backward compatability for old mobile apps
     if (StringUtils.isNotEmpty(status)
         && (status.equals(JsonKey.SUSPENDED)
             || status.equals(JsonKey.INACTIVE)
