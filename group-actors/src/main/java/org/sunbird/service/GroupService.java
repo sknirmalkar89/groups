@@ -5,13 +5,16 @@ import java.util.Map;
 import org.sunbird.exception.BaseException;
 import org.sunbird.models.Group;
 import org.sunbird.models.GroupResponse;
+import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 
 public interface GroupService {
 
   String createGroup(Group groupObj) throws BaseException;
 
-  GroupResponse readGroup(String groupId) throws Exception;
+  Map<String, Object> readGroup(String groupId) throws BaseException;
+
+  GroupResponse readGroupWithActivities(String groupId) throws Exception;
 
   void readGroupActivities(Map<String, Object> dbResGroup);
 
@@ -21,4 +24,6 @@ public interface GroupService {
 
   List<Map<String, Object>> handleActivityOperations(
       String groupId, Map<String, Object> activityOperationMap) throws BaseException;
+
+  Response deleteGroup(String groupId, List<MemberResponse> members) throws BaseException;
 }

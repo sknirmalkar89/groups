@@ -508,4 +508,7 @@ public interface CassandraOperation {
   public Response executeSelectQuery(
       String keyspaceName, String tableName, Map<String, Object> properties, Builder selectBuilder)
       throws BaseException;
+
+  public Response batchDelete(String keyspaceName, String tableName, List<Map<String, Object>> list)
+      throws BaseException;
 }

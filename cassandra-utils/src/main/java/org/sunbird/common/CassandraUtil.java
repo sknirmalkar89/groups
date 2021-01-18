@@ -3,6 +3,7 @@ package org.sunbird.common;
 import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select.Where;
 import com.datastax.driver.core.querybuilder.Update;
@@ -84,7 +85,7 @@ public final class CassandraUtil {
               .forEach(entry -> rowMap.put(entry.getKey(), row.getObject(entry.getValue())));
           responseList.add(rowMap);
         });
-    //logger.info(responseList.toString());
+    // logger.info(responseList.toString());
     response.put(Constants.RESPONSE, responseList);
     return response;
   }
@@ -341,5 +342,28 @@ public final class CassandraUtil {
     } else {
       where.and(QueryBuilder.eq(key, value));
     }
+  }
+
+  /**
+   * Method to create the cassandra delete query.
+   *
+   * @param primaryKey map representing the composite primary key.
+   * @param keyspaceName cassandra keyspace name.
+   * @param tableName cassandra table name.
+   * @return RegularStatement.
+   */
+  public static RegularStatement createDeleteQuery(
+      Map<String, Object> primaryKey, String keyspaceName, String tableName) {
+
+    Delete delete = QueryBuilder.delete().from(keyspaceName, tableName);
+    Delete.Where where = delete.where();
+    primaryKey
+        .entrySet()
+        .stream()
+        .forEach(
+            x -> {
+              where.and(QueryBuilder.eq(x.getKey(), x.getValue()));
+            });
+    return where;
   }
 }

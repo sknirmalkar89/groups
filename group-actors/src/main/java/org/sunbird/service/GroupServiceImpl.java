@@ -2,11 +2,7 @@ package org.sunbird.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -23,6 +19,8 @@ import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.GroupResponse;
+import org.sunbird.models.Member;
+import org.sunbird.models.MemberResponse;
 import org.sunbird.response.Response;
 import org.sunbird.util.ActivityConfigReader;
 import org.sunbird.util.GroupUtil;
@@ -44,15 +42,22 @@ public class GroupServiceImpl implements GroupService {
     return groupId;
   }
 
-  public GroupResponse readGroup(String groupId) throws Exception {
+  public GroupResponse readGroupWithActivities(String groupId) throws Exception {
+    Map<String, Object> dbResGroup = readGroup(groupId);
+    logger.info("readGroupActivities started");
+    readGroupActivities(dbResGroup);
+    logger.info("readGroupActivities ended");
+    return JsonUtils.convert(dbResGroup, GroupResponse.class);
+  }
+
+  public Map<String, Object> readGroup(String groupId) throws BaseException {
     Map<String, Object> dbResGroup;
     Response responseObj = groupDao.readGroup(groupId);
     if (null != responseObj && null != responseObj.getResult()) {
       List<Map<String, Object>> dbGroupDetails =
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
-      if (CollectionUtils.isNotEmpty(dbGroupDetails)
-          && JsonKey.ACTIVE.equals(dbGroupDetails.get(0).get(JsonKey.STATUS))) {
-        logger.info("Group details fetched for groupId :{}",groupId);
+      if (CollectionUtils.isNotEmpty(dbGroupDetails)) {
+        logger.info("Group details fetched for groupId :{}", groupId);
         dbResGroup = dbGroupDetails.get(0);
         // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
         dbResGroup.put(
@@ -66,9 +71,9 @@ public class GroupServiceImpl implements GroupService {
             dbResGroup.get(JsonKey.UPDATED_ON) != null
                 ? GroupUtil.convertDateToUTC((Date) dbResGroup.get(JsonKey.UPDATED_ON))
                 : dbResGroup.get(JsonKey.UPDATED_ON));
-        readGroupActivities(dbResGroup);
-        logger.info("readGroupActivities ended");
-        return JsonUtils.convert(dbResGroup, GroupResponse.class);
+
+        return dbResGroup;
+
       } else {
         throw new ValidationException.GroupNotFound(groupId);
       }
@@ -92,10 +97,9 @@ public class GroupServiceImpl implements GroupService {
    * @param dbResActivities
    */
   private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
-    logger.info("Fetching activityInfo for activity count: {}",dbResActivities.size());
+    logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
-
     for (Map.Entry<SearchServiceUtil, Map<String, String>> itr : idClassTypeMap.entrySet()) {
       try {
         SearchServiceUtil searchServiceUtil = itr.getKey();
@@ -128,9 +132,12 @@ public class GroupServiceImpl implements GroupService {
     if (StringUtils.isNotBlank(userId)) {
       List<String> groupIds = fetchAllGroupIdsByUserId(userId);
       if (!groupIds.isEmpty()) {
-        Map<String, String> groupRoleMap = memberService.fetchGroupRoleByUser(groupIds, userId);
+        List<Map<String, Object>> dbResMembers = memberService.fetchGroupByUser(groupIds, userId);
+        logger.info("group count {} for userId {}", dbResMembers.size(), userId);
+        Map<String, Map<String, Object>> groupMemberRelationMap =
+            getGroupDetailsMapByUser(dbResMembers);
         groups = readGroupDetailsByGroupIds(groupIds);
-        GroupUtil.updateRoles(groups, groupRoleMap);
+        GroupUtil.updateGroupDetails(groups, groupMemberRelationMap);
       }
 
     } else {
@@ -141,6 +148,19 @@ public class GroupServiceImpl implements GroupService {
           ResponseCode.BAD_REQUEST.getCode());
     }
     return groups;
+  }
+
+  private Map<String, Map<String, Object>> getGroupDetailsMapByUser(
+      List<Map<String, Object>> dbResMembers) {
+    Map<String, Map<String, Object>> groupDetailMap = new HashMap<>();
+    dbResMembers.forEach(
+        map -> {
+          Map<String, Object> groupDetails = new HashMap<>();
+          groupDetails.put(JsonKey.ROLE, map.get(JsonKey.ROLE));
+          groupDetails.put(JsonKey.VISITED, map.get(JsonKey.VISITED));
+          groupDetailMap.put((String) map.get(JsonKey.GROUP_ID), groupDetails);
+        });
+    return groupDetailMap;
   }
 
   /**
@@ -201,10 +221,8 @@ public class GroupServiceImpl implements GroupService {
         dbGroupDetails.forEach(
             map -> {
               Group group = objectMapper.convertValue(map, Group.class);
-              if (JsonKey.ACTIVE.equals(group.getStatus())) {
-                GroupResponse groupResponse = createGroupResponseObj(group);
-                groups.add(groupResponse);
-              }
+              GroupResponse groupResponse = createGroupResponseObj(group);
+              groups.add(groupResponse);
             });
       }
     }
@@ -213,8 +231,38 @@ public class GroupServiceImpl implements GroupService {
 
   @Override
   public Response updateGroup(Group groupObj) throws BaseException {
-    Response responseObj = groupDao.updateGroup(groupObj);
-    return responseObj;
+    return groupDao.updateGroup(groupObj);
+  }
+
+  @Override
+  public Response deleteGroup(String groupId, List<MemberResponse> members) throws BaseException {
+    Response responseObj = groupDao.deleteGroup(groupId);
+    // Remove member mapping to the deleted group
+    if (null != responseObj) {
+      // Create member list
+      List<String> memberIds = new ArrayList<>();
+      List<Member> memberList = createDeleteMemberList(members, memberIds);
+      List<Map<String, Object>> dbResGroupIds = memberService.getGroupIdsforUserIds(memberIds);
+      memberService.removeGroupInUserGroup(memberList, dbResGroupIds);
+      memberService.deleteGroupMembers(groupId, memberIds);
+      return responseObj;
+    }
+
+    logger.error("Error while deleting group {}", groupId);
+    throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
+  }
+
+  private List<Member> createDeleteMemberList(
+      List<MemberResponse> members, List<String> memberIds) {
+    List<Member> memberList = new ArrayList<>();
+    for (MemberResponse member : members) {
+      Member memberObj = new Member();
+      memberObj.setUserId(member.getUserId());
+      memberObj.setGroupId(member.getGroupId());
+      memberList.add(memberObj);
+      memberIds.add(member.getUserId());
+    }
+    return memberList;
   }
 
   private GroupResponse createGroupResponseObj(Group group) {

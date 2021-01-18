@@ -18,6 +18,7 @@ public enum ResponseCode {
       IResponseMessage.INVALID_REQUESTED_DATA, IResponseMessage.Message.INVALID_REQUESTED_DATA),
   dataTypeError(IResponseMessage.DATA_TYPE_ERROR, IResponseMessage.Message.DATA_TYPE_ERROR),
   groupNotFound(IResponseMessage.GROUP_NOT_FOUND, IResponseMessage.Message.GROUP_NOT_FOUND),
+  groupNotActive(IResponseMessage.GROUP_NOT_ACTIVE, IResponseMessage.Message.GROUP_NOT_ACTIVE),
   invalidParameterValue(
       IResponseMessage.INVALID_PARAMETER_VALUE, IResponseMessage.Message.INVALID_PARAMETER_VALUE),
   serverError(IResponseMessage.SERVER_ERROR, IResponseMessage.SERVER_ERROR),

@@ -63,4 +63,11 @@ public class GroupDaoImpl implements GroupDao {
         cassandraOperation.updateRecord(DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME, map);
     return responseObj;
   }
+
+  @Override
+  public Response deleteGroup(String groupId) throws BaseException {
+    Response responseObj =
+        cassandraOperation.deleteRecord(DBUtil.KEY_SPACE_NAME, GROUP_TABLE_NAME, groupId);
+    return responseObj;
+  }
 }

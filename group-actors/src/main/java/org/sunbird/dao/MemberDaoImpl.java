@@ -54,30 +54,45 @@ public class MemberDaoImpl implements MemberDao {
 
   public Response readGroupIdsByUserIds(List<String> memberList) throws BaseException {
     Response responseObj =
-            cassandraOperation.getRecordsByPrimaryKeys(
-                    DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, memberList,JsonKey.USER_ID);
+        cassandraOperation.getRecordsByPrimaryKeys(
+            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, memberList, JsonKey.USER_ID);
     return responseObj;
   }
 
   public Response upsertGroupInUserGroup(Map<String, Object> userGroupMap) throws BaseException {
     Response responseObj =
-            cassandraOperation.upsertRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap);
+        cassandraOperation.upsertRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap);
     return responseObj;
   }
 
-  public Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId) throws BaseException {
+  public Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId)
+      throws BaseException {
     Map<String, Object> compositeKeyMap = new HashMap<>();
     compositeKeyMap.put(JsonKey.USER_ID, userId);
 
     Response responseObj =
-            cassandraOperation.updateRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap, compositeKeyMap);
+        cassandraOperation.updateRecord(
+            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap, compositeKeyMap);
     return responseObj;
   }
 
   public void deleteFromUserGroup(String userId) throws BaseException {
     Map<String, String> compositeKeyMap = new HashMap<>();
     compositeKeyMap.put(JsonKey.USER_ID, userId);
-    cassandraOperation.deleteRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE,compositeKeyMap);
+    cassandraOperation.deleteRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, compositeKeyMap);
+  }
+
+  @Override
+  public void deleteMemberFromGroup(String groupId, List<String> members) throws BaseException {
+    List<Map<String, Object>> compositeKeyMap = new ArrayList<>();
+    members.forEach(
+        memberId -> {
+          Map<String, Object> primaryKeys = new HashMap<>();
+          primaryKeys.put(JsonKey.GROUP_ID, groupId);
+          primaryKeys.put(JsonKey.USER_ID, memberId);
+          compositeKeyMap.add(primaryKeys);
+        });
+    cassandraOperation.batchDelete(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, compositeKeyMap);
   }
 
   @Override
@@ -102,8 +117,7 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
-  public Response fetchMembersByGroupIds(List<String> groupIds)
-      throws BaseException {
+  public Response fetchMembersByGroupIds(List<String> groupIds) throws BaseException {
     Map<String, Object> properties = new HashMap<>();
     properties.put(JsonKey.GROUP_ID, groupIds);
     Response responseObj =
@@ -113,7 +127,7 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
-  public Response fetchGroupRoleByUser(List<String> groupIds, String userId) throws BaseException {
+  public Response fetchGroupByUser(List<String> groupIds, String userId) throws BaseException {
     Map<String, Object> properties = new LinkedHashMap<>();
     properties.put(JsonKey.GROUP_ID, groupIds);
     properties.put(JsonKey.USER_ID, userId);
@@ -122,5 +136,4 @@ public class MemberDaoImpl implements MemberDao {
             DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties);
     return responseObj;
   }
-
 }

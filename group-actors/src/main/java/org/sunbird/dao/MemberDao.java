@@ -14,7 +14,7 @@ public interface MemberDao {
 
   Response fetchMembersByGroupIds(List<String> groupIds) throws BaseException;
 
-  Response fetchGroupRoleByUser(List<String> groupIds, String userId) throws BaseException;
+  Response fetchGroupByUser(List<String> groupIds, String userId) throws BaseException;
 
   /**
    * This method will return group uuids based on userId and return response Object as success
@@ -29,8 +29,17 @@ public interface MemberDao {
 
   Response upsertGroupInUserGroup(Map<String, Object> userGroupMap) throws BaseException;
 
-  Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId) throws BaseException;
+  Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId)
+      throws BaseException;
 
   void deleteFromUserGroup(String userId) throws BaseException;
 
+  /**
+   * Delete members from a group
+   *
+   * @param groupId
+   * @param members
+   * @throws BaseException
+   */
+  void deleteMemberFromGroup(String groupId, List<String> members) throws BaseException;
 }

@@ -1,6 +1,6 @@
 {
   "activities": [{
-  "type": ["Course","TextBook","ExplanationContent","PracticeResource","PracticeQuestionSet","Collection","Resource"],
+  "type": ["Course","TextBook","ExplanationContent","PracticeResource","PracticeQuestionSet","Collection","Resource","Explanation Content","Learning Resource","Practice Question Set","eTextBook","Teacher Resource","Digital Textbook","Content Playlist","TV Lesson","Previous Board Exam Papers"],
   "serviceClass": "org.sunbird.util.ContentSearchUtil",
   "fields": [
     "identifier",

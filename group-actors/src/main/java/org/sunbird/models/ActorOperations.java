@@ -8,7 +8,9 @@ public enum ActorOperations {
   SEARCH_GROUP("searchGroup"),
   SET_CACHE("setCache"),
   DEL_CACHE("delCache"),
-  GET_CACHE("getCache");
+  GET_CACHE("getCache"),
+  DELETE_GROUP("deleteGroup"),
+  UPDATE_GROUP_MEMBERSHIP("updateGroupMembership");
 
   private String value;
 

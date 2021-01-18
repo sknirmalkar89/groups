@@ -7,14 +7,12 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -106,13 +104,25 @@ public class UpdateGroupActorTest extends BaseActorTest {
       when(cassandraOperation.executeSelectQuery(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
           .thenReturn(memberSizeResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+          .thenReturn(getMemberResponse());
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
 
     Request reqObj = updateGroupReq();
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
@@ -121,7 +131,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxMember(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
     List errorList = (List) error.get(JsonKey.MEMBERS);
@@ -135,7 +145,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxActivity(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     System.out.println(res.getResult().get(JsonKey.ERROR));
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
@@ -143,6 +153,114 @@ public class UpdateGroupActorTest extends BaseActorTest {
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
         IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+  }
+
+  @Test
+  public void testSuspendGroupByAdminActiveGroup() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+
+    try {
+      when(cassandraOperation.updateRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchInsert(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateAddSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+          .thenReturn(getCassandraResponse())
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateRemoveSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+          .thenReturn(memberSizeResponse());
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+          .thenReturn(getMemberResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+
+    Request reqObj = updateSuspendGroupReq();
+    subject.tell(reqObj, probe.getRef());
+    Response res = probe.expectMsgClass(Duration.ofSeconds(10), Response.class);
+    Assert.assertTrue(null != res && res.getResponseCode() == 200);
+  }
+
+  @Test
+  public void testSuspendGroupByNonAdminActiveGroup() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+
+    try {
+      when(cassandraOperation.updateRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchInsert(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateAddSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+          .thenReturn(getCassandraResponse())
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateRemoveSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+          .thenReturn(memberSizeResponse());
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+          .thenReturn(getMemberResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+
+    Request reqObj = updateSuspendNonAdminUserGroupReq();
+    subject.tell(reqObj, probe.getRef());
   }
 
   private Response memberSizeResponse() {
@@ -229,6 +347,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     reqObj.setContext(context);
     reqObj.setOperation(ActorOperations.UPDATE_GROUP.getValue());
     reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup Name1");
+
     Map<String, List<Map<String, Object>>> memberOpearations = new HashMap<>();
     List<Map<String, Object>> members = new ArrayList<>();
     Map<String, Object> member = new HashMap<>();
@@ -273,5 +392,95 @@ public class UpdateGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.MEMBERS, memberOpearations);
     reqObj.getRequest().put(JsonKey.GROUP_ID, "group1");
     return reqObj;
+  }
+
+  private static Request updateSuspendGroupReq() {
+    Request reqObj = new Request();
+    reqObj.setHeaders(headerMap);
+    Map<String, Object> context = new HashMap<>();
+    context.put(JsonKey.USER_ID, "user1");
+    reqObj.setContext(context);
+    reqObj.setOperation(ActorOperations.UPDATE_GROUP.getValue());
+    reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup");
+    reqObj.getRequest().put(JsonKey.STATUS, "suspended");
+    reqObj.getRequest().put(JsonKey.GROUP_ID, "group1");
+    return reqObj;
+  }
+
+  private static Request updateSuspendNonAdminUserGroupReq() {
+    Request reqObj = new Request();
+    reqObj.setHeaders(headerMap);
+    Map<String, Object> context = new HashMap<>();
+    context.put(JsonKey.USER_ID, "userID22");
+    reqObj.setContext(context);
+    reqObj.setOperation(ActorOperations.UPDATE_GROUP.getValue());
+    reqObj.getRequest().put(JsonKey.GROUP_NAME, "TestGroup");
+    reqObj.getRequest().put(JsonKey.STATUS, "suspended");
+    reqObj.getRequest().put(JsonKey.GROUP_ID, "group1");
+    return reqObj;
+  }
+
+  private Response getGroupsDetailsResponse() {
+    Map<String, Object> result = new HashMap<>();
+    List<Map<String, Object>> groupList = new ArrayList<>();
+    Map<String, Object> group1 = new HashMap<>();
+    group1.put("name", "TestGroup1");
+    group1.put("id", "TestGroup");
+    group1.put("status", "active");
+    group1.put("createdBy", "user1");
+    List<Map<String, Object>> activities = new ArrayList<>();
+    Map<String, Object> activity1 = new HashMap<>();
+    activity1.put(JsonKey.ID, "do_112470675618004992181");
+    activity1.put(JsonKey.TYPE, "Course");
+
+    Map<String, Object> activity2 = new HashMap<>();
+    activity2.put(JsonKey.ID, "do_11304065892935270414");
+    activity2.put(JsonKey.TYPE, "Textbook");
+    activities.add(activity1);
+    activities.add(activity2);
+    group1.put(JsonKey.ACTIVITIES, activities);
+    groupList.add(group1);
+    result.put(JsonKey.RESPONSE, groupList);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+
+  static Response getMemberResponse() {
+    List<Map<String, Object>> members = new ArrayList<>();
+    Map<String, Object> member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "user1");
+    member.put(JsonKey.ROLE, JsonKey.ADMIN);
+    member.put(JsonKey.STATUS, JsonKey.ACTIVE);
+    member.put(JsonKey.CREATED_BY, "user1");
+    members.add(member);
+    member = new HashMap<>();
+    member.put(JsonKey.USER_ID, "userID22");
+    member.put(JsonKey.ROLE, JsonKey.MEMBER);
+    member.put(JsonKey.STATUS, JsonKey.ACTIVE);
+    member.put(JsonKey.CREATED_BY, "user1");
+
+    members.add(member);
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.RESPONSE, members);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+
+  static Response getUserGroupResponse() {
+    List<Map<String, Object>> userGroups = new ArrayList<>();
+    Map<String, Object> userGroup = new HashMap<>();
+    userGroup.put(JsonKey.USER_ID, "user1");
+    userGroup.put(JsonKey.GROUP_ID, Arrays.asList("group1", "group2"));
+    userGroups.add(userGroup);
+    userGroup.put(JsonKey.USER_ID, "user2");
+    userGroup.put(JsonKey.GROUP_ID, Arrays.asList("group1", "group2"));
+    userGroups.add(userGroup);
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.RESPONSE, userGroups);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
   }
 }
