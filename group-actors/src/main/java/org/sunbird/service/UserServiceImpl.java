@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +66,11 @@ public class UserServiceImpl implements UserService {
    * @throws BaseException
    */
   @Override
-  public Response searchUserByIds(List<String> userIds) throws BaseException {
+  public Response searchUserByIds(List<String> userIds, Map<String, Object> reqContext)
+      throws BaseException {
     Response responseObj = new Response();
     Map<String, String> requestHeader = new HashMap<>();
-    getUpdatedRequestHeader(requestHeader);
+    getUpdatedRequestHeader(requestHeader, reqContext);
     try {
       SearchRequest searchRequest = createUserSearchRequest(userIds);
       String searchJsonStrReq = objectMapper.writeValueAsString(searchRequest);
@@ -87,7 +89,10 @@ public class UserServiceImpl implements UserService {
   public Response getSystemSettings() throws BaseException {
     Response responseObj = new Response();
     Map<String, String> requestHeader = new HashMap<>();
-    getUpdatedRequestHeader(requestHeader);
+    Map<String, Object> requestContext = new HashMap<>();
+    requestContext.put(JsonKey.X_REQUEST_ID, UUID.randomUUID().toString());
+    requestContext.put(JsonKey.X_TRACE_ENABLED, "false");
+    getUpdatedRequestHeader(requestHeader, requestContext);
     try {
 
       String response =
@@ -105,9 +110,11 @@ public class UserServiceImpl implements UserService {
     Response responseObj = new Response();
     SearchRequest readRequest = new SearchRequest();
     readRequest.getRequest().put(JsonKey.ORGANISATION_ID, orgId);
-
     Map<String, String> requestHeader = new HashMap<>();
-    getUpdatedRequestHeader(requestHeader);
+    Map<String, Object> requestContext = new HashMap<>();
+    requestContext.put(JsonKey.X_REQUEST_ID, UUID.randomUUID().toString());
+    requestContext.put(JsonKey.X_TRACE_ENABLED, "false");
+    getUpdatedRequestHeader(requestHeader, requestContext);
     try {
       String response =
           HttpClientUtil.post(

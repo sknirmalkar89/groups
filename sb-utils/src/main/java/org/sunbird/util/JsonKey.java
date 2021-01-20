@@ -10,12 +10,14 @@ public interface JsonKey {
   String MESSAGE = "message";
   String METHOD = "method";
   String REQUEST_MESSAGE_ID = "msgId";
+  String MESSAGE_ID = "X-msgId";
   String VER = "ver";
   String OK = "ok";
   String LOG_LEVEL = "logLevel";
   String ERROR = "error";
   String EMPTY_STRING = "";
   String RESPONSE = "response";
+  String RESPONSE_CODE = "responseCode";
   String KEY = "key";
   String SUCCESS = "success";
   String API_VERSION = "v1";
@@ -123,4 +125,6 @@ public interface JsonKey {
   String START_TIME = "startTime";
   String VISITED = "visited";
   String GROUPS = "groups";
+  String X_TRACE_ENABLED = "x-trace-enabled";
+  String FAILED = "FAILED";
 }

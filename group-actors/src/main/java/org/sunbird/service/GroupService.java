@@ -14,9 +14,10 @@ public interface GroupService {
 
   Map<String, Object> readGroup(String groupId) throws BaseException;
 
-  GroupResponse readGroupWithActivities(String groupId) throws Exception;
+  GroupResponse readGroupWithActivities(String groupId, Map<String, Object> reqContext)
+      throws Exception;
 
-  void readGroupActivities(Map<String, Object> dbResGroup);
+  void readGroupActivities(Map<String, Object> dbResGroup, Map<String, Object> reqContext);
 
   List<GroupResponse> searchGroup(Map<String, Object> searchFilter) throws BaseException;
 
