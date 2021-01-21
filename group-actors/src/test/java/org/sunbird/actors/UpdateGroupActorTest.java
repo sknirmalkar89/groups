@@ -57,7 +57,6 @@ public class UpdateGroupActorTest extends BaseActorTest {
     PowerMockito.mockStatic(Localizer.class);
     when(Localizer.getInstance()).thenReturn(null);
 
-    PowerMockito.mockStatic(ServiceFactory.class);
     mockCacheActor();
 
     PowerMockito.mockStatic(SystemConfigUtil.class);
@@ -73,6 +72,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
   public void testUpdateGroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
     CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
 
@@ -159,6 +159,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
   public void testSuspendGroupByAdminActiveGroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
     CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
@@ -215,6 +216,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
   public void testSuspendGroupByNonAdminActiveGroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
     CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
