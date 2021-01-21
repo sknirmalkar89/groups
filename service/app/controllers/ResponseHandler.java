@@ -6,7 +6,7 @@ import java.util.WeakHashMap;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.models.ClientErrorResponse;
+import org.sunbird.exception.BaseException;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.response.ResponseFactory;
@@ -50,8 +50,7 @@ public class ResponseHandler {
         break;
     }
     logTelemetry(response, request);
-    PrintEntryExitLog.printExitLogOnFailure(
-        request, ((ClientErrorResponse) exception).getException());
+    PrintEntryExitLog.printExitLogOnFailure(request, (BaseException) exception);
     return result;
   }
   /**
