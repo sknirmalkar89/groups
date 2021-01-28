@@ -18,7 +18,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CryptoUtil.class, KeyManager.class, Base64Util.class})
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*", "jdk.internal.reflect.*"})
 public class AccessTokenValidatorTest {
   @Test
   public void verifyUserAccessToken() throws JsonProcessingException {
