@@ -6,6 +6,7 @@ import java.util.WeakHashMap;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunbird.exception.BaseException;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.response.ResponseFactory;
@@ -16,6 +17,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import utils.module.PrintEntryExitLog;
 import utils.module.RequestMapper;
 
 /**
@@ -48,6 +50,7 @@ public class ResponseHandler {
         break;
     }
     logTelemetry(response, request);
+    PrintEntryExitLog.printExitLogOnFailure(request, (BaseException) exception);
     return result;
   }
   /**
@@ -83,6 +86,7 @@ public class ResponseHandler {
     response.setVer(JsonKey.API_VERSION);
     response.setTs(ResponseFactory.getCurrentDate());
     logTelemetry(response, request);
+    PrintEntryExitLog.printExitLogOnSuccessResponse(request, response);
     return Results.ok(Json.toJson(response));
   }
 

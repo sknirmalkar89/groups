@@ -49,17 +49,14 @@ public class UpdateGroupActorTest extends BaseActorTest {
 
   private final Props props = Props.create(UpdateGroupActor.class);
   private Logger logger = LoggerFactory.getLogger(UpdateGroupActorTest.class);
-  public static CassandraOperation cassandraOperation;
   public static PropertiesCache propertiesCache;
 
   @Before
   public void setUp() throws Exception {
+
     PowerMockito.mockStatic(Localizer.class);
     when(Localizer.getInstance()).thenReturn(null);
 
-    PowerMockito.mockStatic(ServiceFactory.class);
-    cassandraOperation = mock(CassandraOperationImpl.class);
-    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     mockCacheActor();
 
     PowerMockito.mockStatic(SystemConfigUtil.class);
@@ -75,6 +72,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
   public void testUpdateGroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
 
     try {
       when(cassandraOperation.updateRecord(
@@ -122,7 +122,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
 
     Request reqObj = updateGroupReq();
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(100), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
 
@@ -131,7 +131,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     subject.tell(getUpdateGroupReqForMaxMember(), probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(100), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
     Map error = (Map) res.getResult().get(JsonKey.ERROR);
     List errorList = (List) error.get(JsonKey.MEMBERS);
@@ -159,7 +159,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
   public void testSuspendGroupByAdminActiveGroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
-
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
       when(cassandraOperation.updateRecord(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
@@ -214,7 +216,9 @@ public class UpdateGroupActorTest extends BaseActorTest {
   public void testSuspendGroupByNonAdminActiveGroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
-
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
       when(cassandraOperation.updateRecord(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))

@@ -42,10 +42,11 @@ public class GroupServiceImpl implements GroupService {
     return groupId;
   }
 
-  public GroupResponse readGroupWithActivities(String groupId) throws Exception {
+  public GroupResponse readGroupWithActivities(String groupId, Map<String, Object> reqContext)
+      throws Exception {
     Map<String, Object> dbResGroup = readGroup(groupId);
     logger.info("readGroupActivities started");
-    readGroupActivities(dbResGroup);
+    readGroupActivities(dbResGroup, reqContext);
     logger.info("readGroupActivities ended");
     return JsonUtils.convert(dbResGroup, GroupResponse.class);
   }
@@ -83,11 +84,11 @@ public class GroupServiceImpl implements GroupService {
   }
 
   @Override
-  public void readGroupActivities(Map<String, Object> dbResGroup) {
+  public void readGroupActivities(Map<String, Object> dbResGroup, Map<String, Object> reqContext) {
     List<Map<String, Object>> dbResActivities =
         (List<Map<String, Object>>) dbResGroup.get(JsonKey.ACTIVITIES);
     if (dbResActivities != null && !dbResActivities.isEmpty()) {
-      addActivityInfoDetails(dbResActivities);
+      addActivityInfoDetails(dbResActivities, reqContext);
     }
   }
 
@@ -96,7 +97,8 @@ public class GroupServiceImpl implements GroupService {
    *
    * @param dbResActivities
    */
-  private void addActivityInfoDetails(List<Map<String, Object>> dbResActivities) {
+  private void addActivityInfoDetails(
+      List<Map<String, Object>> dbResActivities, Map<String, Object> reqContext) {
     logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
         GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
@@ -105,7 +107,7 @@ public class GroupServiceImpl implements GroupService {
         SearchServiceUtil searchServiceUtil = itr.getKey();
         List<String> fields = ActivityConfigReader.getFieldsLists(searchServiceUtil);
         Map<String, Map<String, Object>> activityInfoMap =
-            searchServiceUtil.searchContent(itr.getValue(), fields);
+            searchServiceUtil.searchContent(itr.getValue(), fields, reqContext);
         for (Map<String, Object> activity : dbResActivities) {
           String activityKey = (String) activity.get(JsonKey.TYPE) + activity.get(JsonKey.ID);
           if (activityInfoMap.containsKey(activityKey)) {

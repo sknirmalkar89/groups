@@ -30,10 +30,10 @@ public abstract class BaseActor extends UntypedAbstractActor {
       Request request = (Request) message;
       String operation = request.getOperation();
 
-      if (request.getHeaders().containsKey(JsonKey.REQUEST_MESSAGE_ID)) {
+      if (request.getHeaders().containsKey(JsonKey.X_REQUEST_ID)) {
         ArrayList<String> requestIds =
-            (ArrayList<String>) request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID);
-        trace.put(JsonKey.REQUEST_MESSAGE_ID, requestIds.get(0));
+            (ArrayList<String>) request.getHeaders().get(JsonKey.X_REQUEST_ID);
+        trace.put(JsonKey.X_REQUEST_ID, requestIds.get(0));
         logger.setMDC(trace);
         // set mdc for non actors
         new BaseLogger().setReqId(logger.getMDC());
@@ -63,10 +63,10 @@ public abstract class BaseActor extends UntypedAbstractActor {
    */
   protected void onReceiveException(String callerName, Exception exception) throws Exception {
     logger.error(
-            "Exception in message processing for: {} :: message: {} {}"
-            , callerName
-            , exception.getMessage(),
-            exception);
+        "Exception in message processing for: {} :: message: {} {}",
+        callerName,
+        exception.getMessage(),
+        exception);
     sender().tell(exception, self());
   }
 
