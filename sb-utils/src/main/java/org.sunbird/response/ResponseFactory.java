@@ -1,7 +1,6 @@
 package org.sunbird.response;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.exception.BaseException;
@@ -63,10 +62,9 @@ public class ResponseFactory {
   }
 
   private static void setResponseParams(Request request, ResponseParams params) {
-    if (request.getHeaders().containsKey(JsonKey.X_REQUEST_ID)) {
-      ArrayList<String> requestIds =
-          (ArrayList<String>) request.getHeaders().get(JsonKey.X_REQUEST_ID);
-      params.setMsgid(requestIds.get(0));
+    if (request.getContext().containsKey(JsonKey.X_REQUEST_ID)) {
+      String msgId = (String) request.getContext().get(JsonKey.X_REQUEST_ID);
+      params.setMsgid(msgId);
     }
   }
 
