@@ -36,7 +36,7 @@ import org.sunbird.util.JsonKey;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Localizer.class, ServiceFactory.class})
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*", "jdk.internal.reflect.*"})
 public class SearchGroupActorTest extends BaseActorTest {
   private static final String GROUP_MEMBER_TABLE = "group_member";
   private static final String GROUP_TABLE_NAME = "group";

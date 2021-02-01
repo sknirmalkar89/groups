@@ -19,7 +19,12 @@ import org.sunbird.util.JsonKey;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ResponseFactory.class})
-@PowerMockIgnore({"javax.management.*", "javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({
+  "javax.management.*",
+  "javax.net.ssl.*",
+  "javax.security.*",
+  "jdk.internal.reflect.*"
+})
 public class PrintEntryExitLogTest {
   @Test
   public void testPrintExitLogOnFailure() {

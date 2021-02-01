@@ -38,7 +38,12 @@ import utils.module.StartModule;
   OnRequestHandler.class,
   ActorRef.class
 })
-@PowerMockIgnore({"javax.management.*", "javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({
+  "javax.management.*",
+  "javax.net.ssl.*",
+  "javax.security.*",
+  "jdk.internal.reflect.*"
+})
 public abstract class BaseApplicationTest {
   protected Application application;
   private ActorSystem system;
@@ -60,11 +65,12 @@ public abstract class BaseApplicationTest {
       actorRef = system.actorOf(props);
       applicationSetUp();
 
-      Map userAuthentication = new HashMap<String,String>();
-      userAuthentication.put(JsonKey.USER_ID,"userId");
+      Map userAuthentication = new HashMap<String, String>();
+      userAuthentication.put(JsonKey.USER_ID, "userId");
 
       PowerMockito.mockStatic(RequestInterceptor.class);
-      PowerMockito.when(RequestInterceptor.verifyRequestData(Mockito.any())).thenReturn(userAuthentication);
+      PowerMockito.when(RequestInterceptor.verifyRequestData(Mockito.any()))
+          .thenReturn(userAuthentication);
       PowerMockito.mockStatic(OnRequestHandler.class);
     } catch (Exception e) {
       System.out.println("exception occurred " + e.getMessage());

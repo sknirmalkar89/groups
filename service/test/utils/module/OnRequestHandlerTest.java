@@ -14,7 +14,12 @@ import play.mvc.Http;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({})
-@PowerMockIgnore({"javax.management.*", "javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({
+  "javax.management.*",
+  "javax.net.ssl.*",
+  "javax.security.*",
+  "jdk.internal.reflect.*"
+})
 public class OnRequestHandlerTest extends BaseRequestHandlerTest {
   private ObjectMapper mapper = new ObjectMapper();
 

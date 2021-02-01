@@ -11,8 +11,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <jackson.version>2.10.1</jackson.version>
         <akka.x.version>2.5.19</akka.x.version>
         <junit.version>4.12</junit.version>
@@ -27,13 +27,13 @@
         <play2.plugin.version>1.0.0-rc5</play2.plugin.version>
         <sbt-compiler.plugin.version>1.0.0</sbt-compiler.plugin.version>
         <scala.major.version>2.11</scala.major.version>
-        <scala.version>2.11.8</scala.version>
+        <scala.version>2.11.12</scala.version>
         <jedis.version>2.6.2</jedis.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <commons-collections4.version>4.1</commons-collections4.version>
 
         <surefire.plugin.version>2.20</surefire.plugin.version>
-        <findbugs.plugin.version>3.0.4</findbugs.plugin.version>
+        <spotbugs.plugin.version>3.0.4</spotbugs.plugin.version>
 
     </properties>
 
