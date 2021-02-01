@@ -58,12 +58,16 @@ public class ResponseFactory {
     }
     params.setStatus(ResponseCode.getHeaderResponseCode(code.getResponseCode()).name());
 
-    if (request.getHeaders().containsKey(JsonKey.REQUEST_MESSAGE_ID)) {
+    setResponseParams(request, params);
+    return params;
+  }
+
+  private static void setResponseParams(Request request, ResponseParams params) {
+    if (request.getHeaders().containsKey(JsonKey.X_REQUEST_ID)) {
       ArrayList<String> requestIds =
-          (ArrayList<String>) request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID);
+          (ArrayList<String>) request.getHeaders().get(JsonKey.X_REQUEST_ID);
       params.setMsgid(requestIds.get(0));
     }
-    return params;
   }
 
   public static Response getSuccessMessage(Request request) {
@@ -71,6 +75,8 @@ public class ResponseFactory {
     response.setId(request.getId());
     response.setVer(request.getVer());
     response.setTs(System.currentTimeMillis() + StringUtils.EMPTY);
+    ResponseParams params = new ResponseParams();
+    setResponseParams(request, params);
     return response;
   }
 
