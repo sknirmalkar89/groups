@@ -37,7 +37,7 @@ import org.sunbird.util.*;
   HttpClientUtil.class,
   ActivityConfigReader.class
 })
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*", "jdk.internal.reflect.*"})
 public class ReadGroupActorTest extends BaseActorTest {
   private static final String GROUP_MEMBER_TABLE = "group_member";
   private static final String GROUP_TABLE_NAME = "group";

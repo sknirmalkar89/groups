@@ -15,11 +15,13 @@ import org.sunbird.Application;
 import org.sunbird.exception.ActorServiceException;
 import org.sunbird.exception.BaseException;
 import org.sunbird.exception.ValidationException;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
+import utils.module.PrintEntryExitLog;
 import utils.module.RequestMapper;
 
 /**
@@ -62,9 +64,16 @@ public class BaseController extends Controller {
    */
   public CompletionStage<Result> handleRequest(Request request) {
     try {
+      PrintEntryExitLog.printEntryLog(request);
       validate(request);
       return invoke(request);
     } catch (Exception ex) {
+      PrintEntryExitLog.printExitLogOnFailure(
+          request,
+          new BaseException(
+              ResponseCode.CLIENT_ERROR.getErrorCode(),
+              ex.getMessage(),
+              ResponseCode.CLIENT_ERROR.getResponseCode()));
       return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
           .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
     }

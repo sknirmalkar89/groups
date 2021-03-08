@@ -36,13 +36,15 @@ public class ContentSearchUtil implements SearchServiceUtil {
 
   @Override
   public Map<String, Map<String, Object>> searchContent(
-      Map<String, String> activityIds, List<String> fields) throws JsonProcessingException {
+      Map<String, String> activityIds, List<String> fields, Map<String, Object> reqContext)
+      throws JsonProcessingException {
     Map<String, Map<String, Object>> activityInfoMap = new HashMap<>();
     SearchRequest request = new SearchRequest();
     Map<String, Object> filters = new HashMap<>();
     filters.put(JsonKey.IDENTIFIER, activityIds.keySet());
     request.getRequest().put(JsonKey.FIELDS, fields);
     request.getRequest().put(JsonKey.FILTERS, filters);
+    setTraceIdInHeader(headers, reqContext);
     String response =
         HttpClientUtil.post(contentSearchURL, objectMapper.writeValueAsString(request), headers);
     if (StringUtils.isNotBlank(response)) {

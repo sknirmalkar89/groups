@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.message.Localizer;
@@ -18,6 +19,7 @@ import org.sunbird.response.Response;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Localizer.class)
+@PowerMockIgnore({"jdk.internal.reflect.*", "javax.management.*"})
 public class HealthActorTest extends BaseActorTest {
 
   @Test

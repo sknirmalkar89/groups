@@ -35,9 +35,10 @@ public class SearchGroupActor extends BaseActor {
       case "searchGroup":
         searchGroup(request);
         break;
-
+        
       default:
         onReceiveUnsupportedMessage("SearchGroupActor");
+        
     }
   }
 

@@ -1,8 +1,10 @@
 package utils.module;
 
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import play.mvc.Http;
 import play.test.Helpers;
 
+@PowerMockIgnore({"jdk.internal.reflect.*"})
 public class BaseRequestHandlerTest {
 
   private static String xAuthenticatedUserToken =

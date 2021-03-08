@@ -3,10 +3,7 @@ package utils.module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.ResponseHandler;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.commons.lang3.StringUtils;
@@ -37,11 +34,22 @@ public class OnRequestHandler implements ActionCreator {
     return new Action.Simple() {
       @Override
       public CompletionStage<Result> call(Http.Request request) {
-        request.getHeaders();
-        if (request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID).isPresent()) {
+        Optional<String> optionalMessageId = request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID);
+        String requestId;
+        if (optionalMessageId.isPresent()) {
+          requestId = optionalMessageId.get();
+        } else {
+          UUID uuid = UUID.randomUUID();
+          requestId = uuid.toString();
+        }
+        Optional<String> optionalTraceId =
+            request.getHeaders().get(HeaderParam.X_REQUEST_ID.getName());
+        if (optionalTraceId.isPresent()) {
           MDC.put(
-              JsonKey.REQUEST_MESSAGE_ID,
-              request.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID).get());
+              JsonKey.X_REQUEST_ID,
+              request.getHeaders().get(HeaderParam.X_REQUEST_ID.getName()).get());
+        } else {
+          MDC.put(JsonKey.X_REQUEST_ID, requestId);
         }
         CompletionStage<Result> result;
         Map userAuthentication = RequestInterceptor.verifyRequestData(request);
@@ -51,7 +59,7 @@ public class OnRequestHandler implements ActionCreator {
               request.addAttr(
                   Attrs.MANAGED_FOR, (String) userAuthentication.get(JsonKey.MANAGED_FOR));
         }
-        request = initializeContext(request, message);
+        request = initializeContext(request, message, requestId);
         if (!JsonKey.USER_UNAUTH_STATES.contains(message)) {
           request = request.addAttr(Attrs.USERID, message);
           result = delegate.call(request);
@@ -79,12 +87,14 @@ public class OnRequestHandler implements ActionCreator {
    * @param httpReq
    * @param userId
    */
-  Http.Request initializeContext(Http.Request httpReq, String userId) {
+  Http.Request initializeContext(Http.Request httpReq, String userId, String requestId) {
     try {
       Map<String, Object> requestContext = new WeakHashMap<>();
       String env = getEnv(httpReq);
       requestContext.put(JsonKey.ENV, env);
       requestContext.put(JsonKey.REQUEST_TYPE, JsonKey.API_CALL);
+      requestContext.put(JsonKey.URL, httpReq.uri());
+      requestContext.put(JsonKey.METHOD, httpReq.method());
       Optional<String> optionalChannel = httpReq.getHeaders().get(HeaderParam.CHANNEL_ID.getName());
       String channel;
       if (optionalChannel.isPresent()) {
@@ -93,8 +103,7 @@ public class OnRequestHandler implements ActionCreator {
         channel = getCustodianOrgHashTagId();
       }
       requestContext.put(JsonKey.CHANNEL, channel);
-      requestContext.put(
-          JsonKey.REQUEST_ID, httpReq.getHeaders().get(JsonKey.REQUEST_MESSAGE_ID).get());
+      requestContext.put(JsonKey.REQUEST_ID, requestId);
       requestContext.putAll(cacheTelemetryPdata());
       Optional<String> optionalAppId = httpReq.getHeaders().get(HeaderParam.X_APP_ID.getName());
       if (optionalAppId.isPresent()) {
@@ -104,6 +113,20 @@ public class OnRequestHandler implements ActionCreator {
           httpReq.getHeaders().get(HeaderParam.X_Device_ID.getName());
       if (optionalDeviceId.isPresent()) {
         requestContext.put(JsonKey.DEVICE_ID, optionalDeviceId.get());
+      }
+      Optional<String> optionalTraceEnabled =
+          httpReq.getHeaders().get(HeaderParam.X_TRACE_ENABLED.getName());
+      if (optionalTraceEnabled.isPresent()) {
+        requestContext.put(JsonKey.X_TRACE_ENABLED, optionalTraceEnabled.get());
+      }
+      Optional<String> optionalTraceId =
+          httpReq.getHeaders().get(HeaderParam.X_REQUEST_ID.getName());
+      if (optionalTraceId.isPresent()) {
+        requestContext.put(JsonKey.X_REQUEST_ID, optionalTraceId.get());
+        httpReq = httpReq.addAttr(Attrs.X_REQUEST_ID, optionalTraceId.get());
+      } else {
+        httpReq = httpReq.addAttr(Attrs.X_REQUEST_ID, requestId);
+        requestContext.put(JsonKey.X_REQUEST_ID, requestId);
       }
       if (null != userId && !JsonKey.USER_UNAUTH_STATES.contains(userId)) {
         requestContext.put(JsonKey.ACTOR_ID, userId);

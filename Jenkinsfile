@@ -7,6 +7,7 @@ node('build-slave') {
         String ANSI_YELLOW = "\u001B[33m"
 
         ansiColor('xterm') {
+        withEnv(["JAVA_HOME=${JAVA11_HOME}"]) {
             stage('Checkout') {
                 if (!env.hub_org) {
                     println(ANSI_BOLD + ANSI_RED + "Uh Oh! Please set a Jenkins environment variable named hub_org with value as registery/sunbidrded" + ANSI_NORMAL)
@@ -15,18 +16,9 @@ node('build-slave') {
                     println(ANSI_BOLD + ANSI_GREEN + "Found environment variable named hub_org with value as: " + hub_org + ANSI_NORMAL)
             }
             cleanWs()
-            if (params.github_release_tag == "") {
-                checkout scm
-                commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                branch_name = sh(script: 'git name-rev --name-only HEAD | rev | cut -d "/" -f1| rev', returnStdout: true).trim()
-                build_tag = branch_name + "_" + commit_hash + "_" + env.BUILD_NUMBER
-                println(ANSI_BOLD + ANSI_YELLOW + "github_release_tag not specified, using the latest commit hash: " + commit_hash + ANSI_NORMAL)
-            } else {
-                def scmVars = checkout scm
-                checkout scm: [$class: 'GitSCM', branches: [[name: "refs/tags/$params.github_release_tag"]], userRemoteConfigs: [[url: scmVars.GIT_URL]]]
-                build_tag = params.github_release_tag + "_" + env.BUILD_NUMBER
-                println(ANSI_BOLD + ANSI_YELLOW + "github_release_tag specified, building from tag: " + params.github_release_tag + ANSI_NORMAL)
-            }
+            checkout scm
+            commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+            build_tag = sh(script: "echo " + params.github_release_tag.split('/')[-1] + "_" + commit_hash + "_" + env.BUILD_NUMBER, returnStdout: true).trim()
             echo "build_tag: " + build_tag
 
             stage('Build') {
@@ -49,6 +41,7 @@ node('build-slave') {
                 currentBuild.description = "${build_tag}"
             }
         }
+      }
     }
     catch (err) {
         currentBuild.result = "FAILURE"

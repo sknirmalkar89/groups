@@ -215,12 +215,13 @@ public class MemberServiceImpl implements MemberService {
    * @throws BaseException
    */
   @Override
-  public List<MemberResponse> readGroupMembers(String groupId) throws BaseException {
+  public List<MemberResponse> readGroupMembers(String groupId, Map<String, Object> reqContext)
+      throws BaseException {
 
     List<MemberResponse> members = fetchMembersByGroupIds(Lists.newArrayList(groupId));
 
     if (!members.isEmpty()) {
-      fetchMemberDetails(members);
+      fetchMemberDetails(members, reqContext);
     }
     return members;
   }
@@ -267,14 +268,15 @@ public class MemberServiceImpl implements MemberService {
     return members;
   }
 
-  private void fetchMemberDetails(List<MemberResponse> members) throws BaseException {
+  private void fetchMemberDetails(List<MemberResponse> members, Map<String, Object> reqContext)
+      throws BaseException {
     List<String> memberIds = new ArrayList<>();
     members.forEach(
         member -> {
           memberIds.add(member.getUserId());
         });
     logger.info("Fetching member names");
-    Response response = userService.searchUserByIds(memberIds);
+    Response response = userService.searchUserByIds(memberIds, reqContext);
     if (null != response && null != response.getResult()) {
       Map<String, Object> memberRes =
           (Map<String, Object>) response.getResult().get(JsonKey.RESPONSE);

@@ -26,7 +26,8 @@ public interface MemberService {
       List<Map<String, Object>> userGroupsList)
       throws BaseException;
 
-  List<MemberResponse> readGroupMembers(String groupId) throws BaseException;
+  List<MemberResponse> readGroupMembers(String groupId, Map<String, Object> reqContext)
+      throws BaseException;
 
   List<MemberResponse> fetchMembersByGroupId(String groupId) throws BaseException;
 

@@ -45,7 +45,7 @@ import org.sunbird.util.helper.PropertiesCache;
   SystemConfigUtil.class,
   PropertiesCache.class
 })
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*", "jdk.internal.reflect.*"})
 public class UpdateGroupMembershipActorTest extends BaseActorTest {
   private final Props props = Props.create(UpdateGroupMembershipActor.class);
   private Logger logger = LoggerFactory.getLogger(UpdateGroupMembershipActor.class);

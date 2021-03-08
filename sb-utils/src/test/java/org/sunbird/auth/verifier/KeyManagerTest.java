@@ -15,7 +15,7 @@ import org.sunbird.util.helper.PropertiesCache;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({PropertiesCache.class})
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"javax.management.*", "jdk.internal.reflect.*"})
 public class KeyManagerTest {
   static Logger logger = LoggerFactory.getLogger(KeyManagerTest.class);
 

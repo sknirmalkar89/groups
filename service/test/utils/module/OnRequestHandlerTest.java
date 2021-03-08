@@ -14,7 +14,12 @@ import play.mvc.Http;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({})
-@PowerMockIgnore({"javax.management.*", "javax.net.ssl.*", "javax.security.*"})
+@PowerMockIgnore({
+  "javax.management.*",
+  "javax.net.ssl.*",
+  "javax.security.*",
+  "jdk.internal.reflect.*"
+})
 public class OnRequestHandlerTest extends BaseRequestHandlerTest {
   private ObjectMapper mapper = new ObjectMapper();
 
@@ -25,7 +30,7 @@ public class OnRequestHandlerTest extends BaseRequestHandlerTest {
     Http.Request req = requestBuilder.build();
     try {
       OnRequestHandler onRequestHandler = new OnRequestHandler();
-      onRequestHandler.initializeContext(req, "userid");
+      onRequestHandler.initializeContext(req, "userid", "hd9933-e3-e3m3-343d-dsds");
     } catch (Exception ex) {
       Assert.assertTrue(false);
     }
@@ -39,7 +44,7 @@ public class OnRequestHandlerTest extends BaseRequestHandlerTest {
     Http.Request req = requestBuilder.build();
     try {
       OnRequestHandler onRequestHandler = new OnRequestHandler();
-      onRequestHandler.initializeContext(req, JsonKey.UNAUTHORIZED);
+      onRequestHandler.initializeContext(req, JsonKey.UNAUTHORIZED, "hd9933-e3-e3m3-343d-dsds");
     } catch (Exception ex) {
       Assert.assertTrue(false);
     }
