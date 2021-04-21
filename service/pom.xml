@@ -37,6 +37,18 @@
         <!-- Don't move this dependency below play dependency otherwise it will
             be overriden by play jackson jar, which uses older version -->
         <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-netty-server_2.11</artifactId>
+            <version>2.7.2</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
@@ -132,9 +144,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        <groupId>com.typesafe.play</groupId>
-        <artifactId>play-logback_2.11</artifactId>
-        <version>${play2.version}</version>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-logback_2.11</artifactId>
+            <version>${play2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
