@@ -5,6 +5,7 @@ import org.sunbird.exception.BaseException;
 import org.sunbird.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 
 /** This controller class will responsible to check health of the services. */
 public class HealthController extends BaseController {
@@ -16,9 +17,9 @@ public class HealthController extends BaseController {
    *
    * @return a CompletableFuture of success response
    */
-  public CompletionStage<Result> getHealth() throws BaseException {
-    Request req = new Request("health"); // Get API
-    return handleRequest(req);
+  public Result getHealth() throws BaseException {
+    //Request req = new Request("health"); // Get API
+    return Results.ok("work");
   }
 
   /**
