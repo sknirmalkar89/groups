@@ -41,7 +41,7 @@ public class MemberServiceImpl implements MemberService {
       dbResGroupIds = getGroupIdsforUserIds(GroupUtil.getMemberIdList(member));
     }
     // Update if userId is already in DB, otherwise insert
-   // addGroupInUserGroup(member, dbResGroupIds);
+    addGroupInUserGroup(member, dbResGroupIds);
     return response;
   }
 
