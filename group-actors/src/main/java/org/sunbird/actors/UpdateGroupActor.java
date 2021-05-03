@@ -245,7 +245,7 @@ public class UpdateGroupActor extends BaseActor {
     boolean memberLimit = GroupUtil.checkMaxMemberLimit(totalMemberCount, memberErrorList);
     cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
     if (!memberLimit) {
-      memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
+     // memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
     }
     return memberErrorList;
   }
