@@ -35,13 +35,13 @@ public class MemberServiceImpl implements MemberService {
   public Response addMembers(List<Member> member, List<Map<String, Object>> dbResGroupIds)
       throws BaseException {
     Response response = memberDao.addMembers(member);
-    if (response != null
+    /*if (response != null
         && response.getResult().get(JsonKey.RESPONSE) != null
         && dbResGroupIds == null) {
       dbResGroupIds = getGroupIdsforUserIds(GroupUtil.getMemberIdList(member));
     }
     // Update if userId is already in DB, otherwise insert
-    addGroupInUserGroup(member, dbResGroupIds);
+    addGroupInUserGroup(member, dbResGroupIds);*/
     return response;
   }
 
