@@ -88,7 +88,8 @@ public class UpdateGroupActor extends BaseActor {
     // Check if user is authorized to delete ,suspend and re-activate operation
     // Allow all member to exit the group
     if (!isExitGroupRequest) {
-      checkUserAuthorization(dbResGroup, membersInDB, group.getStatus(), userId);
+      checkUserAuthorization(
+          dbResGroup, membersInDB, group.getStatus(), userId, actorMessage.getRequest());
     }
 
     if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
@@ -175,7 +176,8 @@ public class UpdateGroupActor extends BaseActor {
       Map<String, Object> dbResGroup,
       List<MemberResponse> membersInDB,
       String status,
-      String userId) {
+      String userId,
+      Map<String, Object> groupRequest) {
     MemberResponse member =
         membersInDB.stream().filter(x -> x.getUserId().equals(userId)).findAny().orElse(null);
     // Check User is authorized Suspend , Re-activate or delete the group .
@@ -187,6 +189,18 @@ public class UpdateGroupActor extends BaseActor {
     if (JsonKey.INACTIVE.equals(status)
         && !userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
       throw new AuthorizationException.NotAuthorized();
+    }
+
+    // check only admin should be able to update name, description, status ,add,edit or remove
+    // members
+    if (StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_DESC))
+        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_NAME))
+        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_MEMBERSHIP_TYPE))
+        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
+        || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
+      if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
+        throw new AuthorizationException.NotAuthorized();
+      }
     }
   }
 
