@@ -24,6 +24,7 @@ import org.sunbird.Application;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
@@ -325,11 +326,69 @@ public class UpdateGroupActorTest extends BaseActorTest {
 
     Request reqObj = updateSuspendNonAdminUserGroupReq();
 
+     subject.tell(reqObj, probe.getRef());
+
+  }
+
+  @Test
+  public void testUpdateGroupWithDBThrowException() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
-      subject.tell(reqObj, probe.getRef());
-    }catch (BaseException ex){
-      Assert.assertTrue(true);
+      when(cassandraOperation.updateRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchInsert(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateAddSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+              .thenReturn(getCassandraResponse())
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateRemoveSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              .thenReturn(memberSizeResponse());
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+              .thenReturn(getMemberResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
     }
+
+    Request reqObj = updateSuspendNonAdminUserGroupReq();
+
+  try {
+    subject.tell(reqObj, probe.getRef());
+   }catch (BaseException be) {
+    Assert.assertTrue(true);
+  }
+
   }
   private Response memberSizeResponse() {
     Response response = new Response();

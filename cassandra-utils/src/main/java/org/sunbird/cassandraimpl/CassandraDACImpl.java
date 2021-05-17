@@ -17,10 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.common.Constants;
-import org.sunbird.exception.BaseException;
 import org.sunbird.exception.DBException;
 import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.ResponseCode;
 import org.sunbird.response.Response;
 
 public class CassandraDACImpl extends CassandraOperationImpl {

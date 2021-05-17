@@ -27,7 +27,6 @@ import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.common.Constants;
 import org.sunbird.exception.DBException;
-import org.sunbird.exception.DBException;
 import org.sunbird.helper.CassandraConnectionManager;
 import org.sunbird.helper.CassandraConnectionMngrFactory;
 import org.sunbird.message.IResponseMessage;

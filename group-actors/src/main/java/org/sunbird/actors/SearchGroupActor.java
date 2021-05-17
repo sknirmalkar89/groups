@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
 import org.sunbird.exception.DBException;
-import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.GroupResponse;
 import org.sunbird.request.Request;
@@ -80,11 +79,7 @@ public class SearchGroupActor extends BaseActor {
           logger.info("/group/list cache is empty. Fetching details from DB");
           groupDetails = groupService.searchGroup(filterMap);
           if (isUseridRedisEnabled) {
-            try {
-              cacheUtil.setCache(userId, JsonUtils.serialize(groupDetails), CacheUtil.userTtl);
-            } catch (Exception e) {
-              logger.error("Error in saving group list to Redis: {}", e.getMessage());
-            }
+            updateGroupDetailInCache(cacheUtil, groupDetails, userId);
           }
         }
       } else {
@@ -106,6 +101,14 @@ public class SearchGroupActor extends BaseActor {
       sender().tell(response, self());
     }catch (DBException ex){
       throw new BaseException(ResponseCode.GS_LST_03.getErrorCode(),ResponseCode.GS_LST_03.getErrorMessage(),ex.getResponseCode());
+    }
+  }
+
+  private void updateGroupDetailInCache(CacheUtil cacheUtil, List<GroupResponse> groupDetails, String userId) {
+    try {
+      cacheUtil.setCache(userId, JsonUtils.serialize(groupDetails), CacheUtil.userTtl);
+    } catch (Exception e) {
+      logger.error("Error in saving group list to Redis: {}", e.getMessage());
     }
   }
 }

@@ -11,7 +11,6 @@ import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.BaseException;
 import org.sunbird.exception.DBException;
-import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.request.Request;

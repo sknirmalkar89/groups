@@ -12,7 +12,6 @@ import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.BaseException;
 import org.sunbird.exception.DBException;
 import org.sunbird.exception.ValidationException;
-import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.MemberResponse;
@@ -161,8 +160,7 @@ public class UpdateGroupActor extends BaseActor {
 
   private Map<String, Object> readGroup(String groupId, GroupService groupService) throws BaseException {
     try {
-      Map<String, Object> dbResGroup = groupService.readGroup(groupId);
-      return dbResGroup;
+      return groupService.readGroup(groupId);
     }catch (BaseException ex){
       throw new BaseException(ResponseCode.GS_UDT_04.getErrorCode(),ResponseCode.GS_UDT_04.getErrorMessage(),ex.getResponseCode());
     }
@@ -218,17 +216,6 @@ public class UpdateGroupActor extends BaseActor {
       }
     }
 
-    // check only admin should be able to update name, description, status ,add,edit or remove
-    // members
-    if (StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_DESC))
-        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_NAME))
-        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_MEMBERSHIP_TYPE))
-        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
-        || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
-      if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
-        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT_05);
-      }
-    }
   }
 
   private List<Map<String, String>> validateActivityList(

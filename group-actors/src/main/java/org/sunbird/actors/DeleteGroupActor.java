@@ -100,8 +100,7 @@ public class DeleteGroupActor extends BaseActor {
 
   private Map<String, Object> readGroup(String groupId, GroupService groupService) throws BaseException {
     try {
-      Map<String, Object> dbResGroup = groupService.readGroup(groupId);
-      return dbResGroup;
+      return groupService.readGroup(groupId);
     }catch (BaseException ex){
       throw new BaseException(ResponseCode.GS_DLT_03.getErrorCode(),ResponseCode.GS_DLT_03.getErrorMessage(),ex.getResponseCode());
     }
