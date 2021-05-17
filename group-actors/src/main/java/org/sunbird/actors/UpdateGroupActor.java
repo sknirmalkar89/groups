@@ -226,7 +226,7 @@ public class UpdateGroupActor extends BaseActor {
         || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
         || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
       if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
-        throw new AuthorizationException.NotAuthorized();
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT_05);
       }
     }
   }
