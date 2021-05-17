@@ -34,10 +34,7 @@ public class ResponseFactory {
       }
       response.setParams(createResponseParamObj(request, code, ex.getMessage()));
       if (response.getParams() != null) {
-        response.getParams().setStatus(response.getParams().getStatus());
-        if (ex.getCode() != null) {
-          response.getParams().setStatus(ex.getCode());
-        }
+
         if (!StringUtils.isBlank(response.getParams().getErrmsg())
             && response.getParams().getErrmsg().contains("{0}")) {
           response.getParams().setErrmsg(ex.getMessage());
@@ -55,7 +52,7 @@ public class ResponseFactory {
       params.setErr(code.getErrorCode());
       params.setErrmsg(StringUtils.isNotBlank(customMessage) ? customMessage : code.name());
     }
-    params.setStatus(ResponseCode.getHeaderResponseCode(code.getResponseCode()).name());
+    params.setStatus(ResponseCode.getHeaderResponseStatus(code.getErrorCode()).getStatus());
 
     setResponseParams(request, params);
     return params;

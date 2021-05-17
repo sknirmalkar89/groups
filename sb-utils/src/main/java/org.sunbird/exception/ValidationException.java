@@ -1,9 +1,11 @@
 package org.sunbird.exception;
 
-import java.text.MessageFormat;
-import java.util.Locale;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
+import org.sunbird.message.ResponseCode;
+
+import java.text.MessageFormat;
+import java.util.Locale;
 
 public class ValidationException {
 
@@ -20,15 +22,25 @@ public class ValidationException {
   }
 
   public static class MandatoryParamMissing extends BaseException {
-    public MandatoryParamMissing(String param, String parentKey) {
+    public MandatoryParamMissing(String param, String parentKey, ResponseCode responseCode) {
       super(
-          IResponseMessage.INVALID_REQUESTED_DATA,
+              responseCode.getErrorCode(),
           MessageFormat.format(
               ValidationException.getLocalizedMessage(
-                  IResponseMessage.MISSING_MANDATORY_PARAMS, null),
+                  responseCode.getErrorMessage(), null),
               parentKey,
               param),
           400);
+    }
+    public MandatoryParamMissing(String param, String parentKey) {
+      super(
+              IResponseMessage.MISSING_MANDATORY_PARAMS,
+              MessageFormat.format(
+                      ValidationException.getLocalizedMessage(
+                              IResponseMessage.MISSING_MANDATORY_PARAMS, null),
+                      parentKey,
+                      param),
+              400);
     }
   }
 
@@ -71,11 +83,10 @@ public class ValidationException {
   public static class GroupNotActive extends BaseException {
     public GroupNotActive(String paramValue) {
       super(
-          IResponseMessage.GROUP_NOT_ACTIVE,
-          MessageFormat.format(
-              ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_ACTIVE, null),
-              paramValue),
-          400);
+              ResponseCode.GS_UDT_04.getErrorCode(),
+              MessageFormat.format(
+                      ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_FOUND, null),
+                      paramValue),400);
     }
   }
 

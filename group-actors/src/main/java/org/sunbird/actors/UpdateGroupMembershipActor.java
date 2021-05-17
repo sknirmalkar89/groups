@@ -8,7 +8,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.AuthorizationException;
+import org.sunbird.exception.DBException;
+import org.sunbird.exception.BaseException;
 import org.sunbird.exception.ValidationException;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Member;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
@@ -47,33 +50,37 @@ public class UpdateGroupMembershipActor extends BaseActor {
     String requestedBy = requestHandler.getRequestedBy(actorMessage);
     String userId = (String) actorMessage.getRequest().get(JsonKey.USER_ID);
     if (StringUtils.isEmpty(requestedBy) || !requestedBy.equals(userId)) {
-      throw new AuthorizationException.NotAuthorized();
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT_01);
     }
     logger.info("Update groups details for the userId {}", userId);
     List<Map<String, Object>> groups =
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.GROUPS);
     List<Member> members = createMembersUpdateRequest(groups, userId);
     Response response = new Response();
-    if (CollectionUtils.isNotEmpty(members)) {
-      MemberService memberService = new MemberServiceImpl();
-      response = memberService.editMembers(members);
-    }
-    boolean isUseridRedisEnabled =
-        Boolean.parseBoolean(
-            PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
-    if (isUseridRedisEnabled) {
-      // Remove updated groups from cache
-      groups.forEach(
-          group -> {
-            String groupId = (String) group.get(JsonKey.GROUP_ID);
-            cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
-          });
+    try {
+      if (CollectionUtils.isNotEmpty(members)) {
+        MemberService memberService = new MemberServiceImpl();
+        response = memberService.editMembers(members);
+      }
+      boolean isUseridRedisEnabled =
+              Boolean.parseBoolean(
+                      PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
+      if (isUseridRedisEnabled) {
+        // Remove updated groups from cache
+        groups.forEach(
+                group -> {
+                  String groupId = (String) group.get(JsonKey.GROUP_ID);
+                  cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
+                });
 
-      // Remove user cache list
-      cacheUtil.delCache(userId);
+        // Remove user cache list
+        cacheUtil.delCache(userId);
+      }
+      sender().tell(response, self());
+      logTelemetry(actorMessage, userId);
+    }catch (DBException ex){
+      throw new BaseException(ResponseCode.GS_MBRSHP_UDT_03.getErrorCode(),ResponseCode.GS_MBRSHP_UDT_03.getErrorMessage(),ex.getResponseCode());
     }
-    sender().tell(response, self());
-    logTelemetry(actorMessage, userId);
   }
 
   private List<Member> createMembersUpdateRequest(List<Map<String, Object>> groups, String userId) {
@@ -86,11 +93,11 @@ public class UpdateGroupMembershipActor extends BaseActor {
       if (member != null
           && (StringUtils.isNotEmpty(member.getRole())
               || StringUtils.isNotEmpty(member.getStatus()))) {
-        throw new AuthorizationException.NotAuthorized();
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT_01);
       }
       member.setUserId(userId);
       if (StringUtils.isBlank(member.getGroupId())) {
-        throw new ValidationException.MandatoryParamMissing(JsonKey.GROUP_ID, JsonKey.GROUPS);
+        throw new ValidationException.MandatoryParamMissing(JsonKey.GROUP_ID, JsonKey.GROUPS, ResponseCode.GS_MBRSHP_UDT_02);
       }
       members.add(member);
     }

@@ -98,33 +98,25 @@ public class GroupUtil {
   }
 
   public static boolean checkMaxActivityLimit(
-      Integer totalActivityCount, List<Map<String, String>> errorList) {
+      Integer totalActivityCount) {
     boolean isExceeded = false;
     int activityLimit =
         Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT));
     if (totalActivityCount > activityLimit) {
       logger.error("List of activities exceeded the activity size limit:{}", totalActivityCount);
-      Map<String, String> errorMap = new HashMap<>();
-      errorMap.put(JsonKey.ERROR_MESSAGE, IResponseMessage.Message.EXCEEDED_ACTIVITY_MAX_LIMIT);
-      errorMap.put(JsonKey.ERROR_CODE, IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
-      errorList.add(errorMap);
       isExceeded = true;
     }
     return isExceeded;
   }
 
   public static boolean checkMaxMemberLimit(
-      int totalMemberCount, List<Map<String, String>> errorList) {
+      int totalMemberCount) {
     boolean isExceeded = false;
     int memberLimit =
         Integer.parseInt(
             PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT));
     if (totalMemberCount > memberLimit) {
       logger.error("List of members exceeded the member size limit:{}", totalMemberCount);
-      Map<String, String> errorMap = new HashMap<>();
-      errorMap.put(JsonKey.ERROR_MESSAGE, IResponseMessage.Message.EXCEEDED_MEMBER_MAX_LIMIT);
-      errorMap.put(JsonKey.ERROR_CODE, IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
-      errorList.add(errorMap);
       isExceeded = true;
     }
     return isExceeded;

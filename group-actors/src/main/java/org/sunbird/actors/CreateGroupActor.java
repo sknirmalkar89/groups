@@ -10,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
+import org.sunbird.message.IResponseMessage;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
@@ -59,7 +62,7 @@ public class CreateGroupActor extends BaseActor {
 
     String userId = group.getCreatedBy();
     if (StringUtils.isEmpty(userId)) {
-      throw new AuthorizationException.NotAuthorized();
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_CRT_01);
     }
 
     // add creator of group to memberList as admin
@@ -77,58 +80,93 @@ public class CreateGroupActor extends BaseActor {
     }
 
     logger.info("Fetching groups from user-group for userId {}", userId);
-    List<Map<String, Object>> userGroupsList =
-        memberService.getGroupIdsforUserIds(GroupUtil.getMemberIdListFromMap(memberList));
-    GroupUtil.checkMaxGroupLimit(userGroupsList, userId);
-    Map<String, List<Map<String, String>>> validationErrors = new HashMap<>();
-    List<Map<String, String>> memberErrorList = new ArrayList<>();
-    validationErrors.put(JsonKey.MEMBERS, memberErrorList);
-    boolean memberLimitExceeded = GroupUtil.checkMaxMemberLimit(memberList.size(), memberErrorList);
-    List<Map<String, String>> activityErrorList = new ArrayList<>();
-    validationErrors.put(JsonKey.ACTIVITIES, activityErrorList);
-    boolean activityLimitExceeded =
-        GroupUtil.checkMaxActivityLimit(
-            group.getActivities() != null ? group.getActivities().size() : 0, activityErrorList);
-    if (activityLimitExceeded) {
-      // if activity limit exceeded, we should not add into the db
-      group.setActivities(null);
-    }
-    String groupId = groupService.createGroup(group);
-
-    if (CollectionUtils.isNotEmpty(memberList)) {
-      logger.info("Adding members to the group: {} started", groupId);
-      boolean isUseridRedisEnabled =
-          Boolean.parseBoolean(
-              PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
-      if (isUseridRedisEnabled) {
-        // Remove group list user cache from redis
-        cacheUtil.deleteCacheSync(userId);
-        deleteUserCache(memberList);
+    try {
+      List<Map<String, Object>> userGroupsList =
+              memberService.getGroupIdsforUserIds(GroupUtil.getMemberIdListFromMap(memberList));
+      validateMaxGroupLimitation(userId, userGroupsList);
+      Map<String, List<Map<String, String>>> validationErrors = new HashMap<>();
+      boolean  memberLimitExceeded = validateMaxMemberLimitation(memberList, validationErrors);
+      boolean  activityLimitExceeded = validateMaxActivitiesLimitation(group, validationErrors);
+      if (activityLimitExceeded) {
+        // if activity limit exceeded, we should not add into the db
+        group.setActivities(null);
       }
-      // if memberLimitExceeded is true, then members are not added in to the group,but group will
-      // be created, and groupId is returned in response ,with a errorMsg EXCEEDED_MEMBER_MAX_LIMIT
-      // this is not used/expected call flow for creating group. Doing this for direct api hits.
-      if (!memberLimitExceeded) {
-        Response addMembersRes =
-            memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList);
-        logger.info(
-            "Adding members to the group : {} ended , response {}",
-            groupId,
-            addMembersRes.getResult());
+      String groupId = groupService.createGroup(group);
+
+      if (CollectionUtils.isNotEmpty(memberList)) {
+        logger.info("Adding members to the group: {} started", groupId);
+        boolean isUseridRedisEnabled =
+                Boolean.parseBoolean(
+                        PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
+        if (isUseridRedisEnabled) {
+          // Remove group list user cache from redis
+          cacheUtil.deleteCacheSync(userId);
+          deleteUserCache(memberList);
+        }
+        // if memberLimitExceeded is true, then members are not added in to the group,but group will
+        // be created, and groupId is returned in response ,with a errorMsg EXCEEDED_MEMBER_MAX_LIMIT
+        // this is not used/expected call flow for creating group. Doing this for direct api hits.
+        if (!memberLimitExceeded) {
+          Response addMembersRes =
+                  memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList);
+          logger.info(
+                  "Adding members to the group : {} ended , response {}",
+                  groupId,
+                  addMembersRes.getResult());
+        }
       }
-    }
 
-    Response response = new Response();
-    response.put(JsonKey.GROUP_ID, groupId);
-    if (MapUtils.isNotEmpty(validationErrors)
-        && (CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.MEMBERS))
-            || CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.ACTIVITIES)))) {
-      response.put(JsonKey.ERROR, validationErrors);
-    }
-    logger.info("group created successfully with groupId {}", groupId);
-    sender().tell(response, self());
+      Response response = new Response();
+      response.put(JsonKey.GROUP_ID, groupId);
+      if (MapUtils.isNotEmpty(validationErrors)
+              && (CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.MEMBERS))
+              || CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.ACTIVITIES)))) {
+        response.put(JsonKey.ERROR, validationErrors);
+      }
+      logger.info("group created successfully with groupId {}", groupId);
+      sender().tell(response, self());
 
-    logTelemetry(actorMessage, groupId);
+      logTelemetry(actorMessage, groupId);
+    }catch (DBException ex){
+      throw new BaseException(ResponseCode.GS_CRT_06.getErrorCode(),ResponseCode.GS_CRT_06.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+    }
+  }
+
+  private boolean validateMaxActivitiesLimitation(Group group, Map<String, List<Map<String, String>>> validationErrors) throws BaseException {
+
+      List<Map<String, String>> activityErrorList = new ArrayList<>();
+      validationErrors.put(JsonKey.ACTIVITIES, activityErrorList);
+      boolean maxActivityLimit = GroupUtil.checkMaxActivityLimit(group.getActivities() != null ? group.getActivities().size() : 0);
+      if(maxActivityLimit){
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT_05.getErrorMessage());
+        errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT_05.getErrorCode());
+        activityErrorList.add(errorMap);
+      }
+      return maxActivityLimit;
+
+  }
+
+  private boolean validateMaxMemberLimitation(List<Map<String, Object>> memberList, Map<String, List<Map<String, String>>> validationErrors) {
+      List<Map<String, String>> memberErrorList = new ArrayList<>();
+      validationErrors.put(JsonKey.MEMBERS, memberErrorList);
+      boolean maxMemberLimit = GroupUtil.checkMaxMemberLimit(memberList.size());
+      if(maxMemberLimit){
+          Map<String, String> errorMap = new HashMap<>();
+          errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT_04.getErrorMessage());
+          errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT_04.getErrorCode());
+          memberErrorList.add(errorMap);
+      }
+      return maxMemberLimit;
+
+  }
+
+  private void validateMaxGroupLimitation(String userId, List<Map<String, Object>> userGroupsList) {
+    try {
+      GroupUtil.checkMaxGroupLimit(userGroupsList, userId);
+    }catch (BaseException ex){
+      throw new BaseException(ResponseCode.GS_CRT_03.getErrorCode(),ResponseCode.GS_CRT_03.getErrorMessage(),ex.getResponseCode());
+    }
   }
 
   private void deleteUserCache(List<Map<String, Object>> memberList) {

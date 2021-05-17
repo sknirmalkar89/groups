@@ -137,7 +137,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     List errorList = (List) error.get(JsonKey.MEMBERS);
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
+        IResponseMessage.Key.GS_UDT_06);
   }
 
   @Test
@@ -152,7 +152,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     List errorList = (List) error.get(JsonKey.ACTIVITIES);
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+        IResponseMessage.Key.GS_UDT_07);
   }
 
   @Test

@@ -9,6 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.GroupResponse;
@@ -59,47 +60,52 @@ public class SearchGroupActor extends BaseActor {
 
     List<GroupResponse> groupDetails = new ArrayList<>();
     String userId = (String) filterMap.get(JsonKey.USER_ID);
-    if (StringUtils.isNotBlank(userId)) {
-      boolean getFromDB = true;
-      if (isUseridRedisEnabled) {
-        String groupList = cacheUtil.getCache(userId);
-        if (StringUtils.isNotEmpty(groupList)) {
-          try {
-            groupDetails =
-                JsonUtils.deserialize(groupList, new TypeReference<List<GroupResponse>>() {});
-            getFromDB = false;
-          } catch (Exception e) {
-            logger.error("Error in getting group list from Redis: {}", e.getMessage());
-          }
-        }
-      }
-      if (getFromDB || CollectionUtils.isEmpty(groupDetails)) {
-        logger.info("/group/list cache is empty. Fetching details from DB");
-        groupDetails = groupService.searchGroup(filterMap);
+    try {
+      if (StringUtils.isNotBlank(userId)) {
+        boolean getFromDB = true;
         if (isUseridRedisEnabled) {
-          try {
-            cacheUtil.setCache(userId, JsonUtils.serialize(groupDetails), CacheUtil.userTtl);
-          } catch (Exception e) {
-            logger.error("Error in saving group list to Redis: {}", e.getMessage());
+          String groupList = cacheUtil.getCache(userId);
+          if (StringUtils.isNotEmpty(groupList)) {
+            try {
+              groupDetails =
+                      JsonUtils.deserialize(groupList, new TypeReference<List<GroupResponse>>() {
+                      });
+              getFromDB = false;
+            } catch (Exception e) {
+              logger.error("Error in getting group list from Redis: {}", e.getMessage());
+            }
           }
         }
+        if (getFromDB || CollectionUtils.isEmpty(groupDetails)) {
+          logger.info("/group/list cache is empty. Fetching details from DB");
+          groupDetails = groupService.searchGroup(filterMap);
+          if (isUseridRedisEnabled) {
+            try {
+              cacheUtil.setCache(userId, JsonUtils.serialize(groupDetails), CacheUtil.userTtl);
+            } catch (Exception e) {
+              logger.error("Error in saving group list to Redis: {}", e.getMessage());
+            }
+          }
+        }
+      } else {
+        logger.error("Bad Request UserId is Mandatory");
+        throw new BaseException(
+                ResponseCode.GS_LST_02.getErrorCode(),
+                ResponseCode.GS_LST_02.getErrorMessage(),
+                ResponseCode.BAD_REQUEST.getCode());
       }
-    } else {
-      logger.error("Bad Request UserId is Mandatory");
-      throw new BaseException(
-          IResponseMessage.INVALID_REQUESTED_DATA,
-          IResponseMessage.MISSING_MANDATORY_PARAMS,
-          ResponseCode.BAD_REQUEST.getCode());
-    }
 
-    Map<String, Object> result = new HashMap<>();
-    if (CollectionUtils.isNotEmpty(groupDetails) && groupDetails.size() > 0) {
-      groupDetails.sort(
-          ((o1, o2) ->
-              o1.getMemberRole().compareTo(o2.getMemberRole()))); // sort group result by role
+      Map<String, Object> result = new HashMap<>();
+      if (CollectionUtils.isNotEmpty(groupDetails) && groupDetails.size() > 0) {
+        groupDetails.sort(
+                ((o1, o2) ->
+                        o1.getMemberRole().compareTo(o2.getMemberRole()))); // sort group result by role
+      }
+      result.put(JsonKey.GROUP, groupDetails);
+      Response response = new Response(result, ResponseCode.OK.getCode());
+      sender().tell(response, self());
+    }catch (DBException ex){
+      throw new BaseException(ResponseCode.GS_LST_03.getErrorCode(),ResponseCode.GS_LST_03.getErrorMessage(),ex.getResponseCode());
     }
-    result.put(JsonKey.GROUP, groupDetails);
-    Response response = new Response(result, ResponseCode.OK.getCode());
-    sender().tell(response, self());
   }
 }

@@ -180,10 +180,10 @@ public class CreateGroupActorTest extends BaseActorTest {
     List activityErrorList = (List) error.get(JsonKey.ACTIVITIES);
     Assert.assertEquals(
         ((Map) memberErrorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
+        IResponseMessage.Key.GS_CRT_04);
     Assert.assertEquals(
         ((Map) activityErrorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+        IResponseMessage.Key.GS_CRT_05);
   }
 
   private static Request createGroupReq() {

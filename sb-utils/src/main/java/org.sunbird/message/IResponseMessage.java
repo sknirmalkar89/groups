@@ -33,6 +33,41 @@ public interface IResponseMessage {
     String EXCEEDED_GROUP_MAX_LIMIT = "EXCEEDED_GROUP_MAX_LIMIT";
     String EXCEEDED_ACTIVITY_MAX_LIMIT = "EXCEEDED_ACTIVITY_MAX_LIMIT";
     String SERVICE_UNAVAILABLE = "SERVICE UNAVAILABLE";
+    String GS_CRT_01 = "GS_CRT_01";
+    String GS_CRT_02 = "GS_CRT_02";
+    String GS_CRT_03 = "GS_CRT_03";
+    String GS_CRT_04 = "GS_CRT_04";
+    String GS_CRT_05 = "GS_CRT_05";
+    String GS_CRT_06= "GS_CRT_06";
+
+    String GS_UDT_01 = "GS_UDT_01";
+    String GS_UDT_02 = "GS_UDT_02";
+    String GS_UDT_03 = "GS_UDT_03";
+    String GS_UDT_04 = "GS_UDT_04";
+    String GS_UDT_05 = "GS_UDT_05";
+    String GS_UDT_06= "GS_UDT_06";
+    String GS_UDT_07 = "GS_UDT_07";
+    String GS_UDT_08= "GS_UDT_08";
+
+
+    String GS_RED_01 = "GS_RED_01";
+    String GS_RED_02= "GS_RED_02";
+    String GS_RED_03 = "GS_RED_03";
+    String GS_RED_04= "GS_RED_04";
+
+    String GS_LST_01 = "GS_LST_01";
+    String GS_LST_02= "GS_LST_02";
+    String GS_LST_03 = "GS_LST_03";
+    String GS_DLT_01 = "GS_DLT_01";
+    String GS_DLT_02= "GS_DLT_02";
+    String GS_DLT_03 = "GS_DLT_03";
+    String GS_DLT_04= "GS_DLT_04";
+    String GS_DLT_05= "GS_DLT_05";
+
+    String GS_MBRSHP_UDT_01= "GS_MBRSHP_UDT_01";
+    String GS_MBRSHP_UDT_02 = "GS_MBRSHP_UDT_02";
+    String GS_MBRSHP_UDT_03="GS_MBRSHP_UDT_03";
+
   }
 
   interface Message {
@@ -54,5 +89,47 @@ public interface IResponseMessage {
     String INTERNAL_ERROR = "Process failed,please try again later.";
     String SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE";
     String UNAUTHORIZED = "You are not authorized.";
+
+    String GS_CRT_01 = "Failed to create group, unauthorised user. Contact your system administrator.";
+    String GS_CRT_02 = "Failed to create group, fields are missing in the request. Enter the required values and resend the request.";
+    String GS_CRT_03 = "Failed to create group, exceeded number of permissible groups.";
+    String GS_CRT_04 = "Failed to add member, group, exceeded number of permissible members.";
+    String GS_CRT_05 = "Failed to add activity in a group, exceeded the number of permissible activity in the group.";
+    String GS_CRT_06 = "Failed to create group, due to database error or there are too many concurrent calls to the server. Try again later.";
+
+    String GS_UDT_01 = "Failed to update group, unauthorised user. Contact your system administrator.";
+    String GS_UDT_02 = "Failed to update group, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_UDT_03 = "Failed to update, group inactive. Resend required values in request.";
+    String GS_UDT_04 = "Failed to update, group does not exist. Contact your system administrator.";
+    String GS_UDT_05 = "Failed to update group, administrator rights required. Contact your system administrator.";
+    String GS_UDT_06= "Failed to update the group,  exceeded permissible members count.";
+    String GS_UDT_07 = "Failed to update group activity, exceeded permissible activities in a group.";
+    String GS_UDT_08= "Failed to update group, due to database error or there are too many concurrent calls to the server. Try again later.";
+
+
+    String GS_RED_01 = "Failed to read group details, unauthorised user. Contact your system administrator.";
+    String GS_RED_02= "Failed to read group details, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_RED_03 = "Failed to read details, group not found. Contact your system administrator.";
+    String GS_RED_04= "Failed to read group details due to database error or there are too many concurrent calls to the server. Try again later.";
+
+    String GS_LST_01 = "Failed to fetch group list, unauthorised user. Contact your system administrator.";
+    String GS_LST_02= "Failed to fetch group list, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_LST_03 = "Failed to fetch group list, due to database error or there are too many concurrent calls to the server. Try again later.";
+
+    String GS_DLT_01 = "Failed to delete group, unauthorised user. Contact your system administrator.";
+    String GS_DLT_02= "Failed to delete group, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_DLT_03 = "Failed to delete, group not found. Contact your system administrator.";
+    String GS_DLT_04= "Failed to delete, group  creators can delete the group. Contact your system administrator.";
+    String GS_DLT_05 = "Failed to delete group, due to database error or there are too many concurrent calls to the server. Try again later.";
+
+    String GS_MBRSHP_UDT_01= "Failed to update group member details, unauthorised user. Contact your system administrator.";
+    String GS_MBRSHP_UDT_02 = "Failed to update group member details, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_MBRSHP_UDT_03= "Failed to create group, due to database error or there are too many concurrent calls to the server. Try again later.";
+
+
+
+
+
   }
+
 }

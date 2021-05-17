@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
+import org.sunbird.exception.DBException;
+import org.sunbird.exception.BaseException;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.models.GroupResponse;
 import org.sunbird.models.MemberResponse;
@@ -43,7 +45,7 @@ public class ReadGroupActor extends BaseActor {
    *
    * @param actorMessage
    */
-  private void readGroup(Request actorMessage) throws Exception {
+  private void readGroup(Request actorMessage) throws BaseException {
     CacheUtil cacheUtil = new CacheUtil();
     GroupService groupService = new GroupServiceImpl();
     MemberService memberService = new MemberServiceImpl();
@@ -51,39 +53,48 @@ public class ReadGroupActor extends BaseActor {
     List<String> requestFields = (List<String>) actorMessage.getRequest().get(JsonKey.FIELDS);
     logger.info("Reading group with groupId {} and required fields {}", groupId, requestFields);
     GroupResponse groupResponse;
-    String groupInfo = cacheUtil.getCache(groupId);
-    if (StringUtils.isNotEmpty(groupInfo)) {
-      groupResponse = JsonUtils.deserialize(groupInfo, GroupResponse.class);
-    } else {
-      logger.info("read group cache is empty. Fetching details from DB for groupId - {} ", groupId);
-      groupResponse = groupService.readGroupWithActivities(groupId, actorMessage.getContext());
-      cacheUtil.setCache(groupId, JsonUtils.serialize(groupResponse), CacheUtil.groupTtl);
-    }
-    if (CollectionUtils.isNotEmpty(requestFields) && requestFields.contains(JsonKey.MEMBERS)) {
-      String groupMember = cacheUtil.getCache(constructRedisIdentifier(groupId));
-      List<MemberResponse> memberResponses = new ArrayList<>();
-      if (StringUtils.isNotEmpty(groupMember)) {
-        memberResponses =
-            JsonUtils.deserialize(groupMember, new TypeReference<List<MemberResponse>>() {});
+    try {
+      String groupInfo = cacheUtil.getCache(groupId);
+      if (StringUtils.isNotEmpty(groupInfo)) {
+        groupResponse = JsonUtils.deserialize(groupInfo, GroupResponse.class);
       } else {
-        logger.info(
-            "read group member cache is empty. Fetching details from DB for groupId - {} ",
-            groupId);
-        memberResponses = memberService.readGroupMembers(groupId, actorMessage.getContext());
-        cacheUtil.setCache(
-            constructRedisIdentifier(groupId),
-            JsonUtils.serialize(memberResponses),
-            CacheUtil.groupTtl);
+        logger.info("read group cache is empty. Fetching details from DB for groupId - {} ", groupId);
+        groupResponse = groupService.readGroupWithActivities(groupId, actorMessage.getContext());
+        cacheUtil.setCache(groupId, JsonUtils.serialize(groupResponse), CacheUtil.groupTtl);
       }
-      groupResponse.setMembers(memberResponses);
+      if (CollectionUtils.isNotEmpty(requestFields) && requestFields.contains(JsonKey.MEMBERS)) {
+        String groupMember = cacheUtil.getCache(constructRedisIdentifier(groupId));
+        List<MemberResponse> memberResponses = new ArrayList<>();
+        if (StringUtils.isNotEmpty(groupMember)) {
+          memberResponses =
+                  JsonUtils.deserialize(groupMember, new TypeReference<List<MemberResponse>>() {
+                  });
+        } else {
+          logger.info(
+                  "read group member cache is empty. Fetching details from DB for groupId - {} ",
+                  groupId);
+          memberResponses = memberService.readGroupMembers(groupId, actorMessage.getContext());
+          cacheUtil.setCache(
+                  constructRedisIdentifier(groupId),
+                  JsonUtils.serialize(memberResponses),
+                  CacheUtil.groupTtl);
+        }
+        groupResponse.setMembers(memberResponses);
+      }
+      if (CollectionUtils.isNotEmpty(requestFields) && !requestFields.contains(JsonKey.ACTIVITIES)) {
+        groupResponse.setActivities(null);
+      }
+      Response response = new Response(ResponseCode.OK.getCode());
+      Map<String, Object> map = JsonUtils.convert(groupResponse, Map.class);
+      response.putAll(map);
+      sender().tell(response, self());
+    } catch (BaseException ex){
+     throw  new BaseException(ResponseCode.GS_RED_03.getErrorCode(),ResponseCode.GS_RED_03.getErrorMessage(),ex.getResponseCode());
+    } catch (DBException ex){
+      throw new BaseException(ResponseCode.GS_RED_04.getErrorCode(),ResponseCode.GS_RED_04.getErrorMessage(),ex.getResponseCode());
+    }catch (Exception ex){
+      throw new BaseException(ResponseCode.GS_RED_04.getErrorCode(),ResponseCode.GS_RED_04.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }
-    if (CollectionUtils.isNotEmpty(requestFields) && !requestFields.contains(JsonKey.ACTIVITIES)) {
-      groupResponse.setActivities(null);
-    }
-    Response response = new Response(ResponseCode.OK.getCode());
-    Map<String, Object> map = JsonUtils.convert(groupResponse, Map.class);
-    response.putAll(map);
-    sender().tell(response, self());
   }
 
   /**

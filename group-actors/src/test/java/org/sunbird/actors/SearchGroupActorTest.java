@@ -29,6 +29,7 @@ import org.sunbird.exception.BaseException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.response.Response;
@@ -108,7 +109,7 @@ public class SearchGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
 
     BaseException ex = probe.expectMsgClass(Duration.ofSeconds(10), BaseException.class);
-    Assert.assertEquals(IResponseMessage.MISSING_MANDATORY_PARAMS, ex.getMessage());
+    Assert.assertEquals(ResponseCode.GS_LST_02.getErrorMessage(), ex.getMessage());
   }
 
   private Response getGroupsDetailsResponse() {

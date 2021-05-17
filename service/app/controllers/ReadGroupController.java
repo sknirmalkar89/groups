@@ -2,14 +2,17 @@ package controllers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.exception.BaseException;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.models.ActorOperations;
 import org.sunbird.request.Request;
 import org.sunbird.util.JsonKey;
 import play.mvc.Http;
 import play.mvc.Result;
+import utils.module.PrintEntryExitLog;
 import validators.GroupReadRequestValidator;
 import validators.IRequestValidator;
 
@@ -28,6 +31,17 @@ public class ReadGroupController extends BaseController {
       request.getRequest().put(JsonKey.FIELDS, fields);
     }
     request.getRequest().put(JsonKey.GROUP_ID, groupId);
-    return handleRequest(request);
+    try{
+       return handleRequest(request);
+    } catch (Exception ex) {
+      PrintEntryExitLog.printExitLogOnFailure(
+              request,
+              new BaseException(
+                      ResponseCode.GS_RED_04.getErrorCode(),
+                      ex.getMessage(),
+                      ResponseCode.CLIENT_ERROR.getResponseCode()));
+      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
+              .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
+    }
   }
 }

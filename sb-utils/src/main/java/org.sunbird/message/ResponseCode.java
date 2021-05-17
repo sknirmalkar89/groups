@@ -2,33 +2,68 @@ package org.sunbird.message;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.util.JsonKey;
-
 public enum ResponseCode {
-  unAuthorized(IResponseMessage.Key.UNAUTHORIZED, IResponseMessage.Message.UNAUTHORIZED),
+  unAuthorized(IResponseMessage.Key.UNAUTHORIZED, IResponseMessage.Message.UNAUTHORIZED, JsonKey.FAILED),
   keyCloakDefaultError(
       IResponseMessage.Key.KEY_CLOAK_DEFAULT_ERROR,
-      IResponseMessage.Message.KEY_CLOAK_DEFAULT_ERROR),
+      IResponseMessage.Message.KEY_CLOAK_DEFAULT_ERROR,JsonKey.FAILED),
   unableToCommunicateWithActor(
       IResponseMessage.Key.UNABLE_TO_COMMUNICATE_WITH_ACTOR,
-      IResponseMessage.Message.UNABLE_TO_COMMUNICATE_WITH_ACTOR),
+      IResponseMessage.Message.UNABLE_TO_COMMUNICATE_WITH_ACTOR,JsonKey.FAILED),
   exceededGroupMaxLimit(
       IResponseMessage.Key.EXCEEDED_GROUP_MAX_LIMIT,
-      IResponseMessage.Message.EXCEEDED_GROUP_MAX_LIMIT),
+      IResponseMessage.Message.EXCEEDED_GROUP_MAX_LIMIT,JsonKey.FAILED),
   invalidRequestData(
-      IResponseMessage.INVALID_REQUESTED_DATA, IResponseMessage.Message.INVALID_REQUESTED_DATA),
-  dataTypeError(IResponseMessage.DATA_TYPE_ERROR, IResponseMessage.Message.DATA_TYPE_ERROR),
-  groupNotFound(IResponseMessage.GROUP_NOT_FOUND, IResponseMessage.Message.GROUP_NOT_FOUND),
-  groupNotActive(IResponseMessage.GROUP_NOT_ACTIVE, IResponseMessage.Message.GROUP_NOT_ACTIVE),
+      IResponseMessage.INVALID_REQUESTED_DATA, IResponseMessage.Message.INVALID_REQUESTED_DATA,JsonKey.FAILED),
+  dataTypeError(IResponseMessage.DATA_TYPE_ERROR, IResponseMessage.Message.DATA_TYPE_ERROR,JsonKey.FAILED),
+  groupNotFound(IResponseMessage.GROUP_NOT_FOUND, IResponseMessage.Message.GROUP_NOT_FOUND,JsonKey.FAILED),
+  groupNotActive(IResponseMessage.GROUP_NOT_ACTIVE, IResponseMessage.Message.GROUP_NOT_ACTIVE,JsonKey.FAILED),
   invalidParameterValue(
-      IResponseMessage.INVALID_PARAMETER_VALUE, IResponseMessage.Message.INVALID_PARAMETER_VALUE),
-  serverError(IResponseMessage.SERVER_ERROR, IResponseMessage.SERVER_ERROR),
+      IResponseMessage.INVALID_PARAMETER_VALUE, IResponseMessage.Message.INVALID_PARAMETER_VALUE,JsonKey.FAILED),
+  serverError(IResponseMessage.SERVER_ERROR, IResponseMessage.SERVER_ERROR,JsonKey.FAILED),
   invalidPropertyError(
-      IResponseMessage.INVALID_PROPERTY_ERROR, IResponseMessage.Message.INVALID_PROPERTY_ERROR),
-  dbInsertionError(IResponseMessage.DB_INSERTION_FAIL, IResponseMessage.Message.DB_INSERTION_FAIL),
-  dbUpdateError(IResponseMessage.DB_UPDATE_FAIL, IResponseMessage.Message.DB_UPDATE_FAIL),
-  internalError(IResponseMessage.INTERNAL_ERROR, IResponseMessage.Message.INTERNAL_ERROR),
+      IResponseMessage.INVALID_PROPERTY_ERROR, IResponseMessage.Message.INVALID_PROPERTY_ERROR,JsonKey.FAILED),
+  dbInsertionError(IResponseMessage.DB_INSERTION_FAIL, IResponseMessage.Message.DB_INSERTION_FAIL,JsonKey.FAILED),
+  dbUpdateError(IResponseMessage.DB_UPDATE_FAIL, IResponseMessage.Message.DB_UPDATE_FAIL,JsonKey.FAILED),
+  internalError(IResponseMessage.INTERNAL_ERROR, IResponseMessage.Message.INTERNAL_ERROR,JsonKey.FAILED),
   serviceUnAvailable(
-      IResponseMessage.Key.SERVICE_UNAVAILABLE, IResponseMessage.Message.SERVICE_UNAVAILABLE),
+      IResponseMessage.Key.SERVICE_UNAVAILABLE, IResponseMessage.Message.SERVICE_UNAVAILABLE,JsonKey.FAILED),
+  GS_CRT_01(IResponseMessage.Key.GS_CRT_01, IResponseMessage.Message.GS_CRT_01,JsonKey.FAILED),
+  GS_CRT_02(IResponseMessage.Key.GS_CRT_02, IResponseMessage.Message.GS_CRT_02,JsonKey.FAILED),
+  GS_CRT_03(IResponseMessage.Key.GS_CRT_03, IResponseMessage.Message.GS_CRT_03,JsonKey.FAILED),
+  GS_CRT_04(IResponseMessage.Key.GS_CRT_04, IResponseMessage.Message.GS_CRT_04,JsonKey.FAILED),
+  GS_CRT_05(IResponseMessage.Key.GS_CRT_05, IResponseMessage.Message.GS_CRT_05,JsonKey.FAILED),
+  GS_CRT_06(IResponseMessage.Key.GS_CRT_06, IResponseMessage.Message.GS_CRT_06,JsonKey.FAILED),
+
+  GS_UDT_01(IResponseMessage.Key.GS_UDT_01, IResponseMessage.Message.GS_UDT_01,JsonKey.FAILED),
+  GS_UDT_02(IResponseMessage.Key.GS_UDT_02, IResponseMessage.Message.GS_UDT_02,JsonKey.FAILED),
+  GS_UDT_03(IResponseMessage.Key.GS_UDT_03, IResponseMessage.Message.GS_UDT_03,JsonKey.FAILED),
+  GS_UDT_04(IResponseMessage.Key.GS_UDT_04, IResponseMessage.Message.GS_UDT_04,JsonKey.FAILED),
+  GS_UDT_05(IResponseMessage.Key.GS_UDT_05, IResponseMessage.Message.GS_UDT_05,JsonKey.FAILED),
+  GS_UDT_06(IResponseMessage.Key.GS_UDT_06, IResponseMessage.Message.GS_UDT_06,JsonKey.FAILED),
+  GS_UDT_07(IResponseMessage.Key.GS_UDT_07, IResponseMessage.Message.GS_UDT_07,JsonKey.FAILED),
+  GS_UDT_08(IResponseMessage.Key.GS_UDT_08, IResponseMessage.Message.GS_UDT_08,JsonKey.FAILED),
+
+  GS_RED_01(IResponseMessage.Key.GS_RED_01, IResponseMessage.Message.GS_RED_01,JsonKey.FAILED),
+  GS_RED_02(IResponseMessage.Key.GS_RED_02, IResponseMessage.Message.GS_RED_02,JsonKey.FAILED),
+  GS_RED_03(IResponseMessage.Key.GS_RED_03, IResponseMessage.Message.GS_RED_03,JsonKey.FAILED),
+  GS_RED_04(IResponseMessage.Key.GS_RED_04, IResponseMessage.Message.GS_RED_04,JsonKey.FAILED),
+
+  GS_LST_01(IResponseMessage.Key.GS_LST_01, IResponseMessage.Message.GS_LST_01,JsonKey.FAILED),
+  GS_LST_02(IResponseMessage.Key.GS_LST_02, IResponseMessage.Message.GS_LST_02,JsonKey.FAILED),
+  GS_LST_03(IResponseMessage.Key.GS_LST_03, IResponseMessage.Message.GS_LST_03,JsonKey.FAILED),
+
+
+  GS_DLT_01(IResponseMessage.Key.GS_DLT_01, IResponseMessage.Message.GS_DLT_01,JsonKey.FAILED),
+  GS_DLT_02(IResponseMessage.Key.GS_DLT_02, IResponseMessage.Message.GS_DLT_02,JsonKey.FAILED),
+  GS_DLT_03(IResponseMessage.Key.GS_DLT_03, IResponseMessage.Message.GS_DLT_03,JsonKey.FAILED),
+  GS_DLT_04(IResponseMessage.Key.GS_DLT_04, IResponseMessage.Message.GS_DLT_04,JsonKey.FAILED),
+  GS_DLT_05(IResponseMessage.Key.GS_DLT_05, IResponseMessage.Message.GS_DLT_05,JsonKey.FAILED),
+  
+  GS_MBRSHP_UDT_01(IResponseMessage.Key.GS_MBRSHP_UDT_01, IResponseMessage.Message.GS_MBRSHP_UDT_01,JsonKey.FAILED),
+  GS_MBRSHP_UDT_02(IResponseMessage.Key.GS_MBRSHP_UDT_02, IResponseMessage.Message.GS_MBRSHP_UDT_02,JsonKey.FAILED),
+  GS_MBRSHP_UDT_03(IResponseMessage.Key.GS_MBRSHP_UDT_03, IResponseMessage.Message.GS_MBRSHP_UDT_03,JsonKey.FAILED),
+
   OK(200),
   CLIENT_ERROR(400),
   SERVER_ERROR(500),
@@ -46,6 +81,8 @@ public enum ResponseCode {
   /** errorMessage contains proper error message. */
   private String errorMessage;
 
+  private String status;
+
   ResponseCode(int code) {
     this.code = code;
   }
@@ -54,9 +91,17 @@ public enum ResponseCode {
    * @param errorCode String
    * @param errorMessage String
    */
-  ResponseCode(String errorCode, String errorMessage) {
+  ResponseCode(String errorCode, String errorMessage, String status) {
     this.errorCode = errorCode;
     this.errorMessage = errorMessage;
+    this.status = status;
+  }
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
   }
 
   public int getCode() {
@@ -77,6 +122,29 @@ public enum ResponseCode {
         if (null != arr) {
           for (ResponseCode rc : arr) {
             if (rc.getResponseCode() == code) return rc;
+          }
+        }
+      } catch (Exception e) {
+        return ResponseCode.SERVER_ERROR;
+      }
+    }
+    return ResponseCode.SERVER_ERROR;
+  }
+
+  /**
+   * This method will take header response error code as string value and it provide matched enum value, if
+   * error code is not matched or exception occurs then it will provide SERVER_ERROR
+   *
+   * @param errorCode String
+   * @return HeaderResponseCode
+   */
+  public static ResponseCode getHeaderResponseStatus(String errorCode) {
+    if (errorCode!=  null) {
+      try {
+        ResponseCode[] arr = ResponseCode.values();
+        if (null != arr) {
+          for (ResponseCode rc : arr) {
+            if (rc.getErrorCode() == errorCode) return rc;
           }
         }
       } catch (Exception e) {

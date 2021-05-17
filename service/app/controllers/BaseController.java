@@ -63,20 +63,10 @@ public class BaseController extends Controller {
    * @return
    */
   public CompletionStage<Result> handleRequest(Request request) {
-    try {
       PrintEntryExitLog.printEntryLog(request);
       validate(request);
       return invoke(request);
-    } catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-          request,
-          new BaseException(
-              ResponseCode.CLIENT_ERROR.getErrorCode(),
-              ex.getMessage(),
-              ResponseCode.CLIENT_ERROR.getResponseCode()));
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-          .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+
   }
 
   /**
