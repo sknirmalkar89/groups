@@ -133,6 +133,7 @@ public class UpdateGroupActor extends BaseActor {
         }
       }
 
+
       boolean isUseridRedisEnabled =
               Boolean.parseBoolean(
                       PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
@@ -214,6 +215,18 @@ public class UpdateGroupActor extends BaseActor {
         || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
       if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
         throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT_05);
+      }
+    }
+
+    // check only admin should be able to update name, description, status ,add,edit or remove
+    // members
+    if (StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_DESC))
+        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_NAME))
+        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_MEMBERSHIP_TYPE))
+        || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
+        || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
+      if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
+        throw new AuthorizationException.NotAuthorized();
       }
     }
   }
