@@ -74,14 +74,15 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         logger.info(
             "Exception occured while inserting record to " + tableName + " : " + e.getMessage(), e);
         throw new DBException(
-            IResponseMessage.INVALID_PROPERTY_ERROR,
-            CassandraUtil.processExceptionForUnknownIdentifier(e));
+                CassandraUtil.processExceptionForUnknownIdentifier(e),
+            IResponseMessage.INVALID_PROPERTY_ERROR
+            );
       }
       logger.info(
           "Exception occured while inserting record to " + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.DB_INSERTION_FAIL,
-          localizer.getMessage(IResponseMessage.DB_INSERTION_FAIL, null));
+              e.getMessage(),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("insertRecord", startTime);
     return response;
@@ -116,13 +117,13 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       if (e.getMessage().contains(Constants.UNKNOWN_IDENTIFIER)) {
         logger.error(Constants.EXCEPTION_MSG_UPDATE + tableName + " : " + e.getMessage(), e);
         throw new DBException(
-            IResponseMessage.INVALID_PROPERTY_ERROR,
-            localizer.getMessage(CassandraUtil.processExceptionForUnknownIdentifier(e), null));
+            localizer.getMessage(CassandraUtil.processExceptionForUnknownIdentifier(e), null),
+                IResponseMessage.SERVER_ERROR);
       }
       logger.error(Constants.EXCEPTION_MSG_UPDATE + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.DB_UPDATE_FAIL,
-          localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null));
+          localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("updateRecord", startTime);
     return response;
@@ -144,7 +145,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_DELETE + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("deleteRecord", startTime);
@@ -183,7 +184,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     return response;
@@ -223,7 +224,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByProperty", startTime);
@@ -275,7 +276,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByProperties", startTime);
@@ -298,7 +299,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getPropertiesValueById", startTime);
@@ -317,7 +318,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getAllRecords", startTime);
@@ -353,7 +354,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       }
       logger.error(Constants.EXCEPTION_MSG_UPSERT + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("upsertRecord", startTime);
@@ -396,13 +397,12 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       logger.error(Constants.EXCEPTION_MSG_UPDATE + tableName + " : " + e.getMessage(), e);
       if (e.getMessage().contains(Constants.UNKNOWN_IDENTIFIER)) {
         throw new DBException(
-            IResponseMessage.INVALID_PROPERTY_ERROR,
             localizer.getMessage(CassandraUtil.processExceptionForUnknownIdentifier(e), null),
-            ResponseCode.CLIENT_ERROR.getCode());
+           IResponseMessage.SERVER_ERROR);
       }
       throw new DBException(
-          IResponseMessage.DB_UPDATE_FAIL,
-          localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null));
+              localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("updateRecord", startTime);
     return response;
@@ -440,7 +440,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordByIdentifier", startTime);
@@ -515,7 +515,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordByIdentifier", startTime);
@@ -554,7 +554,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         | IllegalStateException e) {
       logger.error("Cassandra Batch Insert Failed." + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+           e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchInsert", startTime);
@@ -594,7 +594,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         | IllegalStateException e) {
       logger.error("Cassandra Batch Update Failed." + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchUpdateById", startTime);
@@ -641,7 +641,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         | IllegalStateException e) {
       logger.error("Cassandra performBatchAction Failed." + e.getMessage());
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("performBatchAction", startTime);
@@ -703,7 +703,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception ex) {
       logger.error("Cassandra Batch Update failed " + ex.getMessage(), ex);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              ex.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchUpdate", startTime);
@@ -742,7 +742,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + e.getMessage(),
           e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByIndexedProperty", startTime);
@@ -776,7 +776,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + e.getMessage(),
           e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("deleteRecordByCompositeKey", startTime);
@@ -803,7 +803,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + e.getMessage(),
           e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("deleteRecords", startTime);
@@ -835,7 +835,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + " : "
               + e.getMessage());
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByCompositeKey", startTime);
@@ -862,7 +862,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByIdsWithSpecifiedColumns", startTime);
@@ -906,7 +906,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByPrimaryKeys", startTime);
@@ -997,11 +997,11 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       if (MapUtils.isNotEmpty(ttlPropertiesWithAlias)) {
         for (Map.Entry<String, String> entry : ttlPropertiesWithAlias.entrySet()) {
           if (StringUtils.isBlank(entry.getValue())) {
-            logger.error(
-                "CassandraOperationImpl:getRecordsByIdsWithSpecifiedColumnsAndTTL: Alias not provided for ttl key = "
-                    + entry.getKey());
+            String errroMsg="CassandraOperationImpl:getRecordsByIdsWithSpecifiedColumnsAndTTL: Alias not provided for ttl key = "
+                    + entry.getKey();
+            logger.error(errroMsg);
             throw new DBException(
-                IResponseMessage.SERVER_ERROR,
+                errroMsg,
                 IResponseMessage.SERVER_ERROR);
           }
           selection.ttl(entry.getKey()).as(entry.getValue());
@@ -1021,8 +1021,8 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR);
+          e.getMessage(),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByIdsWithSpecifiedColumnsAndTTL", startTime);
     return response;
@@ -1035,16 +1035,17 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     long startTime = System.currentTimeMillis();
     logger.info("CassandraOperationImpl:batchInsertWithTTL: call started at " + startTime);
     if (CollectionUtils.isEmpty(records) || CollectionUtils.isEmpty(ttls)) {
-      logger.error("CassandraOperationImpl:batchInsertWithTTL: records or ttls is empty");
+      String errorMsg="CassandraOperationImpl:batchInsertWithTTL: records or ttls is empty";
+      logger.error(errorMsg);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          errorMsg,
           IResponseMessage.SERVER_ERROR);
     }
     if (ttls.size() != records.size()) {
-      logger.error(
-          "CassandraOperationImpl:batchInsertWithTTL: Mismatch of records and ttls list size");
+      String errorMsg="CassandraOperationImpl:batchInsertWithTTL: Mismatch of records and ttls list size";
+      logger.error(errorMsg);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          errorMsg,
           IResponseMessage.SERVER_ERROR);
     }
     Session session = connectionManager.getSession(keyspaceName);
@@ -1080,7 +1081,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + e.getMessage(),
           e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchInsertWithTTL", startTime);
@@ -1206,7 +1207,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception ex) {
       logger.error("Cassandra Batch Delete failed " + ex.getMessage(), ex);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              ex.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchDelete", startTime);

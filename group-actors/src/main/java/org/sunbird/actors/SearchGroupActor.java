@@ -1,6 +1,8 @@
 package org.sunbird.actors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +73,7 @@ public class SearchGroupActor extends BaseActor {
                       });
               getFromDB = false;
             } catch (Exception e) {
-              logger.error("Error in getting group list from Redis: {}", e.getMessage());
+              logger.error("SearchGroupActor: Error in getting group list from Redis: {}", e.getMessage());
             }
           }
         }
@@ -83,10 +85,11 @@ public class SearchGroupActor extends BaseActor {
           }
         }
       } else {
-        logger.error("Bad Request UserId is Mandatory");
+        String errorMsg ="Bad Request UserId is Mandatory";
+        logger.error(errorMsg);
         throw new BaseException(
-                ResponseCode.GS_LST_02.getErrorCode(),
-                ResponseCode.GS_LST_02.getErrorMessage(),
+                ResponseCode.GS_LST02.getErrorCode(),
+                ResponseCode.GS_LST02.getErrorMessage(),
                 ResponseCode.BAD_REQUEST.getCode());
       }
 
@@ -100,7 +103,8 @@ public class SearchGroupActor extends BaseActor {
       Response response = new Response(result, ResponseCode.OK.getCode());
       sender().tell(response, self());
     }catch (DBException ex){
-      throw new BaseException(ResponseCode.GS_LST_03.getErrorCode(),ResponseCode.GS_LST_03.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("SearchGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_LST03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_LST03.getErrorCode(),ResponseCode.GS_LST03.getErrorMessage(),ex.getResponseCode());
     }
   }
 
@@ -108,7 +112,7 @@ public class SearchGroupActor extends BaseActor {
     try {
       cacheUtil.setCache(userId, JsonUtils.serialize(groupDetails), CacheUtil.userTtl);
     } catch (Exception e) {
-      logger.error("Error in saving group list to Redis: {}", e.getMessage());
+      logger.error("SearchGroupActor: Error in saving group list to Redis: {}", e.getMessage());
     }
   }
 }

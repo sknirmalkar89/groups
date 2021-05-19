@@ -23,7 +23,7 @@ public class HealthController extends BaseController {
    */
   public CompletionStage<Result> getHealth() throws BaseException {
     Request req = new Request("health"); // Get API
-    return handleHealthRequest(req);
+    return handleRequest(req);
 
   }
 
@@ -36,21 +36,8 @@ public class HealthController extends BaseController {
       throws BaseException {
     Request request = createSBRequest(req, "health");
     request.getContext().put("service", serviceName);
-    return handleHealthRequest(request) ;
+    return handleRequest(request) ;
   }
 
-  private CompletionStage<Result> handleHealthRequest(Request request){
-    try{
-      return handleRequest(request);
-    }catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-              request,
-              new BaseException(
-                      ResponseCode.CLIENT_ERROR.getErrorCode(),
-                      ex.getMessage(),
-                      ResponseCode.CLIENT_ERROR.getResponseCode()));
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-              .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
-  }
+
 }

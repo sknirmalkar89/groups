@@ -63,9 +63,26 @@ public class BaseController extends Controller {
    * @return
    */
   public CompletionStage<Result> handleRequest(Request request) {
-      PrintEntryExitLog.printEntryLog(request);
-      validate(request);
-      return invoke(request);
+      try {
+        PrintEntryExitLog.printEntryLog(request);
+        validate(request);
+        return invoke(request);
+      } catch (BaseException  ex) {
+        PrintEntryExitLog.printExitLogOnFailure(
+                request,
+                ex);
+        throw ex;
+      }catch (Exception ex) {
+        BaseException baseException = new BaseException(
+                ResponseCode.CLIENT_ERROR.getErrorCode(),
+                ex.getMessage(),
+                ResponseCode.CLIENT_ERROR.getResponseCode());
+        PrintEntryExitLog.printExitLogOnFailure(
+                request,
+                baseException);
+        throw ex;
+
+      }
 
   }
 

@@ -3,6 +3,8 @@ package controllers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +102,7 @@ public class ResponseHandler {
         long endTime = System.currentTimeMillis();
 
         long requestTime = endTime - startTime;
+        ObjectMapper objectMapper = new ObjectMapper();
         org.sunbird.request.Request req = new org.sunbird.request.Request();
         Map<String, Object> params = new WeakHashMap<>();
         params.put(JsonKey.URL, request.getPath());
@@ -109,6 +112,7 @@ public class ResponseHandler {
         params.put(JsonKey.DURATION, requestTime);
         params.put(JsonKey.STATUS, response.getResponseCode());
         params.put(JsonKey.LOG_LEVEL, JsonKey.INFO);
+        params.putAll(objectMapper.convertValue(response.getParams(),Map.class));
         req.setRequest(
             generateTelemetryRequestForController(
                 TelemetryEvents.LOG.getName(), params, request.getContext()));

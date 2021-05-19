@@ -83,17 +83,6 @@ public class OnRequestHandler implements ActionCreator {
   public CompletionStage<Result> getAuthorizedResult(Http.Request request, String errorMessage) {
     logger.error("Data error found--" + errorMessage);
     ResponseCode responseCode = ResponseCode.unAuthorized;
-    if(request.uri().startsWith("/v1/group/create")){
-      responseCode = ResponseCode.GS_CRT_01;
-    }else if(request.uri().startsWith("/v1/group/update")){
-      responseCode = ResponseCode.GS_UDT_01;
-    }else if(request.uri().startsWith("/v1/group/read")){
-      responseCode = ResponseCode.GS_RED_01;
-    }else if(request.uri().startsWith("/v1/group/list")){
-      responseCode = ResponseCode.GS_LST_01;
-    }else if(request.uri().startsWith("/v1/group/membership/update")){
-      responseCode = ResponseCode.GS_MBRSHP_UDT_01;
-    }
     Result result =
         ResponseHandler.handleFailureResponse(new AuthorizationException.NotAuthorized(responseCode), request);
     return CompletableFuture.completedFuture(result);

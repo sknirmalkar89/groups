@@ -1,6 +1,8 @@
 package org.sunbird.actors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,11 +91,14 @@ public class ReadGroupActor extends BaseActor {
       response.putAll(map);
       sender().tell(response, self());
     } catch (BaseException ex){
-     throw  new BaseException(ResponseCode.GS_RED_03.getErrorCode(),ResponseCode.GS_RED_03.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED03.getErrorCode(),ex.getMessage()));
+      throw  new BaseException(ResponseCode.GS_RED03.getErrorCode(),ResponseCode.GS_RED03.getErrorMessage(),ex.getResponseCode());
     } catch (DBException ex){
-      throw new BaseException(ResponseCode.GS_RED_04.getErrorCode(),ResponseCode.GS_RED_04.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED04.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_RED04.getErrorCode(),ResponseCode.GS_RED04.getErrorMessage(),ex.getResponseCode());
     }catch (Exception ex){
-      throw new BaseException(ResponseCode.GS_RED_04.getErrorCode(),ResponseCode.GS_RED_04.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+      logger.error(MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED04.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_RED04.getErrorCode(),ResponseCode.GS_RED04.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }
   }
 

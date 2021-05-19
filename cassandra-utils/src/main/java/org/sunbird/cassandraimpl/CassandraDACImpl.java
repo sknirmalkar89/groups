@@ -57,7 +57,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     return response;
@@ -95,7 +95,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
   }
@@ -133,10 +133,11 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       update.with(QueryBuilder.remove(column, key));
     }
     if (MapUtils.isEmpty(primaryKey)) {
+      String errorMsg =Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call";
       logger.error(
-          Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call");
+              errorMsg);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              errorMsg,
           IResponseMessage.SERVER_ERROR);
     }
     Update.Where where = update.where();
@@ -158,7 +159,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       e.printStackTrace();
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+              e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
   }
@@ -193,10 +194,10 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       update.with(QueryBuilder.remove(column, value));
     }
     if (MapUtils.isEmpty(primaryKey)) {
-      logger.error(
-          Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call");
+      String errorMsg = Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call";
+      logger.error(errorMsg);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          errorMsg,
           IResponseMessage.SERVER_ERROR);
     }
     Update.Where where = update.where();
@@ -216,7 +217,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
       throw new DBException(
-          IResponseMessage.SERVER_ERROR,
+          e.getMessage(),
           IResponseMessage.SERVER_ERROR);
     }
     long stopTime = System.currentTimeMillis();

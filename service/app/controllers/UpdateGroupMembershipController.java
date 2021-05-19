@@ -26,15 +26,10 @@ public class UpdateGroupMembershipController extends BaseController {
     Request request = createSBRequest(req, ActorOperations.UPDATE_GROUP_MEMBERSHIP.getValue());
     try{
       return handleRequest(request);
-    }catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-              request,
-              new BaseException(
-                      ResponseCode.GS_MBRSHP_UDT_03.getErrorCode(),
-                      ex.getMessage(),
-                      ResponseCode.CLIENT_ERROR.getResponseCode()));
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-              .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+    }  catch (Exception ex) {
+    return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
+            .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
+  }
+
   }
 }

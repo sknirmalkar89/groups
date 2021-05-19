@@ -25,16 +25,11 @@ public class CreateGroupController extends BaseController {
   public CompletionStage<Result> createGroup(Http.Request req) {
     Request request = createSBRequest(req, ActorOperations.CREATE_GROUP.getValue());
     try {
-      return handleRequest(request);
-     }catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-              request,
-              new BaseException(
-                      ResponseCode.GS_CRT_06.getErrorCode(),
-                      ex.getMessage(),
-                      ResponseCode.CLIENT_ERROR.getResponseCode()));
+     return handleRequest(request);
+    } catch (Exception ex) {
       return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
               .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
     }
+
   }
 }

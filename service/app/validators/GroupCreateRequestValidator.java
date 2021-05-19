@@ -31,7 +31,8 @@ public class GroupCreateRequestValidator implements IRequestValidator {
       validateRoleAndStatus(request);
       validateActivityList(request);
     }catch (BaseException ex){
-      throw new BaseException(ResponseCode.GS_CRT_02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
+      logger.error("GroupCreateRequestValidator: {}",ex.getMessage());
+      throw new BaseException(ResponseCode.GS_CRT02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
     }
     return true;
   }

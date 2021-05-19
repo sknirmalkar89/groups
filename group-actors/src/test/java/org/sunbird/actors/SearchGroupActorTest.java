@@ -109,7 +109,7 @@ public class SearchGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
 
     BaseException ex = probe.expectMsgClass(Duration.ofSeconds(10), BaseException.class);
-    Assert.assertEquals(ResponseCode.GS_LST_02.getErrorMessage(), ex.getMessage());
+    Assert.assertEquals(ResponseCode.GS_LST02.getErrorMessage(), ex.getMessage());
   }
 
   private Response getGroupsDetailsResponse() {

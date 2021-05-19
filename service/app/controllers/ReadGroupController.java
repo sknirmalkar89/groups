@@ -31,17 +31,11 @@ public class ReadGroupController extends BaseController {
       request.getRequest().put(JsonKey.FIELDS, fields);
     }
     request.getRequest().put(JsonKey.GROUP_ID, groupId);
-    try{
-       return handleRequest(request);
+    try {
+      return handleRequest(request);
     } catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-              request,
-              new BaseException(
-                      ResponseCode.GS_RED_04.getErrorCode(),
-                      ex.getMessage(),
-                      ResponseCode.CLIENT_ERROR.getResponseCode()));
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-              .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+    return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY).thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
+  }
+
   }
 }

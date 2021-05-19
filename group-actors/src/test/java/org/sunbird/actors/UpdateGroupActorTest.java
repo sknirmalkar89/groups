@@ -138,7 +138,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     List errorList = (List) error.get(JsonKey.MEMBERS);
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.GS_UDT_06);
+        IResponseMessage.Key.GS_UDT06);
   }
 
   @Test
@@ -153,7 +153,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     List errorList = (List) error.get(JsonKey.ACTIVITIES);
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.GS_UDT_07);
+        IResponseMessage.Key.GS_UDT07);
   }
 
   @Test

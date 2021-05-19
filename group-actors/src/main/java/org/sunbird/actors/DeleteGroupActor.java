@@ -1,5 +1,6 @@
 package org.sunbird.actors;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,16 @@ public class DeleteGroupActor extends BaseActor {
     logger.info("Delete group for the groupId {}", groupId);
 
     if (StringUtils.isEmpty(userId)) {
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_DLT_01);
+      logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT01.getErrorCode(),ResponseCode.GS_DLT01.getErrorMessage()));
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_DLT01);
     }
     GroupService groupService = new GroupServiceImpl();
    try {
      Map<String, Object> dbResGroup = readGroup(groupId, groupService);
      // Only Group Creator should be able to delete the group
      if (!userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
-       throw new AuthorizationException.NotAuthorized(ResponseCode.GS_DLT_04);
+       logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT04.getErrorCode(),ResponseCode.GS_DLT04.getErrorMessage()));
+       throw new AuthorizationException.NotAuthorized(ResponseCode.GS_DLT04);
      }
 
      // Get all members belong to the group
@@ -92,8 +95,9 @@ public class DeleteGroupActor extends BaseActor {
                      (String) dbResGroup.get(JsonKey.STATUS));
      TelemetryUtil.telemetryProcessingCall(
              actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
-    }catch(DBException ex){
-      throw new BaseException(ResponseCode.GS_DLT_05.getErrorCode(), ResponseCode.GS_DLT_05.getErrorMessage(),ex.getResponseCode());
+    }catch(DBException ex ){
+     logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT05.getErrorCode(),ex.getMessage()));
+     throw new BaseException(ResponseCode.GS_DLT05.getErrorCode(), ResponseCode.GS_DLT05.getErrorMessage(),ex.getResponseCode());
     }
 
   }
@@ -102,7 +106,8 @@ public class DeleteGroupActor extends BaseActor {
     try {
       return groupService.readGroup(groupId);
     }catch (BaseException ex){
-      throw new BaseException(ResponseCode.GS_DLT_03.getErrorCode(),ResponseCode.GS_DLT_03.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_DLT03.getErrorCode(),ResponseCode.GS_DLT03.getErrorMessage(),ex.getResponseCode());
     }
   }
 }

@@ -25,7 +25,8 @@ public class GroupReadRequestValidator implements IRequestValidator {
               JsonKey.REQUEST);
       return true;
     }catch (BaseException ex){
-      throw new BaseException(ResponseCode.GS_RED_02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
+      logger.error("GroupReadRequestValidator: {}",ex.getMessage());
+      throw new BaseException(ResponseCode.GS_RED02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
     }
   }
 }

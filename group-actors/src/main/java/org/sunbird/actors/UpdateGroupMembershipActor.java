@@ -1,6 +1,8 @@
 package org.sunbird.actors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +52,9 @@ public class UpdateGroupMembershipActor extends BaseActor {
     String requestedBy = requestHandler.getRequestedBy(actorMessage);
     String userId = (String) actorMessage.getRequest().get(JsonKey.USER_ID);
     if (StringUtils.isEmpty(requestedBy) || !requestedBy.equals(userId)) {
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT_01);
+      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",
+              ResponseCode.GS_MBRSHP_UDT01.getErrorCode(),ResponseCode.GS_MBRSHP_UDT01.getErrorMessage()));
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT01);
     }
     logger.info("Update groups details for the userId {}", userId);
     List<Map<String, Object>> groups =
@@ -79,7 +83,8 @@ public class UpdateGroupMembershipActor extends BaseActor {
       sender().tell(response, self());
       logTelemetry(actorMessage, userId);
     }catch (DBException ex){
-      throw new BaseException(ResponseCode.GS_MBRSHP_UDT_03.getErrorCode(),ResponseCode.GS_MBRSHP_UDT_03.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_MBRSHP_UDT03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_MBRSHP_UDT03.getErrorCode(),ResponseCode.GS_MBRSHP_UDT03.getErrorMessage(),ex.getResponseCode());
     }
   }
 
@@ -93,11 +98,11 @@ public class UpdateGroupMembershipActor extends BaseActor {
       if (member != null
           && (StringUtils.isNotEmpty(member.getRole())
               || StringUtils.isNotEmpty(member.getStatus()))) {
-        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT_01);
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT01);
       }
       member.setUserId(userId);
       if (StringUtils.isBlank(member.getGroupId())) {
-        throw new ValidationException.MandatoryParamMissing(JsonKey.GROUP_ID, JsonKey.GROUPS, ResponseCode.GS_MBRSHP_UDT_02);
+        throw new ValidationException.MandatoryParamMissing(JsonKey.GROUP_ID, JsonKey.GROUPS, ResponseCode.GS_MBRSHP_UDT02);
       }
       members.add(member);
     }

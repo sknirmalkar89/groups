@@ -26,7 +26,8 @@ public class GroupSearchRequestValidator implements validators.IRequestValidator
               JsonKey.REQUEST);
       return true;
     }catch (BaseException ex){
-      throw new BaseException(ResponseCode.GS_LST_02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
+      logger.error("GroupSearchRequestValidator: {}",ex.getMessage());
+      throw new BaseException(ResponseCode.GS_LST02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
     }
   }
 }

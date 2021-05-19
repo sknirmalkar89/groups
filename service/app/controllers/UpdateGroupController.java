@@ -25,17 +25,13 @@ public class UpdateGroupController extends BaseController {
 
     public CompletionStage<Result> updateGroup(Http.Request req) {
         Request request = createSBRequest(req, ActorOperations.UPDATE_GROUP.getValue());
-       try{
-           return handleRequest(request);
-       }catch (Exception ex) {
-           PrintEntryExitLog.printExitLogOnFailure(
-                   request,
-                   new BaseException(
-                           ResponseCode.GS_UDT_08.getErrorCode(),
-                           ex.getMessage(),
-                           ResponseCode.CLIENT_ERROR.getResponseCode()));
-           return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-                   .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-       }
+        try{
+            return handleRequest(request);
+        } catch (Exception ex) {
+
+            return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
+                    .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
+        }
+
     }
 }

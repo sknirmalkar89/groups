@@ -91,14 +91,14 @@ public class HttpClientUtil {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling get method", ex);
+      logger.error("Exception occurred while calling get method: {}", ex.getMessage());
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing get response object", ex);
+          logger.error("Exception occurred while closing get response object: {}", ex.getMessage());
         }
       }
     }
@@ -137,14 +137,14 @@ public class HttpClientUtil {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling Post method", ex);
+      logger.error("Exception occurred while calling Post method: {}", ex.getMessage());
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing Post response object", ex);
+          logger.error("Exception occurred while closing Post response object {}", ex.getMessage());
         }
       }
     }
@@ -181,14 +181,14 @@ public class HttpClientUtil {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling Post method", ex);
+      logger.error("Exception occurred while calling Post method {}", ex.getMessage());
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing Post response object", ex);
+          logger.error("Exception occurred while closing Post response object: {}", ex.getMessage());
         }
       }
     }
@@ -219,14 +219,14 @@ public class HttpClientUtil {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling patch method", ex);
+      logger.error("Exception occurred while calling patch method {}", ex.getMessage());
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing patch response object", ex);
+          logger.error("Exception occurred while closing patch response object {}", ex.getMessage());
         }
       }
     }
