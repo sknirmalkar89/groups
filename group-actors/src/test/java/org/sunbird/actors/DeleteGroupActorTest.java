@@ -27,6 +27,7 @@ import org.sunbird.Application;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.message.Localizer;
 import org.sunbird.models.ActorOperations;
@@ -74,7 +75,7 @@ public class DeleteGroupActorTest extends BaseActorTest {
   }
 
   @Test
-  public void testUpdateGroup() {
+  public void testDeleteroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
 
@@ -103,6 +104,40 @@ public class DeleteGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
     Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
+  }
+
+  @Test
+  public void testDeleteGroupDBException() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+
+    try {
+
+      when(cassandraOperation.batchDelete(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+
+    Request reqObj = deleteGroupReq();
+    try {
+      subject.tell(reqObj, probe.getRef());
+    }catch (DBException ex){
+      Assert.assertTrue(true);
+    }
   }
 
   static Response getMemberResponse() {
