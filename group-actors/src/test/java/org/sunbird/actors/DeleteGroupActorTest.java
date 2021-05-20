@@ -131,7 +131,6 @@ public class DeleteGroupActorTest extends BaseActorTest {
     } catch (BaseException be) {
       Assert.assertTrue(false);
     }
-
     Request reqObj = deleteGroupReq();
     try {
        subject.tell(reqObj, probe.getRef());
