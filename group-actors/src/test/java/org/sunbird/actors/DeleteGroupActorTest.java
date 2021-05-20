@@ -124,7 +124,7 @@ public class DeleteGroupActorTest extends BaseActorTest {
               .thenThrow(DBException.class);
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-              .thenReturn(getGroupsDetailsResponse());
+              .thenThrow(DBException.class);
       when(cassandraOperation.deleteRecord(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
               .thenReturn(getCassandraResponse());
@@ -139,7 +139,7 @@ public class DeleteGroupActorTest extends BaseActorTest {
     }
   }
 
-  
+
   static Response getMemberResponse() {
     List<Map<String, Object>> members = new ArrayList<>();
     Map<String, Object> member = new HashMap<>();
