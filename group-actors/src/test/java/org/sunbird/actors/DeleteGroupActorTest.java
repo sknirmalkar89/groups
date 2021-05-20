@@ -139,6 +139,7 @@ public class DeleteGroupActorTest extends BaseActorTest {
     }
   }
 
+  
   static Response getMemberResponse() {
     List<Map<String, Object>> members = new ArrayList<>();
     Map<String, Object> member = new HashMap<>();
