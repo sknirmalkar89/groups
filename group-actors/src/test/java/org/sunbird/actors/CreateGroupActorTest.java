@@ -197,7 +197,7 @@ public class CreateGroupActorTest extends BaseActorTest {
     PowerMockito.mockStatic(PropertiesCache.class);
     propertiesCache = mock(PropertiesCache.class);
     when(PropertiesCache.getInstance()).thenReturn(propertiesCache);
-    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT))
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT))
             .thenReturn("4");
     when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT)).thenReturn("1");
     when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT)).thenReturn("0");
