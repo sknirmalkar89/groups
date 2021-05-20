@@ -12,7 +12,6 @@
     <version>1.0.0</version>
 
     <packaging>play2</packaging>
-
     <repositories>
         <repository>
             <id>scalaz-bintray</id>
