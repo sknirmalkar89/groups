@@ -33,7 +33,7 @@ public class GroupUpdateRequestValidator implements IRequestValidator {
 
       return true;
     }catch (BaseException ex){
-      logger.error("GroupUpdateRequestValidator: {}",ex.getMessage());
+      logger.error("GroupUpdateRequestValidator: Error Code: {}, ErrMsg {}",ex.getCode(),ex.getMessage());
       throw new BaseException(ResponseCode.GS_UDT02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
     }
   }

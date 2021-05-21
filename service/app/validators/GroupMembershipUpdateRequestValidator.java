@@ -34,7 +34,7 @@ public class GroupMembershipUpdateRequestValidator implements IRequestValidator 
 
       return true;
     }catch (BaseException ex){
-      logger.error("GroupMembershipUpdateRequestValidator: {}",ex.getMessage());
+      logger.error("GroupMembershipUpdateRequestValidator: Error Code: {}, ErrMsg {}",ex.getCode(),ex.getMessage());
       throw new BaseException(ResponseCode.GS_MBRSHP_UDT02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
     }
   }
