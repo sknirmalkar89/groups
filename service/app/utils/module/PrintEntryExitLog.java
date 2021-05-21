@@ -19,6 +19,8 @@ import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.response.ResponseParams;
 import org.sunbird.util.JsonKey;
+import org.sunbird.message.IResponseMessage;
+
 
 public class PrintEntryExitLog {
 
@@ -69,17 +71,20 @@ public class PrintEntryExitLog {
     }
   }
 
-  public static void printExitLogOnFailure(Request request, BaseException exception) {
+  public static void printExitLogOnFailure(Request request, Exception ex) {
     try {
       EntryExitLogEvent exitLogEvent = getLogEvent(request, "EXIT");
       String requestId = request.getRequestId();
       List<Map<String, Object>> params = new ArrayList<>();
-      if (null == exception) {
-        exception =
+      BaseException exception = null;
+      if (null == ex || !(ex instanceof BaseException)) {
+        ex =
             new BaseException(
-                ResponseCode.internalError.getErrorCode(),
-                ResponseCode.internalError.getErrorMessage(),
+                IResponseMessage.Key.SERVER_ERROR,
+                    exception.getMessage(),
                 ResponseCode.SERVER_ERROR.getResponseCode());
+      }else{
+        exception = (BaseException) ex;
       }
 
       ResponseCode code = ResponseCode.getResponse(exception.getCode());
@@ -107,8 +112,8 @@ public class PrintEntryExitLog {
       exitLogEvent.setEdataParams(params);
       exitLogEvent.setEdataContext(request.getContext());
       logger.info(objectMapper.writeValueAsString(exitLogEvent));
-    } catch (Exception ex) {
-      logger.error("Exception occurred while logging exit log: {}", ex);
+    } catch (Exception e) {
+      logger.error("Exception occurred while logging exit log: {}", e);
     }
   }
 

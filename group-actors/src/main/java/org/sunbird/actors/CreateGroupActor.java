@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.BaseException;
@@ -35,6 +37,7 @@ import org.sunbird.util.helper.PropertiesCache;
 )
 public class CreateGroupActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
+  private Logger logger = LoggerFactory.getLogger(CreateGroupActor.class);
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -129,8 +132,14 @@ public class CreateGroupActor extends BaseActor {
 
       logTelemetry(actorMessage, groupId);
     }catch (DBException ex){
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT06.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_CRT06.getErrorCode(),ResponseCode.GS_CRT06.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+    }catch (BaseException ex){
+      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
+      throw  new BaseException(ex);
+    }catch (Exception ex){
+      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }
   }
 
@@ -140,11 +149,11 @@ public class CreateGroupActor extends BaseActor {
       validationErrors.put(JsonKey.ACTIVITIES, activityErrorList);
       boolean maxActivityLimit = GroupUtil.checkMaxActivityLimit(group.getActivities() != null ? group.getActivities().size() : 0);
       if(maxActivityLimit){
-        logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT05.getErrorCode(),ResponseCode.GS_CRT05.getErrorMessage()));
+        logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT06.getErrorCode(),ResponseCode.GS_CRT06.getErrorMessage()));
 
         Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT05.getErrorMessage());
-        errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT05.getErrorCode());
+        errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT06.getErrorMessage());
+        errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT06.getErrorCode());
         activityErrorList.add(errorMap);
       }
       return maxActivityLimit;
@@ -156,10 +165,10 @@ public class CreateGroupActor extends BaseActor {
       validationErrors.put(JsonKey.MEMBERS, memberErrorList);
       boolean maxMemberLimit = GroupUtil.checkMaxMemberLimit(memberList.size());
       if(maxMemberLimit){
-          logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT04.getErrorCode(),ResponseCode.GS_CRT04.getErrorMessage()));
+          logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT05.getErrorCode(),ResponseCode.GS_CRT05.getErrorMessage()));
           Map<String, String> errorMap = new HashMap<>();
-          errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT04.getErrorMessage());
-          errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT04.getErrorCode());
+          errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT05.getErrorMessage());
+          errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT05.getErrorCode());
           memberErrorList.add(errorMap);
       }
       return maxMemberLimit;
@@ -170,8 +179,8 @@ public class CreateGroupActor extends BaseActor {
     try {
       GroupUtil.checkMaxGroupLimit(userGroupsList, userId);
     }catch (BaseException ex){
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT04.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_CRT04.getErrorCode(),ResponseCode.GS_CRT04.getErrorMessage(),ex.getResponseCode());
     }
   }
 

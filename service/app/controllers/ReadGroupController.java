@@ -31,11 +31,7 @@ public class ReadGroupController extends BaseController {
       request.getRequest().put(JsonKey.FIELDS, fields);
     }
     request.getRequest().put(JsonKey.GROUP_ID, groupId);
-    try {
-      return handleRequest(request);
-    } catch (Exception ex) {
-    return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY).thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-  }
+    return handleRequest(request);
 
   }
 }

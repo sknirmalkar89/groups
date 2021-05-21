@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.DBException;
@@ -33,10 +35,12 @@ import org.sunbird.util.helper.PropertiesCache;
 )
 public class UpdateGroupMembershipActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
+  private Logger logger = LoggerFactory.getLogger(UpdateGroupMembershipActor.class);
 
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
+
     switch (operation) {
       case "updateGroupMembership":
         updateGroupMembership(request);

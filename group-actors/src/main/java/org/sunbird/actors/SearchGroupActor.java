@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.BaseException;
 import org.sunbird.exception.DBException;
@@ -29,6 +31,7 @@ import org.sunbird.util.helper.PropertiesCache;
   dispatcher = "group-dispatcher"
 )
 public class SearchGroupActor extends BaseActor {
+  private Logger logger = LoggerFactory.getLogger(SearchGroupActor.class);
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -102,9 +105,15 @@ public class SearchGroupActor extends BaseActor {
       result.put(JsonKey.GROUP, groupDetails);
       Response response = new Response(result, ResponseCode.OK.getCode());
       sender().tell(response, self());
-    }catch (DBException ex){
+    }catch (BaseException ex){
+      logger.error(MessageFormat.format("SearchGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
+      throw  new BaseException(ex);
+    } catch (DBException ex){
       logger.error(MessageFormat.format("SearchGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_LST03.getErrorCode(),ex.getMessage()));
       throw new BaseException(ResponseCode.GS_LST03.getErrorCode(),ResponseCode.GS_LST03.getErrorMessage(),ex.getResponseCode());
+    }catch (Exception ex){
+      logger.error(MessageFormat.format("SearchGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_LST03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_LST03.getErrorCode(),ResponseCode.GS_LST03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }
   }
 

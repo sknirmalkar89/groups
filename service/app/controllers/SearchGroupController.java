@@ -23,12 +23,7 @@ public class SearchGroupController extends BaseController {
 
   public CompletionStage<Result> searchGroup(Http.Request req) {
     Request request = createSBRequest(req, ActorOperations.SEARCH_GROUP.getValue());
-    try{
-      return handleRequest(request);
-    } catch (Exception ex) {
-     return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-            .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+    return handleRequest(request);
 
   }
 }

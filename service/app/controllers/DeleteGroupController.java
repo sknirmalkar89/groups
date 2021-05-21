@@ -23,11 +23,6 @@ public class DeleteGroupController extends BaseController {
 
   public CompletionStage<Result> deleteGroup(Http.Request req) {
     Request request = createSBRequest(req, ActorOperations.DELETE_GROUP.getValue());
-    try {
-      return handleRequest(request);
-    } catch (Exception ex) {
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-            .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+    return handleRequest(request);
   }
 }

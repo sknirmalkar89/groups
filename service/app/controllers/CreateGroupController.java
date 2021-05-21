@@ -24,12 +24,6 @@ public class CreateGroupController extends BaseController {
 
   public CompletionStage<Result> createGroup(Http.Request req) {
     Request request = createSBRequest(req, ActorOperations.CREATE_GROUP.getValue());
-    try {
-     return handleRequest(request);
-    } catch (Exception ex) {
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-              .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
-
+    return handleRequest(request);
   }
 }

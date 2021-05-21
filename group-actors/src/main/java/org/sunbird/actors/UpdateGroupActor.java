@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.exception.AuthorizationException;
 import org.sunbird.exception.BaseException;
@@ -37,7 +39,7 @@ import org.sunbird.util.helper.PropertiesCache;
 )
 public class UpdateGroupActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
-
+  private Logger logger = LoggerFactory.getLogger(UpdateGroupActor.class);
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
@@ -80,7 +82,7 @@ public class UpdateGroupActor extends BaseActor {
               && JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
               && (StringUtils.isBlank(group.getStatus())
               || JsonKey.SUSPENDED.equals(group.getStatus()))) {
-        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} {2}",ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage()),group.getId());
+        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} {2}",ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage()),group.getId());
         throw new ValidationException.GroupNotActive(group.getId());
       }
 
@@ -159,15 +161,21 @@ public class UpdateGroupActor extends BaseActor {
     }catch (DBException ex){
       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT08.getErrorCode(),ex.getMessage()));
       throw new BaseException(ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage(),ex.getResponseCode());
-    }
+    }catch (BaseException ex){
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
+      throw  new BaseException(ex);
+    }catch (Exception ex){
+       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT08.getErrorCode(),ex.getMessage()));
+       throw new BaseException(ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+   }
   }
 
   private Map<String, Object> readGroup(String groupId, GroupService groupService) throws BaseException {
     try {
       return groupService.readGroup(groupId);
     }catch (BaseException ex){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT04.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_UDT04.getErrorCode(),ResponseCode.GS_UDT04.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_UDT07.getErrorCode(),ResponseCode.GS_UDT07.getErrorMessage(),ex.getResponseCode());
     }
   }
 
@@ -201,14 +209,14 @@ public class UpdateGroupActor extends BaseActor {
     // Check User is authorized Suspend , Re-activate or delete the group .
     if ((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status))
         && (member == null || !JsonKey.ADMIN.equals(member.getRole()))) {
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT05);
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
     }
 
     if (JsonKey.INACTIVE.equals(status)
         && !userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT05);
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
     }
 
     // check only admin should be able to update name, description, status ,add,edit or remove
@@ -219,8 +227,8 @@ public class UpdateGroupActor extends BaseActor {
         || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
         || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
       if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
-        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
-        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT05);
+        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
       }
     }
 
@@ -237,10 +245,10 @@ public class UpdateGroupActor extends BaseActor {
     if (!isActivityLimitExceeded) {
       group.setActivities(updateActivityList);
     }else{
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getErrorCode(),ResponseCode.GS_UDT07.getErrorMessage()));
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT06.getErrorCode(),ResponseCode.GS_UDT06.getErrorMessage()));
       Map<String, String> errorMap = new HashMap<>();
-      errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT07.getErrorMessage());
-      errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT07.getErrorCode());
+      errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT06.getErrorMessage());
+      errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT06.getErrorCode());
       activityErrorList.add(errorMap);
     }
     return activityErrorList;
@@ -273,10 +281,10 @@ public class UpdateGroupActor extends BaseActor {
     int totalMemberCount = GroupUtil.totalMemberCount(memberOperationMap, membersInDB);
     boolean memberLimit = GroupUtil.checkMaxMemberLimit(totalMemberCount);
     if(memberLimit){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT06.getErrorCode(),ResponseCode.GS_UDT06.getErrorMessage()));
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
       Map<String, String> errorMap = new HashMap<>();
-      errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT06.getErrorMessage());
-      errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT06.getErrorCode());
+      errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT05.getErrorMessage());
+      errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT05.getErrorCode());
       memberErrorList.add(errorMap);
     }
 

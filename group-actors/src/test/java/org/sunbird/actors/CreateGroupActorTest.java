@@ -181,10 +181,10 @@ public class CreateGroupActorTest extends BaseActorTest {
     List activityErrorList = (List) error.get(JsonKey.ACTIVITIES);
     Assert.assertEquals(
         ((Map) memberErrorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.GS_CRT04);
+        IResponseMessage.Key.GS_CRT05);
     Assert.assertEquals(
         ((Map) activityErrorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.GS_CRT05);
+        IResponseMessage.Key.GS_CRT06);
   }
 
   @Test

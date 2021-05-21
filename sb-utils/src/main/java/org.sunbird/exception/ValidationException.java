@@ -83,9 +83,9 @@ public class ValidationException {
   public static class GroupNotActive extends BaseException {
     public GroupNotActive(String paramValue) {
       super(
-              ResponseCode.GS_UDT04.getErrorCode(),
+              ResponseCode.GS_UDT08.getErrorCode(),
               MessageFormat.format(
-                      ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_FOUND, null),
+                      ValidationException.getLocalizedMessage(IResponseMessage.GROUP_NOT_ACTIVE, null),
                       paramValue),400);
     }
   }
