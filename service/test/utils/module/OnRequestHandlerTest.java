@@ -3,13 +3,18 @@ package utils.module;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.sunbird.message.IResponseMessage;
 import org.sunbird.util.JsonKey;
+import play.mvc.Result;
 import play.mvc.Http;
 
 @RunWith(PowerMockRunner.class)
@@ -59,5 +64,15 @@ public class OnRequestHandlerTest extends BaseRequestHandlerTest {
           JsonKey.DEFAULT_CONSUMER_ID,
           ((Map<String, Object>) contextObject.get(JsonKey.CONTEXT)).get(JsonKey.ACTOR_ID));
     }
+  }
+
+  @Test
+  public void testGetAuthorizedResult() throws JsonProcessingException {
+
+    OnRequestHandler onRequestHandler = new OnRequestHandler();
+    Http.RequestBuilder requestBuilder = getHttpRequestBuilder2();
+    Http.Request req = requestBuilder.build();
+    CompletionStage<Result> result = onRequestHandler.getAuthorizedResult(req, IResponseMessage.Key.UNAUTHORIZED);
+    Assert.assertTrue(true);
   }
 }

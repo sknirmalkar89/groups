@@ -17,9 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.common.Constants;
-import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
 import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.ResponseCode;
 import org.sunbird.response.Response;
 
 public class CassandraDACImpl extends CassandraOperationImpl {
@@ -28,7 +27,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
 
   public Response getRecords(
       String keySpace, String table, Map<String, Object> filters, List<String> fields)
-      throws BaseException {
+      throws DBException {
     Response response = new Response();
     Session session = connectionManager.getSession(keySpace);
 
@@ -57,10 +56,9 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     return response;
   }
@@ -71,7 +69,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       Map<String, Object> filters,
       List<String> fields,
       FutureCallback<ResultSet> callback)
-      throws BaseException {
+      throws DBException {
     Session session = connectionManager.getSession(keySpace);
     try {
       Select select;
@@ -96,10 +94,9 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       Futures.addCallback(future, callback, Executors.newFixedThreadPool(1));
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
   }
 
@@ -110,13 +107,13 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       String column,
       String key,
       Object value)
-      throws BaseException {
+      throws DBException {
     return updateMapRecord(keySpace, table, primaryKey, column, key, value, true);
   }
 
   public Response updateRemoveMapRecord(
       String keySpace, String table, Map<String, Object> primaryKey, String column, String key)
-      throws BaseException {
+      throws DBException {
     return updateMapRecord(keySpace, table, primaryKey, column, key, null, false);
   }
 
@@ -128,7 +125,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       String key,
       Object value,
       boolean add)
-      throws BaseException {
+      throws DBException {
     Update update = QueryBuilder.update(keySpace, table);
     if (add) {
       update.with(QueryBuilder.put(column, key, value));
@@ -136,12 +133,12 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       update.with(QueryBuilder.remove(column, key));
     }
     if (MapUtils.isEmpty(primaryKey)) {
+      String errorMsg =Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call";
       logger.error(
-          Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call");
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+              errorMsg);
+      throw new DBException(
+              errorMsg,
+          IResponseMessage.SERVER_ERROR);
     }
     Update.Where where = update.where();
     for (Map.Entry<String, Object> filter : primaryKey.entrySet()) {
@@ -161,22 +158,21 @@ public class CassandraDACImpl extends CassandraOperationImpl {
     } catch (Exception e) {
       e.printStackTrace();
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
   }
 
   public Response updateAddSetRecord(
       String keySpace, String table, Map<String, Object> primaryKey, String column, Object value)
-      throws BaseException {
+      throws DBException {
     return updateSetRecord(keySpace, table, primaryKey, column, value, true);
   }
 
   public Response updateRemoveSetRecord(
       String keySpace, String table, Map<String, Object> primaryKey, String column, Object value)
-      throws BaseException {
+      throws DBException {
     return updateSetRecord(keySpace, table, primaryKey, column, value, false);
   }
 
@@ -187,7 +183,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       String column,
       Object value,
       boolean add)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service updateSetRecord method started at == {}", startTime);
 
@@ -198,12 +194,11 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       update.with(QueryBuilder.remove(column, value));
     }
     if (MapUtils.isEmpty(primaryKey)) {
-      logger.error(
-          Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call");
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      String errorMsg = Constants.EXCEPTION_MSG_FETCH + table + " : primary key is a must for update call";
+      logger.error(errorMsg);
+      throw new DBException(
+          errorMsg,
+          IResponseMessage.SERVER_ERROR);
     }
     Update.Where where = update.where();
     for (Map.Entry<String, Object> filter : primaryKey.entrySet()) {
@@ -221,10 +216,9 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       response.put(Constants.RESPONSE, Constants.SUCCESS);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + table + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     long stopTime = System.currentTimeMillis();
     logger.info(

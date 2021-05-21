@@ -8,7 +8,6 @@ import play.mvc.Result;
 import validators.GroupCreateRequestValidator;
 import validators.GroupUpdateRequestValidator;
 import validators.IRequestValidator;
-
 import java.util.concurrent.CompletionStage;
 
 public class UpdateGroupController extends BaseController {

@@ -13,7 +13,7 @@ public class BaseLogger {
    */
   public void setReqId(Map<String, Object> trace) {
     MDC.clear();
-    MDC.put(JsonKey.REQUEST_MESSAGE_ID, (String) trace.get(JsonKey.REQUEST_MESSAGE_ID));
+    MDC.put(JsonKey.REQUEST_MESSAGE_ID, (String) trace.get(JsonKey.X_REQUEST_ID));
   }
 
   public String getReqId() {

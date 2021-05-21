@@ -24,6 +24,7 @@ import org.sunbird.Application;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.message.IResponseMessage;
 import org.sunbird.message.Localizer;
@@ -50,13 +51,13 @@ public class UpdateGroupActorTest extends BaseActorTest {
   private final Props props = Props.create(UpdateGroupActor.class);
   private Logger logger = LoggerFactory.getLogger(UpdateGroupActorTest.class);
   public static PropertiesCache propertiesCache;
-
   @Before
   public void setUp() throws Exception {
 
     PowerMockito.mockStatic(Localizer.class);
-    when(Localizer.getInstance()).thenReturn(null);
-
+    Localizer localizer = mock(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(localizer);
+    when(localizer.getMessage(Mockito.any(),Mockito.any())).thenReturn("");
     mockCacheActor();
 
     PowerMockito.mockStatic(SystemConfigUtil.class);
@@ -137,7 +138,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     List errorList = (List) error.get(JsonKey.MEMBERS);
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
+        IResponseMessage.Key.GS_UDT05);
   }
 
   @Test
@@ -152,7 +153,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
     List errorList = (List) error.get(JsonKey.ACTIVITIES);
     Assert.assertEquals(
         ((Map) errorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+        IResponseMessage.Key.GS_UDT06);
   }
 
   @Test
@@ -249,7 +250,7 @@ public class UpdateGroupActorTest extends BaseActorTest {
           .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordById(
               Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(getGroupsDetailsResponse());
+          .thenReturn(getSuspendedGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
@@ -264,9 +265,131 @@ public class UpdateGroupActorTest extends BaseActorTest {
     }
 
     Request reqObj = updateSuspendNonAdminUserGroupReq();
-    subject.tell(reqObj, probe.getRef());
+
+    try {
+      subject.tell(reqObj, probe.getRef());
+    }catch (BaseException ex){
+      Assert.assertTrue(true);
+    }
   }
 
+  @Test
+  public void testUpdateGroupToSuspendedGroupGroup() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    try {
+      when(cassandraOperation.updateRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchInsert(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateAddSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+              .thenReturn(getCassandraResponse())
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateRemoveSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              .thenReturn(memberSizeResponse());
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenReturn(getGroupsDetailsResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+              .thenReturn(getMemberResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+
+    Request reqObj = updateSuspendNonAdminUserGroupReq();
+
+     subject.tell(reqObj, probe.getRef());
+
+  }
+
+  @Test
+  public void testUpdateGroupWithDBThrowException() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    try {
+      when(cassandraOperation.updateRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchInsert(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateAddSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+              .thenReturn(getCassandraResponse())
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.updateRemoveSetRecord(
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.anyString(),
+              Mockito.anyObject()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.executeSelectQuery(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              .thenReturn(memberSizeResponse());
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString()))
+              .thenReturn(getMemberResponse());
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+
+    Request reqObj = updateSuspendNonAdminUserGroupReq();
+
+  try {
+    subject.tell(reqObj, probe.getRef());
+   }catch (BaseException be) {
+    Assert.assertTrue(true);
+  }
+
+  }
   private Response memberSizeResponse() {
     Response response = new Response();
     Map<String, Object> result = new HashMap<>();
@@ -431,6 +554,31 @@ public class UpdateGroupActorTest extends BaseActorTest {
     group1.put("name", "TestGroup1");
     group1.put("id", "TestGroup");
     group1.put("status", "active");
+    group1.put("createdBy", "user1");
+    List<Map<String, Object>> activities = new ArrayList<>();
+    Map<String, Object> activity1 = new HashMap<>();
+    activity1.put(JsonKey.ID, "do_112470675618004992181");
+    activity1.put(JsonKey.TYPE, "Course");
+
+    Map<String, Object> activity2 = new HashMap<>();
+    activity2.put(JsonKey.ID, "do_11304065892935270414");
+    activity2.put(JsonKey.TYPE, "Textbook");
+    activities.add(activity1);
+    activities.add(activity2);
+    group1.put(JsonKey.ACTIVITIES, activities);
+    groupList.add(group1);
+    result.put(JsonKey.RESPONSE, groupList);
+    Response response = new Response();
+    response.putAll(result);
+    return response;
+  }
+  private Response getSuspendedGroupsDetailsResponse() {
+    Map<String, Object> result = new HashMap<>();
+    List<Map<String, Object>> groupList = new ArrayList<>();
+    Map<String, Object> group1 = new HashMap<>();
+    group1.put("name", "TestGroup1");
+    group1.put("id", "TestGroup");
+    group1.put("status", "suspended");
     group1.put("createdBy", "user1");
     List<Map<String, Object>> activities = new ArrayList<>();
     Map<String, Object> activity1 = new HashMap<>();

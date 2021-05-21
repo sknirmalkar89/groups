@@ -20,4 +20,14 @@ public class BaseRequestHandlerTest {
             .header("x-authenticated-for", AuthenticatedFor);
     return requestBuilder;
   }
+
+  public Http.RequestBuilder getHttpRequestBuilder2() {
+    Http.RequestBuilder requestBuilder =
+            Helpers.fakeRequest(
+                    Helpers.POST,
+                    "http://localhost:9000/v1/group/membership/update")
+                    .header("x-authenticated-user-token", xAuthenticatedUserToken)
+                    .header("x-authenticated-for", AuthenticatedFor);
+    return requestBuilder;
+  }
 }

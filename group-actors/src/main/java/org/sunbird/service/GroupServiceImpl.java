@@ -143,10 +143,11 @@ public class GroupServiceImpl implements GroupService {
       }
 
     } else {
-      logger.error("Bad Request UserId is Mandatory");
+      String errorMsg ="Bad Request UserId is Mandatory";
+      logger.error(errorMsg);
       throw new BaseException(
-          IResponseMessage.INVALID_REQUESTED_DATA,
-          IResponseMessage.MISSING_MANDATORY_PARAMS,
+          ResponseCode.GS_LST02.getErrorCode(),
+             errorMsg,
           ResponseCode.BAD_REQUEST.getCode());
     }
     return groups;

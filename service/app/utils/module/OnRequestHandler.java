@@ -74,10 +74,17 @@ public class OnRequestHandler implements ActionCreator {
     };
   }
 
+  /**
+   *  Set Error code specific to operation
+   * @param request
+   * @param errorMessage
+   * @return
+   */
   public CompletionStage<Result> getAuthorizedResult(Http.Request request, String errorMessage) {
     logger.error("Data error found--" + errorMessage);
+    ResponseCode responseCode = ResponseCode.unAuthorized;
     Result result =
-        ResponseHandler.handleFailureResponse(new AuthorizationException.NotAuthorized(), request);
+        ResponseHandler.handleFailureResponse(new AuthorizationException.NotAuthorized(responseCode), request);
     return CompletableFuture.completedFuture(result);
   }
 

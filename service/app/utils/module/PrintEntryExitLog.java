@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,6 +19,8 @@ import org.sunbird.request.Request;
 import org.sunbird.response.Response;
 import org.sunbird.response.ResponseParams;
 import org.sunbird.util.JsonKey;
+import org.sunbird.message.IResponseMessage;
+
 
 public class PrintEntryExitLog {
 
@@ -33,9 +38,9 @@ public class PrintEntryExitLog {
       params.add(newReqMap);
       entryLogEvent.setEdataParams(params);
       entryLogEvent.setEdataContext(request.getContext());
-      logger.info(entryLogEvent.toString());
+      logger.info(objectMapper.writeValueAsString(entryLogEvent));
     } catch (Exception ex) {
-      logger.error("Exception occurred while logging entry log", ex);
+      logger.error("Exception occurred while logging entry log: {}", ex.getMessage());
     }
   }
 
@@ -60,23 +65,26 @@ public class PrintEntryExitLog {
       }
       exitLogEvent.setEdataParams(params);
       exitLogEvent.setEdataContext(request.getContext());
-      logger.info(exitLogEvent.toString());
+      logger.info(objectMapper.writeValueAsString(exitLogEvent));
     } catch (Exception ex) {
-      logger.error("Exception occurred while logging exit log", ex);
+      logger.error("Exception occurred while logging exit log: {}", ex.getMessage());
     }
   }
 
-  public static void printExitLogOnFailure(Request request, BaseException exception) {
+  public static void printExitLogOnFailure(Request request, Exception ex) {
     try {
       EntryExitLogEvent exitLogEvent = getLogEvent(request, "EXIT");
       String requestId = request.getRequestId();
       List<Map<String, Object>> params = new ArrayList<>();
-      if (null == exception) {
-        exception =
+      BaseException exception = null;
+      if (null == ex || !(ex instanceof BaseException)) {
+        ex =
             new BaseException(
-                ResponseCode.internalError.getErrorCode(),
-                ResponseCode.internalError.getErrorMessage(),
+                IResponseMessage.Key.SERVER_ERROR,
+                    exception.getMessage(),
                 ResponseCode.SERVER_ERROR.getResponseCode());
+      }else{
+        exception = (BaseException) ex;
       }
 
       ResponseCode code = ResponseCode.getResponse(exception.getCode());
@@ -103,9 +111,9 @@ public class PrintEntryExitLog {
       }
       exitLogEvent.setEdataParams(params);
       exitLogEvent.setEdataContext(request.getContext());
-      logger.info(exitLogEvent.toString());
-    } catch (Exception ex) {
-      logger.error("Exception occurred while logging exit log", ex);
+      logger.info(objectMapper.writeValueAsString(exitLogEvent));
+    } catch (Exception e) {
+      logger.error("Exception occurred while logging exit log: {}", e);
     }
   }
 
@@ -121,7 +129,7 @@ public class PrintEntryExitLog {
             + url
             + " , For Operation : "
             + request.getOperation();
-    String requestId = request.getRequestId();
+    String requestId = (String)( request.getContext() != null ? request.getContext().get(JsonKey.X_REQUEST_ID) : "");
     entryLogEvent.setEdata("system", "trace", requestId, entryLogMsg, null, null);
     return entryLogEvent;
   }

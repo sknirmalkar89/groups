@@ -8,6 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.exception.BaseException;
+import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
 import org.sunbird.util.JsonKey;
 
@@ -18,16 +19,21 @@ public class GroupCreateRequestValidator implements IRequestValidator {
   @Override
   public boolean validate(Request request) throws BaseException {
     logger.info("Validating the create group request {}", request.getRequest());
-    ValidationUtil.validateRequestObject(request);
-    ValidationUtil.validateMandatoryParamsWithType(
-        request.getRequest(),
-        Lists.newArrayList(JsonKey.GROUP_NAME),
-        String.class,
-        true,
-        JsonKey.REQUEST);
-    // validate value of status and role of members and userId if provided in request
-    validateRoleAndStatus(request);
-    validateActivityList(request);
+    try {
+      ValidationUtil.validateRequestObject(request);
+      ValidationUtil.validateMandatoryParamsWithType(
+              request.getRequest(),
+              Lists.newArrayList(JsonKey.GROUP_NAME),
+              String.class,
+              true,
+              JsonKey.REQUEST);
+      // validate value of status and role of members and userId if provided in request
+      validateRoleAndStatus(request);
+      validateActivityList(request);
+    }catch (BaseException ex){
+      logger.error("GroupCreateRequestValidator: Error Code: {}, ErrMsg {}",ResponseCode.GS_CRT02.getErrorCode(),ex.getMessage());
+      throw new BaseException(ResponseCode.GS_CRT02.getErrorCode(),ex.getMessage(),ex.getResponseCode());
+    }
     return true;
   }
 

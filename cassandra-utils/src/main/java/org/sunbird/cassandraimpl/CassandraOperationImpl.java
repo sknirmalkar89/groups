@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.common.Constants;
-import org.sunbird.exception.BaseException;
+import org.sunbird.exception.DBException;
 import org.sunbird.helper.CassandraConnectionManager;
 import org.sunbird.helper.CassandraConnectionMngrFactory;
 import org.sunbird.message.IResponseMessage;
@@ -52,7 +52,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response insertRecord(String keyspaceName, String tableName, Map<String, Object> request)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service insertRecord method started at == {}", startTime);
     Response response = new Response();
@@ -73,17 +73,16 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
           || e.getMessage().contains(Constants.UNDEFINED_IDENTIFIER)) {
         logger.info(
             "Exception occured while inserting record to " + tableName + " : " + e.getMessage(), e);
-        throw new BaseException(
-            IResponseMessage.INVALID_PROPERTY_ERROR,
-            CassandraUtil.processExceptionForUnknownIdentifier(e),
-            ResponseCode.CLIENT_ERROR.getCode());
+        throw new DBException(
+                CassandraUtil.processExceptionForUnknownIdentifier(e),
+            IResponseMessage.INVALID_PROPERTY_ERROR
+            );
       }
       logger.info(
           "Exception occured while inserting record to " + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.DB_INSERTION_FAIL,
-          localizer.getMessage(IResponseMessage.DB_INSERTION_FAIL, null),
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("insertRecord", startTime);
     return response;
@@ -91,7 +90,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response updateRecord(String keyspaceName, String tableName, Map<String, Object> request)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service updateRecord method started at == {}", startTime);
     Response response = new Response();
@@ -117,16 +116,14 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       if (e.getMessage().contains(Constants.UNKNOWN_IDENTIFIER)) {
         logger.error(Constants.EXCEPTION_MSG_UPDATE + tableName + " : " + e.getMessage(), e);
-        throw new BaseException(
-            IResponseMessage.INVALID_PROPERTY_ERROR,
+        throw new DBException(
             localizer.getMessage(CassandraUtil.processExceptionForUnknownIdentifier(e), null),
-            ResponseCode.CLIENT_ERROR.getCode());
+                IResponseMessage.SERVER_ERROR);
       }
       logger.error(Constants.EXCEPTION_MSG_UPDATE + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.DB_UPDATE_FAIL,
+      throw new DBException(
           localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null),
-          ResponseCode.SERVER_ERROR.getCode());
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("updateRecord", startTime);
     return response;
@@ -134,7 +131,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response deleteRecord(String keyspaceName, String tableName, String identifier)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service deleteRecord method started at == {}", startTime);
     Response response = new Response();
@@ -147,10 +144,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response.put(Constants.RESPONSE, Constants.SUCCESS);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_DELETE + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("deleteRecord", startTime);
     return response;
@@ -159,7 +155,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecordsByProperty(
       String keyspaceName, String tableName, String propertyName, Object propertyValue)
-      throws BaseException {
+      throws DBException {
     return getRecordsByProperty(keyspaceName, tableName, propertyName, propertyValue, null);
   }
 
@@ -170,7 +166,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       String propertyName,
       Object propertyValue,
       List<String> fields)
-      throws BaseException {
+      throws DBException {
     Response response = new Response();
     Session session = connectionManager.getSession(keyspaceName);
     try {
@@ -187,10 +183,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     return response;
   }
@@ -198,7 +193,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecordsByProperty(
       String keyspaceName, String tableName, String propertyName, List<Object> propertyValueList)
-      throws BaseException {
+      throws DBException {
     return getRecordsByProperty(keyspaceName, tableName, propertyName, propertyValueList, null);
   }
 
@@ -209,7 +204,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       String propertyName,
       List<Object> propertyValueList,
       List<String> fields)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service getRecordsByProperty method started at == {}", startTime);
     Response response = new Response();
@@ -228,10 +223,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByProperty", startTime);
     return response;
@@ -239,14 +233,14 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response getRecordsByProperties(
-      String keyspaceName, String tableName, Map<String, Object> propertyMap) throws BaseException {
+      String keyspaceName, String tableName, Map<String, Object> propertyMap) throws DBException {
     return getRecordsByProperties(keyspaceName, tableName, propertyMap, null);
   }
 
   @Override
   public Response getRecordsByProperties(
       String keyspaceName, String tableName, Map<String, Object> propertyMap, List<String> fields)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service getRecordsByProperties method started at == {}", startTime);
     Response response = new Response();
@@ -281,10 +275,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByProperties", startTime);
     return response;
@@ -292,7 +285,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response getPropertiesValueById(
-      String keyspaceName, String tableName, String id, String... properties) throws BaseException {
+      String keyspaceName, String tableName, String id, String... properties) throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service getPropertiesValueById method started at == {}", startTime);
     Response response = new Response();
@@ -305,17 +298,16 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getPropertiesValueById", startTime);
     return response;
   }
 
   @Override
-  public Response getAllRecords(String keyspaceName, String tableName) throws BaseException {
+  public Response getAllRecords(String keyspaceName, String tableName) throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service getAllRecords method started at == {}", startTime);
     Response response = new Response();
@@ -325,10 +317,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getAllRecords", startTime);
     return response;
@@ -336,7 +327,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response upsertRecord(String keyspaceName, String tableName, Map<String, Object> request)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service upsertRecord method started at == {}", startTime);
     Response response = new Response();
@@ -356,16 +347,15 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       if (e.getMessage().contains(Constants.UNKNOWN_IDENTIFIER)) {
         logger.error(Constants.EXCEPTION_MSG_UPSERT + tableName + " : " + e.getMessage(), e);
-        throw new BaseException(
+        throw new DBException(
             IResponseMessage.INVALID_PROPERTY_ERROR,
             localizer.getMessage(CassandraUtil.processExceptionForUnknownIdentifier(e), null),
             ResponseCode.CLIENT_ERROR.getCode());
       }
       logger.error(Constants.EXCEPTION_MSG_UPSERT + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("upsertRecord", startTime);
     return response;
@@ -377,7 +367,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       String tableName,
       Map<String, Object> request,
       Map<String, Object> compositeKey)
-      throws BaseException {
+      throws DBException {
 
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service updateRecord method started at == {}", startTime);
@@ -406,22 +396,20 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_UPDATE + tableName + " : " + e.getMessage(), e);
       if (e.getMessage().contains(Constants.UNKNOWN_IDENTIFIER)) {
-        throw new BaseException(
-            IResponseMessage.INVALID_PROPERTY_ERROR,
+        throw new DBException(
             localizer.getMessage(CassandraUtil.processExceptionForUnknownIdentifier(e), null),
-            ResponseCode.CLIENT_ERROR.getCode());
+           IResponseMessage.SERVER_ERROR);
       }
-      throw new BaseException(
-          IResponseMessage.DB_UPDATE_FAIL,
-          localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null),
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              localizer.getMessage(IResponseMessage.DB_UPDATE_FAIL, null),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("updateRecord", startTime);
     return response;
   }
 
   private Response getRecordByIdentifier(
-      String keyspaceName, String tableName, Object key, List<String> fields) throws BaseException {
+      String keyspaceName, String tableName, Object key, List<String> fields) throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service getRecordBy key method started at == {}", startTime);
     Response response = new Response();
@@ -451,10 +439,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordByIdentifier", startTime);
     return response;
@@ -462,26 +449,26 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response getRecordById(String keyspaceName, String tableName, String key)
-      throws BaseException {
+      throws DBException {
     return getRecordByIdentifier(keyspaceName, tableName, key, null);
   }
 
   @Override
   public Response getRecordById(String keyspaceName, String tableName, Map<String, Object> key)
-      throws BaseException {
+      throws DBException {
     return getRecordByIdentifier(keyspaceName, tableName, key, null);
   }
 
   @Override
   public Response getRecordById(
-      String keyspaceName, String tableName, String key, List<String> fields) throws BaseException {
+      String keyspaceName, String tableName, String key, List<String> fields) throws DBException {
     return getRecordByIdentifier(keyspaceName, tableName, key, fields);
   }
 
   @Override
   public Response getRecordById(
       String keyspaceName, String tableName, Map<String, Object> key, List<String> fields)
-      throws BaseException {
+      throws DBException {
     return getRecordByIdentifier(keyspaceName, tableName, key, fields);
   }
 
@@ -492,7 +479,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       Map<String, Object> key,
       List<String> ttlFields,
       List<String> fields)
-      throws BaseException {
+      throws DBException {
     return getRecordWithTTLByIdentifier(keyspaceName, tableName, key, ttlFields, fields);
   }
 
@@ -502,7 +489,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       Map<String, Object> key,
       List<String> ttlFields,
       List<String> fields)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service getRecordBy key method started at == {}", startTime);
     Response response = new Response();
@@ -527,10 +514,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordByIdentifier", startTime);
     return response;
@@ -539,7 +525,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response batchInsert(
       String keyspaceName, String tableName, List<Map<String, Object>> records)
-      throws BaseException {
+      throws DBException {
 
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service batchInsert method started at == {}", startTime);
@@ -567,10 +553,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         | NoHostAvailableException
         | IllegalStateException e) {
       logger.error("Cassandra Batch Insert Failed." + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+           e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchInsert", startTime);
     return response;
@@ -587,7 +572,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   // @Override
   public Response batchUpdateById(
       String keyspaceName, String tableName, List<Map<String, Object>> records)
-      throws BaseException {
+      throws DBException {
 
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service batchUpdateById method started at == {}", startTime);
@@ -608,10 +593,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         | NoHostAvailableException
         | IllegalStateException e) {
       logger.error("Cassandra Batch Update Failed." + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchUpdateById", startTime);
     return response;
@@ -628,7 +612,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
    */
   @Override
   public Response performBatchAction(
-      String keySpaceName, String tableName, Map<String, Object> inputData) throws BaseException {
+      String keySpaceName, String tableName, Map<String, Object> inputData) throws DBException {
 
     long startTime = System.currentTimeMillis();
     logger.info("Cassandra Service performBatchAction method started at == {}", startTime);
@@ -656,10 +640,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
         | NoHostAvailableException
         | IllegalStateException e) {
       logger.error("Cassandra performBatchAction Failed." + e.getMessage());
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("performBatchAction", startTime);
     return response;
@@ -700,7 +683,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response batchUpdate(
       String keyspaceName, String tableName, List<Map<String, Map<String, Object>>> list)
-      throws BaseException {
+      throws DBException {
 
     Session session = connectionManager.getSession(keyspaceName);
     BatchStatement batchStatement = new BatchStatement();
@@ -719,10 +702,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response.put(Constants.RESPONSE, Constants.SUCCESS);
     } catch (Exception ex) {
       logger.error("Cassandra Batch Update failed " + ex.getMessage(), ex);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              ex.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchUpdate", startTime);
     return response;
@@ -741,7 +723,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecordsByIndexedProperty(
       String keyspaceName, String tableName, String propertyName, Object propertyValue)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("CassandraOperationImpl:getRecordsByIndexedProperty called at {}", startTime);
     Response response = new Response();
@@ -759,10 +741,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + " : "
               + e.getMessage(),
           e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByIndexedProperty", startTime);
     return response;
@@ -771,7 +752,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public void deleteRecord(
       String keyspaceName, String tableName, Map<String, String> compositeKeyMap)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("CassandraOperationImpl: deleteRecord by composite key called at {} ", startTime);
     try {
@@ -794,17 +775,16 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + " : "
               + e.getMessage(),
           e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("deleteRecordByCompositeKey", startTime);
   }
 
   @Override
   public boolean deleteRecords(String keyspaceName, String tableName, List<String> identifierList)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     ResultSet resultSet;
     logger.info("CassandraOperationImpl: deleteRecords called at {} ", startTime);
@@ -822,10 +802,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + " : "
               + e.getMessage(),
           e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("deleteRecords", startTime);
     return resultSet.wasApplied();
@@ -834,7 +813,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecordsByCompositeKey(
       String keyspaceName, String tableName, Map<String, Object> compositeKeyMap)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("CassandraOperationImpl: getRecordsByCompositeKey called at {}", startTime);
     Response response = new Response();
@@ -855,10 +834,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               + tableName
               + " : "
               + e.getMessage());
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByCompositeKey", startTime);
     return response;
@@ -867,7 +845,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecordsByIdsWithSpecifiedColumns(
       String keyspaceName, String tableName, List<String> properties, List<String> ids)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info(
         "CassandraOperationImpl: getRecordsByIdsWithSpecifiedColumns call started at  {}",
@@ -883,10 +861,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = executeSelectQuery(keyspaceName, tableName, ids, selectBuilder, "");
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByIdsWithSpecifiedColumns", startTime);
     return response;
@@ -917,7 +894,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecordsByPrimaryKeys(
       String keyspaceName, String tableName, List<String> primaryKeys, String primaryKeyColumnName)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("CassandraOperationImpl: getRecordsByPrimaryKeys call started at {}", startTime);
     Response response = new Response();
@@ -928,10 +905,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
               keyspaceName, tableName, primaryKeys, selectBuilder, primaryKeyColumnName);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByPrimaryKeys", startTime);
     return response;
@@ -964,7 +940,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       Map<String, Object> request,
       Map<String, Object> compositeKey,
       int ttl)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     Session session = connectionManager.getSession(keyspaceName);
     Update update = QueryBuilder.update(keyspaceName, tableName);
@@ -999,7 +975,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       Map<String, Object> primaryKeys,
       List<String> properties,
       Map<String, String> ttlPropertiesWithAlias)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info(
         "CassandraOperationImpl:getRecordsByIdsWithSpecifiedColumnsAndTTL: call started at "
@@ -1021,13 +997,12 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       if (MapUtils.isNotEmpty(ttlPropertiesWithAlias)) {
         for (Map.Entry<String, String> entry : ttlPropertiesWithAlias.entrySet()) {
           if (StringUtils.isBlank(entry.getValue())) {
-            logger.error(
-                "CassandraOperationImpl:getRecordsByIdsWithSpecifiedColumnsAndTTL: Alias not provided for ttl key = "
-                    + entry.getKey());
-            throw new BaseException(
-                IResponseMessage.SERVER_ERROR,
-                IResponseMessage.SERVER_ERROR,
-                ResponseCode.SERVER_ERROR.getCode());
+            String errroMsg="CassandraOperationImpl:getRecordsByIdsWithSpecifiedColumnsAndTTL: Alias not provided for ttl key = "
+                    + entry.getKey();
+            logger.error(errroMsg);
+            throw new DBException(
+                errroMsg,
+                IResponseMessage.SERVER_ERROR);
           }
           selection.ttl(entry.getKey()).as(entry.getValue());
         }
@@ -1045,10 +1020,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response = CassandraUtil.createResponse(results);
     } catch (Exception e) {
       logger.error(Constants.EXCEPTION_MSG_FETCH + tableName + " : " + e.getMessage(), e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+              IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("getRecordsByIdsWithSpecifiedColumnsAndTTL", startTime);
     return response;
@@ -1057,23 +1031,22 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response batchInsertWithTTL(
       String keyspaceName, String tableName, List<Map<String, Object>> records, List<Integer> ttls)
-      throws BaseException {
+      throws DBException {
     long startTime = System.currentTimeMillis();
     logger.info("CassandraOperationImpl:batchInsertWithTTL: call started at " + startTime);
     if (CollectionUtils.isEmpty(records) || CollectionUtils.isEmpty(ttls)) {
-      logger.error("CassandraOperationImpl:batchInsertWithTTL: records or ttls is empty");
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      String errorMsg="CassandraOperationImpl:batchInsertWithTTL: records or ttls is empty";
+      logger.error(errorMsg);
+      throw new DBException(
+          errorMsg,
+          IResponseMessage.SERVER_ERROR);
     }
     if (ttls.size() != records.size()) {
-      logger.error(
-          "CassandraOperationImpl:batchInsertWithTTL: Mismatch of records and ttls list size");
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      String errorMsg="CassandraOperationImpl:batchInsertWithTTL: Mismatch of records and ttls list size";
+      logger.error(errorMsg);
+      throw new DBException(
+          errorMsg,
+          IResponseMessage.SERVER_ERROR);
     }
     Session session = connectionManager.getSession(keyspaceName);
     Response response = new Response();
@@ -1107,10 +1080,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
           "CassandraOperationImpl:batchInsertWithTTL: Exception occurred with error message = "
               + e.getMessage(),
           e);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+          e.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchInsertWithTTL", startTime);
     return response;
@@ -1124,7 +1096,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       String key,
       int value,
       String objectType)
-      throws BaseException {
+      throws DBException {
     Select selectQuery = QueryBuilder.select().column(columnName).from(keyspace, tableName);
     Clause clause = QueryBuilder.lt(key, value);
     selectQuery.where(eq(Constants.OBJECT_TYPE, objectType)).and(clause);
@@ -1137,7 +1109,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
   @Override
   public Response getRecords(
       String keyspace, String table, Map<String, Object> filters, List<String> fields)
-      throws BaseException {
+      throws DBException {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1149,21 +1121,21 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       Map<String, Object> filters,
       List<String> fields,
       FutureCallback<ResultSet> callback)
-      throws BaseException {
+      throws DBException {
     // TODO Auto-generated method stub
 
   }
 
   @Override
   public Response searchValueInList(String keyspace, String tableName, String key, String value)
-      throws BaseException {
+      throws DBException {
     return searchValueInList(keyspace, tableName, key, value, null);
   }
 
   @Override
   public Response searchValueInList(
       String keyspace, String tableName, String key, String value, Map<String, Object> propertyMap)
-      throws BaseException {
+      throws DBException {
     Select selectQuery = QueryBuilder.select().all().from(keyspace, tableName);
     Clause clause = QueryBuilder.contains(key, value);
     selectQuery.where(clause);
@@ -1218,7 +1190,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
 
   @Override
   public Response batchDelete(String keyspaceName, String tableName, List<Map<String, Object>> list)
-      throws BaseException {
+      throws DBException {
 
     Session session = connectionManager.getSession(keyspaceName);
     BatchStatement batchStatement = new BatchStatement();
@@ -1234,10 +1206,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
       response.put(Constants.RESPONSE, Constants.SUCCESS);
     } catch (Exception ex) {
       logger.error("Cassandra Batch Delete failed " + ex.getMessage(), ex);
-      throw new BaseException(
-          IResponseMessage.SERVER_ERROR,
-          IResponseMessage.SERVER_ERROR,
-          ResponseCode.SERVER_ERROR.getCode());
+      throw new DBException(
+              ex.getMessage(),
+          IResponseMessage.SERVER_ERROR);
     }
     logQueryElapseTime("batchDelete", startTime);
     return response;

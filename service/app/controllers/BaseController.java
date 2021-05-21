@@ -23,7 +23,7 @@ import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
 import utils.module.PrintEntryExitLog;
 import utils.module.RequestMapper;
-
+import org.sunbird.message.IResponseMessage;
 /**
  * This controller we can use for writing some common method to handel api request.
  * CompletableFuture: A Future that may be explicitly completed (setting its value and status), and
@@ -63,20 +63,22 @@ public class BaseController extends Controller {
    * @return
    */
   public CompletionStage<Result> handleRequest(Request request) {
-    try {
-      PrintEntryExitLog.printEntryLog(request);
-      validate(request);
-      return invoke(request);
-    } catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-          request,
-          new BaseException(
-              ResponseCode.CLIENT_ERROR.getErrorCode(),
-              ex.getMessage(),
-              ResponseCode.CLIENT_ERROR.getResponseCode()));
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-          .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+      try {
+        PrintEntryExitLog.printEntryLog(request);
+        validate(request);
+        return invoke(request);
+      } catch (Exception  ex) {
+
+        PrintEntryExitLog.printExitLogOnFailure(
+                request,
+                ex);
+        return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
+                .thenApply(result -> {
+                  return ResponseHandler.handleFailureResponse(ex, request);
+                });
+
+      }
+
   }
 
   /**
