@@ -1,15 +1,11 @@
 package controllers;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sunbird.exception.BaseException;
-import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
-import utils.module.PrintEntryExitLog;
 
 /** This controller class will responsible to check health of the services. */
 public class HealthController extends BaseController {
@@ -24,7 +20,6 @@ public class HealthController extends BaseController {
   public CompletionStage<Result> getHealth() throws BaseException {
     Request req = new Request("health"); // Get API
     return handleRequest(req);
-
   }
 
   /**
@@ -38,6 +33,4 @@ public class HealthController extends BaseController {
     request.getContext().put("service", serviceName);
     return handleRequest(request) ;
   }
-
-
 }
