@@ -112,7 +112,7 @@ public class ResponseHandler {
         params.put(JsonKey.DURATION, requestTime);
         params.put(JsonKey.STATUS, response.getResponseCode());
         params.put(JsonKey.LOG_LEVEL, JsonKey.INFO);
-        params.putAll(objectMapper.convertValue(response.getParams(),Map.class));
+        params.putAll(null != response.getParams()? objectMapper.convertValue(response.getParams(),Map.class): new HashMap<>());
         req.setRequest(
             generateTelemetryRequestForController(
                 TelemetryEvents.LOG.getName(), params, request.getContext()));

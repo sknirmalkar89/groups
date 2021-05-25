@@ -322,8 +322,8 @@ public class UpdateGroupActor extends BaseActor {
   private void logTelemetry(Request actorMessage, Group group, Map<String, Object> dbResGroup) {
     Map<String, Object> targetObject = null;
     List<Map<String, Object>> correlatedObject = new ArrayList<>();
-    if (null != group.getStatus()) {
-      switch (group.getStatus()) {
+    if (null != dbResGroup.get(JsonKey.STATUS)) {
+      switch ((String)dbResGroup.get(JsonKey.STATUS)) {
         case JsonKey.ACTIVE:
           targetObject =
               TelemetryUtil.generateTargetObject(
