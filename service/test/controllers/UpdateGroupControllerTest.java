@@ -33,7 +33,9 @@ public class UpdateGroupControllerTest extends BaseApplicationTest {
     member.put(JsonKey.STATUS, JsonKey.ACTIVE);
     member.put(JsonKey.USER_ID, "userID");
     members.add(member);
-    reqMap.put(JsonKey.MEMBERS, members);
+    Map<String,Object> memberOp = new HashMap<>();
+    memberOp.put(JsonKey.ADD, members);
+    reqMap.put(JsonKey.MEMBERS,memberOp);
     request.put("request", reqMap);
 
     Result result = performTest("/v1/group/update", "PATCH", request);
