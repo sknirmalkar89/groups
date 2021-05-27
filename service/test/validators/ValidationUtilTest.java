@@ -228,6 +228,20 @@ public class ValidationUtilTest {
     }
   }
 
+  @Test
+  public void validateParamType() {
+    Map<String,Object> request= new HashMap<>();
+    request.put("name", "group1");
+    request.put("members",new ArrayList<>());
+    try {
+      ValidationUtil.validateParamsWithType(request,Lists.newArrayList(JsonKey.MEMBERS,JsonKey.ACTIVITIES),
+              Map.class,JsonKey.REQUEST);
+      Assert.assertTrue(false);
+
+    } catch (BaseException ex) {
+      Assert.assertTrue(true);
+    }
+  }
   private Request createRequestObject() {
     Request request = new Request();
     Map<String, Object> map = new HashMap<>();

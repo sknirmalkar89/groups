@@ -93,14 +93,14 @@ public interface IResponseMessage {
     String UNAUTHORIZED = "You are an unauthorized.Contact your system administrator";
 
     String GS_CRT01 = "Failed to create group, unauthorised user. Contact your system administrator.";
-    String GS_CRT02 = "Failed to create group, fields are missing in the request. Enter the required values and resend the request.";
+    String GS_CRT02 = "Failed to create group, fields are missing or invalid in the request. Enter the required values and resend the request.";
     String GS_CRT03 = "Failed to create group, due to database error or there are too many concurrent calls to the server. Try again later.";
     String GS_CRT04 = "Failed to create group, exceeded number of permissible groups.";
     String GS_CRT05 = "Failed to add member, group, exceeded number of permissible members.";
     String GS_CRT06 = "Failed to add activity in a group, exceeded the number of permissible activity in the group.";
 
     String GS_UDT01 = "Failed to update group, unauthorised user. Contact your system administrator.";
-    String GS_UDT02 = "Failed to update group, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_UDT02 = "Failed to update group, mandatory  are missing or invalid fields value in the request. Enter the required values and resend the request.";
     String GS_UDT03= "Failed to update group, due to database error or there are too many concurrent calls to the server. Try again later.";
     String GS_UDT05= "Failed to update the group,  exceeded permissible members count.";
     String GS_UDT06 = "Failed to update group activity, exceeded permissible activities in a group.";
@@ -111,22 +111,22 @@ public interface IResponseMessage {
 
 
     String GS_RED01 = "Failed to read group details, unauthorised user. Contact your system administrator.";
-    String GS_RED02= "Failed to read group details, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_RED02= "Failed to read group details, mandatory fields are missing or invalid fields value in the request. Enter the required values and resend the request.";
     String GS_RED03= "Failed to read group details due to database error or there are too many concurrent calls to the server. Try again later.";
     String GS_RED07 = "Failed to read details, group not found. Contact your system administrator.";
 
     String GS_LST01 = "Failed to fetch group list, unauthorised user. Contact your system administrator.";
-    String GS_LST02= "Failed to fetch group list, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_LST02= "Failed to fetch group list, mandatory fields are missing or invalid fields value in the request. Enter the required values and resend the request.";
     String GS_LST03 = "Failed to fetch group list, due to database error or there are too many concurrent calls to the server. Try again later.";
 
     String GS_DLT01 = "Failed to delete group, unauthorised user. Contact your system administrator.";
-    String GS_DLT02= "Failed to delete group, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_DLT02= "Failed to delete group, mandatory fields are missing or invalid fields value in the request. Enter the required values and resend the request.";
     String GS_DLT03 = "Failed to delete group, due to database error or there are too many concurrent calls to the server. Try again later.";
     String GS_DLT07 = "Failed to delete, group not found. Contact your system administrator.";
     String GS_DLT10= "Failed to delete, group  creators can delete the group. Contact your system administrator.";
 
     String GS_MBRSHP_UDT01= "Failed to update group member details, unauthorised user. Contact your system administrator.";
-    String GS_MBRSHP_UDT02 = "Failed to update group member details, mandatory fields are missing in the request. Enter the required values and resend the request.";
+    String GS_MBRSHP_UDT02 = "Failed to update group member details, mandatory fields are missing or invalid fields value in the request. Enter the required values and resend the request.";
     String GS_MBRSHP_UDT03= "Failed to create group, due to database error or there are too many concurrent calls to the server. Try again later.";
 
 

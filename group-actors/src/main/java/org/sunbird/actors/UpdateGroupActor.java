@@ -159,14 +159,14 @@ public class UpdateGroupActor extends BaseActor {
 
       logTelemetry(actorMessage, group, dbResGroup);
     }catch (DBException ex){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT08.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage(),ex.getResponseCode());
+      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+      throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ex.getResponseCode());
     }catch (BaseException ex){
       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
       throw  new BaseException(ex);
     }catch (Exception ex){
-       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT08.getErrorCode(),ex.getMessage()));
-       throw new BaseException(ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+       throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
    }
   }
 

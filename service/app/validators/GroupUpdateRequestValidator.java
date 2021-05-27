@@ -13,6 +13,7 @@ import org.sunbird.exception.ValidationException;
 import org.sunbird.message.ResponseCode;
 import org.sunbird.request.Request;
 import org.sunbird.util.JsonKey;
+import validators.ValidationUtil;
 
 public class GroupUpdateRequestValidator implements IRequestValidator {
 
@@ -29,6 +30,8 @@ public class GroupUpdateRequestValidator implements IRequestValidator {
               String.class,
               true,
               JsonKey.REQUEST);
+      ValidationUtil.validateParamsWithType(request.getRequest(),Lists.newArrayList(JsonKey.MEMBERS,JsonKey.ACTIVITIES),
+              Map.class,JsonKey.REQUEST);
       validateActivityList(request);
 
       return true;

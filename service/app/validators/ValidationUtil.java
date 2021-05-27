@@ -43,6 +43,21 @@ public class ValidationUtil {
     }
   }
 
+    public static void validateParamsWithType(Map<String, Object> reqMap,
+            List<String> paramList,
+            Class<?> type,
+            String parentKey)
+      throws BaseException {
+      for (String param : paramList) {
+        if(reqMap.containsKey(param)) {
+          if (!(isInstanceOf(reqMap.get(param).getClass(), type))) {
+            logger.error("validateMandatoryParamsType:incorrect request provided");
+            throw new ValidationException.ParamDataTypeError(parentKey + "." + param, type.getName());
+          }
+        }
+      }
+  }
+
   private static void validatePresence(String key, Object value, Class<?> type, String parentKey)
       throws BaseException {
     if (type == String.class) {
