@@ -64,73 +64,74 @@ public class CreateGroupActor extends BaseActor {
     Group group = requestHandler.handleCreateGroupRequest(actorMessage);
 
     String userId = group.getCreatedBy();
-    if (StringUtils.isEmpty(userId)) {
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT01.getErrorCode(),ResponseCode.GS_CRT01.getErrorMessage()));
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_CRT01);
-    }
-
-    // add creator of group to memberList as admin
-    List<Map<String, Object>> memberList = new ArrayList<>();
-    Map<String, Object> createdUser = new HashMap<>();
-    createdUser.put(JsonKey.USER_ID, userId);
-    createdUser.put(JsonKey.ROLE, JsonKey.ADMIN);
-    memberList.add(createdUser);
-
-    // adding members to group, if members are provided in request
-    List<Map<String, Object>> reqMemberList =
-        (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.MEMBERS);
-    if (CollectionUtils.isNotEmpty(reqMemberList)) {
-      memberList.addAll(reqMemberList);
-    }
-
-    logger.info("Fetching groups from user-group for userId {}", userId);
+    String groupId=null;
     try {
-      List<Map<String, Object>> userGroupsList =
-              memberService.getGroupIdsforUserIds(GroupUtil.getMemberIdListFromMap(memberList));
-      validateMaxGroupLimitation(userId, userGroupsList);
-      Map<String, List<Map<String, String>>> validationErrors = new HashMap<>();
-      boolean  memberLimitExceeded = validateMaxMemberLimitation(memberList, validationErrors);
-      boolean  activityLimitExceeded = validateMaxActivitiesLimitation(group, validationErrors);
-      if (activityLimitExceeded) {
-        // if activity limit exceeded, we should not add into the db
-        group.setActivities(null);
+      if (StringUtils.isEmpty(userId)) {
+        logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT01.getErrorCode(),ResponseCode.GS_CRT01.getErrorMessage()));
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_CRT01);
       }
-      String groupId = groupService.createGroup(group);
 
-      if (CollectionUtils.isNotEmpty(memberList)) {
-        logger.info("Adding members to the group: {} started", groupId);
-        boolean isUseridRedisEnabled =
-                Boolean.parseBoolean(
-                        PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
-        if (isUseridRedisEnabled) {
-          // Remove group list user cache from redis
-          cacheUtil.deleteCacheSync(userId);
-          deleteUserCache(memberList);
+      // add creator of group to memberList as admin
+      List<Map<String, Object>> memberList = new ArrayList<>();
+      Map<String, Object> createdUser = new HashMap<>();
+      createdUser.put(JsonKey.USER_ID, userId);
+      createdUser.put(JsonKey.ROLE, JsonKey.ADMIN);
+      memberList.add(createdUser);
+
+      // adding members to group, if members are provided in request
+      List<Map<String, Object>> reqMemberList =
+          (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.MEMBERS);
+      if (CollectionUtils.isNotEmpty(reqMemberList)) {
+        memberList.addAll(reqMemberList);
+      }
+
+      logger.info("Fetching groups from user-group for userId {}", userId);
+
+        List<Map<String, Object>> userGroupsList =
+                memberService.getGroupIdsforUserIds(GroupUtil.getMemberIdListFromMap(memberList));
+        validateMaxGroupLimitation(userId, userGroupsList);
+        Map<String, List<Map<String, String>>> validationErrors = new HashMap<>();
+        boolean  memberLimitExceeded = validateMaxMemberLimitation(memberList, validationErrors);
+        boolean  activityLimitExceeded = validateMaxActivitiesLimitation(group, validationErrors);
+        if (activityLimitExceeded) {
+          // if activity limit exceeded, we should not add into the db
+          group.setActivities(null);
         }
-        // if memberLimitExceeded is true, then members are not added in to the group,but group will
-        // be created, and groupId is returned in response ,with a errorMsg EXCEEDED_MEMBER_MAX_LIMIT
-        // this is not used/expected call flow for creating group. Doing this for direct api hits.
-        if (!memberLimitExceeded) {
-          Response addMembersRes =
-                  memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList);
-          logger.info(
-                  "Adding members to the group : {} ended , response {}",
-                  groupId,
-                  addMembersRes.getResult());
+        groupId = groupService.createGroup(group);
+
+        if (CollectionUtils.isNotEmpty(memberList)) {
+          logger.info("Adding members to the group: {} started", groupId);
+          boolean isUseridRedisEnabled =
+                  Boolean.parseBoolean(
+                          PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
+          if (isUseridRedisEnabled) {
+            // Remove group list user cache from redis
+            cacheUtil.deleteCacheSync(userId);
+            deleteUserCache(memberList);
+          }
+          // if memberLimitExceeded is true, then members are not added in to the group,but group will
+          // be created, and groupId is returned in response ,with a errorMsg EXCEEDED_MEMBER_MAX_LIMIT
+          // this is not used/expected call flow for creating group. Doing this for direct api hits.
+          if (!memberLimitExceeded) {
+            Response addMembersRes =
+                    memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList);
+            logger.info(
+                    "Adding members to the group : {} ended , response {}",
+                    groupId,
+                    addMembersRes.getResult());
+          }
         }
-      }
 
-      Response response = new Response();
-      response.put(JsonKey.GROUP_ID, groupId);
-      if (MapUtils.isNotEmpty(validationErrors)
-              && (CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.MEMBERS))
-              || CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.ACTIVITIES)))) {
-        response.put(JsonKey.ERROR, validationErrors);
-      }
-      logger.info("group created successfully with groupId {}", groupId);
-      sender().tell(response, self());
+        Response response = new Response();
+        response.put(JsonKey.GROUP_ID, groupId);
+        if (MapUtils.isNotEmpty(validationErrors)
+                && (CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.MEMBERS))
+                || CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.ACTIVITIES)))) {
+          response.put(JsonKey.ERROR, validationErrors);
+        }
+        logger.info("group created successfully with groupId {}", groupId);
+        sender().tell(response, self());
 
-      logTelemetry(actorMessage, groupId);
     }catch (DBException ex){
       logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
       throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
@@ -140,6 +141,8 @@ public class CreateGroupActor extends BaseActor {
     }catch (Exception ex){
       logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
       throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+    }finally {
+      logTelemetry(actorMessage, groupId);
     }
   }
 
@@ -202,14 +205,22 @@ public class CreateGroupActor extends BaseActor {
           source, StringUtils.capitalize(JsonKey.REQUEST_SOURCE), null, correlatedObject);
     }
     Map<String, Object> targetObject = null;
-    targetObject =
-        TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP, JsonKey.CREATE, null);
+    targetObject = groupId != null ?
+        TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP_CREATED,null, JsonKey.ACTIVE, null,TelemetryEnvKey.GROUPS_LIST)
+        : TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP_ERROR, TelemetryEnvKey.CREATION,null, null,TelemetryEnvKey.GROUPS_LIST);
 
+    // Add user information to Cdata
     TelemetryUtil.generateCorrelatedObject(
         (String) actorMessage.getContext().get(JsonKey.USER_ID),
         TelemetryEnvKey.USER,
         null,
         correlatedObject);
+    // Add group info information to Cdata
+    TelemetryUtil.generateCorrelatedObject(
+             groupId,
+            TelemetryEnvKey.GROUPID,
+            null,
+            correlatedObject);
     TelemetryUtil.telemetryProcessingCall(
         actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
   }

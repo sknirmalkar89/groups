@@ -3,6 +3,8 @@ package org.sunbird.telemetry.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.request.Request;
 import org.sunbird.telemetry.JsonKey;
@@ -13,13 +15,15 @@ public final class TelemetryUtil {
   private TelemetryUtil() {}
 
   public static Map<String, Object> generateTargetObject(
-      String id, String type, String currentState, String prevState) {
+      String id, String type,String subtype, String currentState, String prevState,String pageId) {
 
     Map<String, Object> target = new HashMap<>();
     target.put(JsonKey.ID, id);
-    target.put(JsonKey.TYPE, StringUtils.capitalize(type));
+    target.put(JsonKey.TYPE, type);
+    target.put(JsonKey.SUB_TYPE,subtype);
     target.put(JsonKey.CURRENT_STATE, currentState);
     target.put(JsonKey.PREV_STATE, prevState);
+    target.put(JsonKey.PAGE_ID,pageId);
     return target;
   }
 

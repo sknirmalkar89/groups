@@ -111,6 +111,8 @@ public class OnRequestHandler implements ActionCreator {
       }
       requestContext.put(JsonKey.CHANNEL, channel);
       requestContext.put(JsonKey.REQUEST_ID, requestId);
+      requestContext.put(JsonKey.REQUEST_MESSAGE_ID, requestId);
+
       requestContext.putAll(cacheTelemetryPdata());
       Optional<String> optionalAppId = httpReq.getHeaders().get(HeaderParam.X_APP_ID.getName());
       if (optionalAppId.isPresent()) {
