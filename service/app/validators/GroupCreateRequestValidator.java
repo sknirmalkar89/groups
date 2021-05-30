@@ -27,9 +27,9 @@ public class GroupCreateRequestValidator implements IRequestValidator {
               String.class,
               true,
               JsonKey.REQUEST);
-      // validate value of status and role of members and userId if provided in request
       ValidationUtil.validateParamsWithType(request.getRequest(),Lists.newArrayList(JsonKey.MEMBERS,JsonKey.ACTIVITIES),
               List.class,JsonKey.REQUEST);
+      // validate value of status and role of members and userId if provided in request
       validateRoleAndStatus(request);
       validateActivityList(request);
 
