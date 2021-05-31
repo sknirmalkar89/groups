@@ -47,7 +47,7 @@ public interface JsonKey {
   String PARAMS = "params";
   String API_ACCESS = "api_access";
   String FILTERS = "filters";
-  String GROUP = "group";
+  String GROUP = "groups";
   String UNAUTHORIZED = "Unauthorized";
   String MANAGED_FOR = "managedFor";
   String SUNBIRD_SSO_REALM = "sunbird_sso_realm";
@@ -70,6 +70,7 @@ public interface JsonKey {
   String CREATED_ON = "createdOn";
   String CREATED_BY = "createdBy";
   String UPDATED_ON = "updatedOn";
+  String UPDATE = "update";
   String USER_SERVICE_BASE_URL = "LEARNER_SERVICE_PORT";
   String USER_SERVICE_SEARCH_URL = "sunbird_user_service_search_url";
   String SUNBIRD_CS_BASE_URL = "CONTENT_SERVICE_PORT";
@@ -99,8 +100,6 @@ public interface JsonKey {
   String ACTOR_ID = "actorId";
   String DEFAULT_CONSUMER_ID = "internal";
   String CONSUMER = "consumer";
-  String UPDATE = "update";
-  String CREATE = "create";
   String DELETE = "delete";
   String REQUEST_SOURCE = "source";
   String CHANNEL = "channel";
@@ -127,4 +126,5 @@ public interface JsonKey {
   String GROUPS = "groups";
   String X_TRACE_ENABLED = "x-trace-enabled";
   String FAILED = "failed";
+
 }

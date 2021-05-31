@@ -64,14 +64,14 @@ public class UpdateGroupActor extends BaseActor {
     GroupService groupService = new GroupServiceImpl();
 
     logger.info("Update group for the groupId {}", group.getId());
-
+    Map<String, Object> dbResGroup= null;
     String userId = group.getUpdatedBy();
-    if (StringUtils.isEmpty(userId)) {
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT01.getErrorCode(),ResponseCode.GS_UDT01.getErrorMessage()));
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT01);
-    }
     try {
-      Map<String, Object> dbResGroup = readGroup(group.getId(), groupService);
+      if (StringUtils.isEmpty(userId)) {
+        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT01.getErrorCode(),ResponseCode.GS_UDT01.getErrorMessage()));
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT01);
+      }
+      dbResGroup = readGroup(group.getId(), groupService);
 
       // Check if it is an exit group request
       boolean isExitGroupRequest =
@@ -157,17 +157,22 @@ public class UpdateGroupActor extends BaseActor {
       }
       sender().tell(response, self());
 
-      logTelemetry(actorMessage, group, dbResGroup);
+      logTelemetry(actorMessage, group, dbResGroup,true);
     }catch (DBException ex){
       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+      logTelemetry(actorMessage, group,dbResGroup,false);
       throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ex.getResponseCode());
     }catch (BaseException ex){
       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
+      logTelemetry(actorMessage, group,dbResGroup,false);
       throw  new BaseException(ex);
     }catch (Exception ex){
        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
-       throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
-   }
+       logTelemetry(actorMessage, group,dbResGroup,false);
+      throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+   }finally {
+
+    }
   }
 
   private Map<String, Object> readGroup(String groupId, GroupService groupService) throws BaseException {
@@ -319,36 +324,89 @@ public class UpdateGroupActor extends BaseActor {
     }
   }
 
-  private void logTelemetry(Request actorMessage, Group group, Map<String, Object> dbResGroup) {
+
+  private void logTelemetry(Request actorMessage, Group group, Map<String, Object> dbResGroup, boolean isSuccess) {
     Map<String, Object> targetObject = null;
     List<Map<String, Object>> correlatedObject = new ArrayList<>();
-    if (null != dbResGroup.get(JsonKey.STATUS)) {
-      switch ((String)dbResGroup.get(JsonKey.STATUS)) {
-        case JsonKey.ACTIVE:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(),
-                  TelemetryEnvKey.GROUP,
-                  JsonKey.ACTIVE,
-                  (String) dbResGroup.get(JsonKey.STATUS));
-          break;
+    if (isSuccess) {
+      if (null != dbResGroup && null != dbResGroup.get(JsonKey.STATUS)) {
+        switch ((String) dbResGroup.get(JsonKey.STATUS)) {
+          case JsonKey.ACTIVE:
+            targetObject = generateTargetForActiveGroup(actorMessage, group, dbResGroup);
+            break;
+          case JsonKey.SUSPENDED:
+            targetObject =
+                    TelemetryUtil.generateTargetObject(
+                            group.getId(),
+                            TelemetryEnvKey.ACTIVATE_GROUP,
+                            null,
+                            group.getStatus(),
+                            (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
+            break;
 
-        case JsonKey.SUSPENDED:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(),
-                  TelemetryEnvKey.GROUP,
-                  JsonKey.SUSPENDED,
-                  (String) dbResGroup.get(JsonKey.STATUS));
-          break;
+          default:
+            targetObject =
+                    TelemetryUtil.generateTargetObject(
+                            group.getId(), TelemetryEnvKey.GROUP, null, null, null, TelemetryEnvKey.GROUP_DETAIL);
+        }
 
-        default:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(), TelemetryEnvKey.GROUP, JsonKey.UPDATE, null);
       }
-      TelemetryUtil.telemetryProcessingCall(
-          actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
+    }else{
+      targetObject =
+              TelemetryUtil.generateTargetObject(
+                      group.getId(),
+                      TelemetryEnvKey.GROUP_ERROR,
+                      JsonKey.UPDATE,
+                      null,
+                      null != dbResGroup ?(String) dbResGroup.get(JsonKey.STATUS): null, TelemetryEnvKey.GROUP_DETAIL);
     }
+    TelemetryUtil.generateCorrelatedObject(
+            (String) actorMessage.getContext().get(JsonKey.USER_ID),
+            TelemetryEnvKey.USER,
+            null,
+            correlatedObject);
+    // Add group info information to Cdata
+    TelemetryUtil.generateCorrelatedObject(
+            group.getId(),
+            TelemetryEnvKey.GROUPID,
+            null,
+            correlatedObject);
+    TelemetryUtil.telemetryProcessingCall(
+            actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
+  }
+
+  private Map<String, Object> generateTargetForActiveGroup(Request actorMessage, Group group, Map<String, Object> dbResGroup) {
+    Map<String, Object> targetObject;
+    if (!CollectionUtils.isEmpty(group.getActivities())) {
+      targetObject = TelemetryUtil.generateTargetObject(
+              group.getId(),
+              TelemetryEnvKey.ACTIVITY,
+              null,
+              JsonKey.ACTIVE,
+              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
+    } else if (!MapUtils.isEmpty((Map<String, Object>) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
+      targetObject = TelemetryUtil.generateTargetObject(
+              group.getId(),
+              TelemetryEnvKey.ADD_MEMBER,
+              null,
+              JsonKey.ACTIVE,
+              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
+    } else if(JsonKey.SUSPENDED.equals(group.getStatus())){
+      targetObject = TelemetryUtil.generateTargetObject(
+              group.getId(),
+              TelemetryEnvKey.DEACTIVATE_GROUP,
+              null,
+              JsonKey.ACTIVE,
+              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
+
+    } else {
+      targetObject = TelemetryUtil.generateTargetObject(
+              group.getId(),
+              TelemetryEnvKey.UPDATE_GROUP,
+              null,
+              JsonKey.ACTIVE,
+              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
+    }
+    return targetObject;
   }
 }

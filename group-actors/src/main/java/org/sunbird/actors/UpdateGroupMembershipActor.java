@@ -28,6 +28,8 @@ import org.sunbird.util.GroupRequestHandler;
 import org.sunbird.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;
 
+import javax.management.ObjectName;
+
 @ActorConfig(
   tasks = {"updateGroupMembership"},
   asyncTasks = {},
@@ -55,17 +57,20 @@ public class UpdateGroupMembershipActor extends BaseActor {
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     String requestedBy = requestHandler.getRequestedBy(actorMessage);
     String userId = (String) actorMessage.getRequest().get(JsonKey.USER_ID);
-    if (StringUtils.isEmpty(requestedBy) || !requestedBy.equals(userId)) {
-      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",
-              ResponseCode.GS_MBRSHP_UDT01.getErrorCode(),ResponseCode.GS_MBRSHP_UDT01.getErrorMessage()));
-      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT01);
-    }
+    try {
+      if (StringUtils.isEmpty(requestedBy) || !requestedBy.equals(userId)) {
+        logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",
+                ResponseCode.GS_MBRSHP_UDT01.getErrorCode(),ResponseCode.GS_MBRSHP_UDT01.getErrorMessage()));
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT01);
+      }
+
     logger.info("Update groups details for the userId {}", userId);
     List<Map<String, Object>> groups =
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.GROUPS);
-    List<Member> members = createMembersUpdateRequest(groups, userId);
+
+      List<Member> members = createMembersUpdateRequest(groups, userId);
     Response response = new Response();
-    try {
+
       if (CollectionUtils.isNotEmpty(members)) {
         MemberService memberService = new MemberServiceImpl();
         response = memberService.editMembers(members);
@@ -85,10 +90,19 @@ public class UpdateGroupMembershipActor extends BaseActor {
         cacheUtil.delCache(userId);
       }
       sender().tell(response, self());
-      logTelemetry(actorMessage, userId);
+      logTelemetry(actorMessage, userId,true);
     }catch (DBException ex){
       logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_MBRSHP_UDT03.getErrorCode(),ex.getMessage()));
+      logTelemetry(actorMessage, userId,false);
       throw new BaseException(ResponseCode.GS_MBRSHP_UDT03.getErrorCode(),ResponseCode.GS_MBRSHP_UDT03.getErrorMessage(),ex.getResponseCode());
+    }catch (BaseException ex){
+      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
+      logTelemetry(actorMessage, userId,false);
+      throw  new BaseException(ex);
+    }catch (Exception ex){
+      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+      logTelemetry(actorMessage, userId,false);
+      throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }
   }
 
@@ -113,7 +127,7 @@ public class UpdateGroupMembershipActor extends BaseActor {
     return members;
   }
 
-  private void logTelemetry(Request actorMessage, String userId) {
+  private void logTelemetry(Request actorMessage, String userId, boolean isSuccess) {
     String source =
         actorMessage.getContext().get(JsonKey.REQUEST_SOURCE) != null
             ? (String) actorMessage.getContext().get(JsonKey.REQUEST_SOURCE)
@@ -124,11 +138,25 @@ public class UpdateGroupMembershipActor extends BaseActor {
       TelemetryUtil.generateCorrelatedObject(
           source, StringUtils.capitalize(JsonKey.REQUEST_SOURCE), null, correlatedObject);
     }
+    List<Map<String,Object>> groups =(List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.GROUPS);
+    for (Map<String,Object> group:groups) {
+      // Add group info information to Cdata
+      TelemetryUtil.generateCorrelatedObject(
+              (String) group.get(JsonKey.GROUP_ID),
+              TelemetryEnvKey.GROUPID,
+              null,
+              correlatedObject);
+    }
     Map<String, Object> targetObject = null;
-    targetObject =
-        TelemetryUtil.generateTargetObject(
-            userId, TelemetryEnvKey.GROUP_MEMBER, JsonKey.UPDATE, null);
-
+    if(isSuccess) {
+      targetObject =
+              TelemetryUtil.generateTargetObject(
+                      userId, TelemetryEnvKey.MEMBER_UPDATE, null, null, null, TelemetryEnvKey.GROUP_DETAIL);
+    }else{
+      targetObject =
+              TelemetryUtil.generateTargetObject(
+                      userId, TelemetryEnvKey.GROUP_ERROR, TelemetryEnvKey.MEMBER_UPDATE, null, null, TelemetryEnvKey.GROUP_DETAIL);
+    }
     TelemetryUtil.generateCorrelatedObject(
         (String) actorMessage.getContext().get(JsonKey.USER_ID),
         TelemetryEnvKey.USER,

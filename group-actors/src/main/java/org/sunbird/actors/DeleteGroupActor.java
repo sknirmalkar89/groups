@@ -65,8 +65,9 @@ public class DeleteGroupActor extends BaseActor {
       throw new AuthorizationException.NotAuthorized(ResponseCode.GS_DLT01);
     }
     GroupService groupService = new GroupServiceImpl();
+    Map<String, Object> dbResGroup = null;
    try {
-     Map<String, Object> dbResGroup = readGroup(groupId, groupService);
+     dbResGroup = readGroup(groupId, groupService);
      // Only Group Creator should be able to delete the group
      if (!userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
        logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT10.getErrorCode(),ResponseCode.GS_DLT10.getErrorMessage()));
@@ -88,27 +89,56 @@ public class DeleteGroupActor extends BaseActor {
        membersInDB.forEach(member -> cacheUtil.delCache(member.getUserId()));
      }
      sender().tell(response, self());
-     Map<String, Object> targetObject = null;
-     List<Map<String, Object>> correlatedObject = new ArrayList<>();
-     targetObject =
-             TelemetryUtil.generateTargetObject(
-                     groupId,
-                     TelemetryEnvKey.GROUP,
-                     JsonKey.DELETE,
-                     (String) dbResGroup.get(JsonKey.STATUS));
-     TelemetryUtil.telemetryProcessingCall(
-             actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
-    }catch (DBException ex){
+     logTelemetry(actorMessage, groupId, dbResGroup,true);
+   }catch (DBException ex){
      logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT03.getErrorCode(),ex.getMessage()));
+     logTelemetry(actorMessage, groupId, dbResGroup,false);
      throw new BaseException(ResponseCode.GS_DLT03.getErrorCode(), ResponseCode.GS_DLT03.getErrorMessage(),ex.getResponseCode());
    }catch (BaseException ex){
      logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT03.getErrorCode(),ex.getMessage()));
+     logTelemetry(actorMessage, groupId, dbResGroup,false);
      throw  new BaseException(ex);
    }catch (Exception ex){
      logger.error(MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT03.getErrorCode(),ex.getMessage()));
+     logTelemetry(actorMessage, groupId, dbResGroup,false);
      throw new BaseException(ResponseCode.GS_DLT03.getErrorCode(), ResponseCode.GS_DLT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
    }
 
+  }
+
+  private void logTelemetry(Request actorMessage, String groupId, Map<String, Object> dbResGroup, boolean isDeleted) {
+    Map<String, Object> targetObject = null;
+    List<Map<String, Object>> correlatedObject = new ArrayList<>();
+    if(isDeleted) {
+      targetObject =
+              TelemetryUtil.generateTargetObject(
+                      groupId,
+                      TelemetryEnvKey.DELETE_GROUP,
+                      null,
+                      null,
+                      (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
+    }else{
+      targetObject =
+              TelemetryUtil.generateTargetObject(
+                      groupId,
+                      TelemetryEnvKey.GROUP_ERROR,
+                      JsonKey.DELETE,
+                      null,
+                      null != dbResGroup ? (String) dbResGroup.get(JsonKey.STATUS):null, TelemetryEnvKey.GROUP_DETAIL);
+    }
+    TelemetryUtil.generateCorrelatedObject(
+            (String) actorMessage.getContext().get(JsonKey.USER_ID),
+            TelemetryEnvKey.USER,
+            null,
+            correlatedObject);
+    // Add group info information to Cdata
+    TelemetryUtil.generateCorrelatedObject(
+            groupId,
+            TelemetryEnvKey.GROUPID,
+            null,
+            correlatedObject);
+    TelemetryUtil.telemetryProcessingCall(
+            actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
   }
 
   private Map<String, Object> readGroup(String groupId, GroupService groupService) throws BaseException {
