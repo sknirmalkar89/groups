@@ -48,7 +48,6 @@ public interface JsonKey {
   String API_ACCESS = "api_access";
   String FILTERS = "filters";
   String GROUP = "group";
-  String GROUPS = "groups";
   String UNAUTHORIZED = "Unauthorized";
   String MANAGED_FOR = "managedFor";
   String SUNBIRD_SSO_REALM = "sunbird_sso_realm";
