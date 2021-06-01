@@ -201,7 +201,7 @@ public class OnRequestHandler implements ActionCreator {
     String uri = request.uri();
     String env = "";
     if (uri.startsWith("/v1/group")) {
-      env = JsonKey.GROUP;
+      env = JsonKey.GROUPS;
     }
     return env;
   }
