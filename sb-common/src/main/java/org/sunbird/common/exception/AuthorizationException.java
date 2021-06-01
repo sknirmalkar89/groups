@@ -1,7 +1,7 @@
-package org.sunbird.exception;
+package org.sunbird.common.exception;
 
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.ResponseCode;
 
 public class AuthorizationException {
 

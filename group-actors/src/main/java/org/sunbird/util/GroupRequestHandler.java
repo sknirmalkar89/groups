@@ -9,9 +9,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.models.Group;
 import org.sunbird.models.MemberResponse;
-import org.sunbird.request.Request;
+import org.sunbird.common.request.Request;
 
 public class GroupRequestHandler {
 

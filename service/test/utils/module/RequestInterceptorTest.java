@@ -15,7 +15,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.auth.verifier.AccessTokenValidator;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 import play.mvc.Http;
 import play.test.Helpers;
 

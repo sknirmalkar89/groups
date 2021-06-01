@@ -18,7 +18,7 @@ import org.sunbird.telemetry.dto.Context;
 import org.sunbird.telemetry.dto.Producer;
 import org.sunbird.telemetry.dto.Target;
 import org.sunbird.telemetry.dto.Telemetry;
-import org.sunbird.util.LoggerEnum;
+import org.sunbird.common.util.LoggerEnum;
 
 /**
  * class to transform the request data to telemetry events

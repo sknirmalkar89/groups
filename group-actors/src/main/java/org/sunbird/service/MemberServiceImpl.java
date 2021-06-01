@@ -17,12 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.dao.MemberDao;
 import org.sunbird.dao.MemberDaoImpl;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.models.Member;
 import org.sunbird.models.MemberResponse;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 import org.sunbird.util.GroupUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 
 public class MemberServiceImpl implements MemberService {
 

@@ -8,13 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.response.ResponseFactory;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.response.ResponseFactory;
 import org.sunbird.telemetry.util.TelemetryEvents;
 import org.sunbird.telemetry.util.TelemetryWriter;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -103,7 +103,7 @@ public class ResponseHandler {
 
         long requestTime = endTime - startTime;
         ObjectMapper objectMapper = new ObjectMapper();
-        org.sunbird.request.Request req = new org.sunbird.request.Request();
+        org.sunbird.common.request.Request req = new org.sunbird.common.request.Request();
         Map<String, Object> params = new WeakHashMap<>();
         params.put(JsonKey.URL, request.getPath());
         params.put(JsonKey.LOG_TYPE, JsonKey.API_ACCESS);

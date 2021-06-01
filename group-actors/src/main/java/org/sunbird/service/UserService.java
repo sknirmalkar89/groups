@@ -3,9 +3,9 @@ package org.sunbird.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sunbird.exception.BaseException;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 
 public interface UserService {
 

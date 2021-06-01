@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.auth.verifier.AccessTokenValidator;
-import org.sunbird.request.HeaderParam;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.HeaderParam;
+import org.sunbird.common.util.JsonKey;
 import play.mvc.Http;
 
 /**

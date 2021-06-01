@@ -1,6 +1,6 @@
-package org.sunbird.exception;
+package org.sunbird.common.exception;
 
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.message.ResponseCode;
 
 public class DBException extends RuntimeException {
 

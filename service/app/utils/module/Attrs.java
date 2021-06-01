@@ -1,6 +1,6 @@
 package utils.module;
 
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 import play.libs.typedmap.TypedKey;
 
 public class Attrs {

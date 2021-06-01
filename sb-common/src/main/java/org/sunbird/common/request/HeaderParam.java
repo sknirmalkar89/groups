@@ -1,4 +1,4 @@
-package org.sunbird.request;
+package org.sunbird.common.request;
 
 /** The keys of the Execution Context Values. */
 public enum HeaderParam {

@@ -6,8 +6,8 @@ import com.datastax.driver.core.querybuilder.Select.Builder;
 import com.google.common.util.concurrent.FutureCallback;
 import java.util.List;
 import java.util.Map;
-import org.sunbird.exception.BaseException;
-import org.sunbird.response.Response;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.response.Response;
 
 /**
  * @desc this interface will hold functions for cassandra db interaction

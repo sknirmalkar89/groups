@@ -5,13 +5,13 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.request.Request;
+import org.sunbird.common.request.Request;
 import org.sunbird.telemetry.JsonKey;
 import org.sunbird.telemetry.collector.TelemetryAssemblerFactory;
 import org.sunbird.telemetry.collector.TelemetryDataAssembler;
 import org.sunbird.telemetry.validator.TelemetryObjectValidator;
 import org.sunbird.telemetry.validator.TelemetryObjectValidatorV3;
-import org.sunbird.util.LoggerEnum;
+import org.sunbird.common.util.LoggerEnum;
 
 public class TelemetryWriter {
 

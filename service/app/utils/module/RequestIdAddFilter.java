@@ -8,7 +8,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;

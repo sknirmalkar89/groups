@@ -3,7 +3,8 @@ package org.sunbird.util;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.helper.CassandraConnectionManager;
 import org.sunbird.helper.CassandraConnectionMngrFactory;
 

@@ -1,9 +1,9 @@
 package controllers;
 
 import java.util.concurrent.CompletionStage;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
+import org.sunbird.common.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
 import validators.GroupMembershipUpdateRequestValidator;

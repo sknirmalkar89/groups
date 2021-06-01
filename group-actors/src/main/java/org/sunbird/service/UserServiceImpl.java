@@ -9,12 +9,12 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.IResponseMessage;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.IResponseMessage;
 import org.sunbird.models.SearchRequest;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 import org.sunbird.util.HttpClientUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;
 
 public class UserServiceImpl implements UserService {

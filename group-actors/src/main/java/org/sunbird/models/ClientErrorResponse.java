@@ -1,7 +1,7 @@
 package org.sunbird.models;
 
-import org.sunbird.exception.BaseException;
-import org.sunbird.response.Response;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.response.Response;
 
 public class ClientErrorResponse extends Response {
 

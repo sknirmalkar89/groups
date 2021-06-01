@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.sunbird</groupId>
-            <artifactId>sb-utils</artifactId>
+            <artifactId>sb-common</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

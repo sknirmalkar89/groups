@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
-import org.sunbird.exception.BaseException;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
 
 public class ValidationUtilTest {
 

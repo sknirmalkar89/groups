@@ -27,15 +27,15 @@ import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({

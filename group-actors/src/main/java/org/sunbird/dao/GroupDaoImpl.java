@@ -7,12 +7,12 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import org.sunbird.cassandra.CassandraOperation;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.models.Group;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 import org.sunbird.util.DBUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 
 public class GroupDaoImpl implements GroupDao {
   private static final String GROUP_TABLE_NAME = "group";

@@ -2,9 +2,9 @@ package org.sunbird.dao;
 
 import java.util.List;
 import java.util.Map;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.models.Member;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 
 public interface MemberDao {
 

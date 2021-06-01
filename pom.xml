@@ -46,6 +46,7 @@
         <module>service</module>
         <module>platform-cache</module>
         <module>reports</module>
+        <module>sb-common</module>
     </modules>
 
     <dependencies>

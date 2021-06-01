@@ -1,9 +1,9 @@
 package org.sunbird.dao;
 
 import java.util.List;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.models.Group;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 
 /** This interface will have all methods required for group service api. */
 public interface GroupDao {

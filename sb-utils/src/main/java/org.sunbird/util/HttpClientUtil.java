@@ -22,6 +22,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunbird.common.util.LoggerEnum;
 
 public class HttpClientUtil {
   private static CloseableHttpClient httpclient = null;

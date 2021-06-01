@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.common.Constants;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.helper.ServiceFactory;
 import org.sunbird.models.Member;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 import org.sunbird.util.DBUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 
 public class MemberDaoImpl implements MemberDao {
 

@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.common.Constants;
-import org.sunbird.exception.DBException;
+import org.sunbird.common.exception.DBException;
 import org.sunbird.helper.CassandraConnectionManager;
 import org.sunbird.helper.CassandraConnectionMngrFactory;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.response.Response;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.response.Response;
 
 /**
  * @author Amit Kumar

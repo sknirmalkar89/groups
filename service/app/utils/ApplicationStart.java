@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.sunbird.Application;
 import org.sunbird.auth.verifier.KeyManager;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.util.*;
 import play.api.Environment;
 import play.api.inject.ApplicationLifecycle;

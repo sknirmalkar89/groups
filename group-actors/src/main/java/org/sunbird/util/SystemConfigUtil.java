@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.response.Response;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.common.response.Response;
 import org.sunbird.service.UserService;
 import org.sunbird.service.UserServiceImpl;
+import org.sunbird.common.util.LoggerEnum;
 
 public class SystemConfigUtil {
   private static Logger logger = LoggerFactory.getLogger(SystemConfigUtil.class);

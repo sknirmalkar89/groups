@@ -8,16 +8,14 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
-import org.sunbird.exception.AuthorizationException;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.DBException;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.exception.AuthorizationException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.DBException;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.Group;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
 import org.sunbird.service.GroupService;
 import org.sunbird.service.GroupServiceImpl;
 import org.sunbird.service.MemberService;
@@ -27,7 +25,8 @@ import org.sunbird.telemetry.util.TelemetryUtil;
 import org.sunbird.util.CacheUtil;
 import org.sunbird.util.GroupRequestHandler;
 import org.sunbird.util.GroupUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import org.sunbird.util.helper.PropertiesCache;
 
 @ActorConfig(
@@ -37,7 +36,7 @@ import org.sunbird.util.helper.PropertiesCache;
 )
 public class CreateGroupActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
-  private Logger logger = LoggerFactory.getLogger(CreateGroupActor.class);
+  private static LoggerUtil logger = new LoggerUtil(CreateGroupActor.class);
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -67,7 +66,6 @@ public class CreateGroupActor extends BaseActor {
     String groupId=null;
     try {
       if (StringUtils.isEmpty(userId)) {
-        logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT01.getErrorCode(),ResponseCode.GS_CRT01.getErrorMessage()));
         throw new AuthorizationException.NotAuthorized(ResponseCode.GS_CRT01);
       }
 
@@ -85,22 +83,20 @@ public class CreateGroupActor extends BaseActor {
         memberList.addAll(reqMemberList);
       }
 
-      logger.info("Fetching groups from user-group for userId {}", userId);
-
-        List<Map<String, Object>> userGroupsList =
-                memberService.getGroupIdsforUserIds(GroupUtil.getMemberIdListFromMap(memberList));
-        validateMaxGroupLimitation(userId, userGroupsList);
-        Map<String, List<Map<String, String>>> validationErrors = new HashMap<>();
-        boolean  memberLimitExceeded = validateMaxMemberLimitation(memberList, validationErrors);
-        boolean  activityLimitExceeded = validateMaxActivitiesLimitation(group, validationErrors);
-        if (activityLimitExceeded) {
-          // if activity limit exceeded, we should not add into the db
-          group.setActivities(null);
-        }
-        groupId = groupService.createGroup(group);
-
-        if (CollectionUtils.isNotEmpty(memberList)) {
-          logger.info("Adding members to the group: {} started", groupId);
+      logger.info(actorMessage.getContext(), MessageFormat.format("Fetching groups from user-group for userId {0}", userId));
+      List<Map<String, Object>> userGroupsList =
+              memberService.getGroupIdsforUserIds(GroupUtil.getMemberIdListFromMap(memberList));
+      validateMaxGroupLimitation(userId, userGroupsList);
+      Map<String, List<Map<String, String>>> validationErrors = new HashMap<>();
+      boolean  memberLimitExceeded = validateMaxMemberLimitation(memberList, validationErrors);
+      boolean  activityLimitExceeded = validateMaxActivitiesLimitation(group, validationErrors);
+      if (activityLimitExceeded) {
+         // if activity limit exceeded, we should not add into the db
+        group.setActivities(null);
+      }
+      groupId = groupService.createGroup(group);
+      if (CollectionUtils.isNotEmpty(memberList)) {
+          logger.info(actorMessage.getContext(), MessageFormat.format("Adding members to the group: {} started", groupId));
           boolean isUseridRedisEnabled =
                   Boolean.parseBoolean(
                           PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
@@ -115,10 +111,10 @@ public class CreateGroupActor extends BaseActor {
           if (!memberLimitExceeded) {
             Response addMembersRes =
                     memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList);
-            logger.info(
+            logger.info(actorMessage.getContext(), MessageFormat.format(
                     "Adding members to the group : {} ended , response {}",
                     groupId,
-                    addMembersRes.getResult());
+                    addMembersRes.getResult()));
           }
         }
 
@@ -129,30 +125,36 @@ public class CreateGroupActor extends BaseActor {
                 || CollectionUtils.isNotEmpty(validationErrors.get(JsonKey.ACTIVITIES)))) {
           response.put(JsonKey.ERROR, validationErrors);
         }
-        logger.info("group created successfully with groupId {}", groupId);
+        logger.info(actorMessage.getContext(), MessageFormat.format("group created successfully with groupId {}", groupId));
         sender().tell(response, self());
 
     }catch (DBException ex){
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+        logger.error(actorMessage.getContext(),
+                MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()),
+                ex);
+        throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }catch (BaseException ex){
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
+      logger.error(actorMessage.getContext(),
+              MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()),
+                      ex);
       throw  new BaseException(ex);
     }catch (Exception ex){
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()));
+        logger.error(actorMessage.getContext(),
+                MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()),
+                ex);
       throw new BaseException(ResponseCode.GS_CRT03.getErrorCode(),ResponseCode.GS_CRT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
     }finally {
       logTelemetry(actorMessage, groupId);
     }
   }
 
-  private boolean validateMaxActivitiesLimitation(Group group, Map<String, List<Map<String, String>>> validationErrors) throws BaseException {
+  private boolean validateMaxActivitiesLimitation(Group group, Map<String, List<Map<String, String>>> validationErrors, Map<String,Object> reqContext) throws BaseException {
 
       List<Map<String, String>> activityErrorList = new ArrayList<>();
       validationErrors.put(JsonKey.ACTIVITIES, activityErrorList);
       boolean maxActivityLimit = GroupUtil.checkMaxActivityLimit(group.getActivities() != null ? group.getActivities().size() : 0);
       if(maxActivityLimit){
-        logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT06.getErrorCode(),ResponseCode.GS_CRT06.getErrorMessage()));
+        logger.error(reqContext,MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT06.getErrorCode(),ResponseCode.GS_CRT06.getErrorMessage()));
 
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT06.getErrorMessage());
@@ -163,12 +165,12 @@ public class CreateGroupActor extends BaseActor {
 
   }
 
-  private boolean validateMaxMemberLimitation(List<Map<String, Object>> memberList, Map<String, List<Map<String, String>>> validationErrors) {
+  private boolean validateMaxMemberLimitation(List<Map<String, Object>> memberList, Map<String, List<Map<String, String>>> validationErrors,Map<String,Object> reqContext) {
       List<Map<String, String>> memberErrorList = new ArrayList<>();
       validationErrors.put(JsonKey.MEMBERS, memberErrorList);
       boolean maxMemberLimit = GroupUtil.checkMaxMemberLimit(memberList.size());
       if(maxMemberLimit){
-          logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT05.getErrorCode(),ResponseCode.GS_CRT05.getErrorMessage()));
+          logger.error(reqContext,MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT05.getErrorCode(),ResponseCode.GS_CRT05.getErrorMessage()));
           Map<String, String> errorMap = new HashMap<>();
           errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_CRT05.getErrorMessage());
           errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_CRT05.getErrorCode());
@@ -182,14 +184,13 @@ public class CreateGroupActor extends BaseActor {
     try {
       GroupUtil.checkMaxGroupLimit(userGroupsList, userId);
     }catch (BaseException ex){
-      logger.error(MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT04.getErrorCode(),ex.getMessage()));
       throw new BaseException(ResponseCode.GS_CRT04.getErrorCode(),ResponseCode.GS_CRT04.getErrorMessage(),ex.getResponseCode());
     }
   }
 
-  private void deleteUserCache(List<Map<String, Object>> memberList) {
+  private void deleteUserCache(List<Map<String, Object>> memberList,Map<String,Object> reqConext) {
     CacheUtil cacheUtil = new CacheUtil();
-    logger.info("Delete user cache from redis");
+    logger.info(reqConext,"Delete user cache from redis");
     memberList.forEach(member -> cacheUtil.delCache((String) (member.get(JsonKey.USER_ID))));
   }
 

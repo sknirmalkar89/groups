@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import org.sunbird.BaseLogger;
-import org.sunbird.exception.ActorServiceException;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.Localizer;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.ActorServiceException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 
 public abstract class BaseActor extends UntypedAbstractActor {
 
