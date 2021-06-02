@@ -13,12 +13,13 @@ import org.sunbird.common.message.IResponseMessage;
 import org.sunbird.common.message.ResponseCode;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import play.libs.Json;
 
 public class RequestMapper {
 
   private ObjectMapper mapper = new ObjectMapper();
-  private static Logger logger = LoggerFactory.getLogger(RequestMapper.class);
+  private static LoggerUtil logger = new LoggerUtil(RequestMapper.class);
 
   public Request createSBRequest(play.mvc.Http.Request httpReq) {
     // Copy body
@@ -46,7 +47,7 @@ public class RequestMapper {
       if (httpReq.attrs() != null && httpReq.attrs().containsKey(Attrs.USERID)) {
         userId = (String) httpReq.attrs().get(Attrs.USERID);
       }
-      logger.info(JsonKey.USER_ID + " in RequestMapper.createSBRequest(): " + userId);
+      logger.info(request.getContext(),JsonKey.USER_ID + " in RequestMapper.createSBRequest(): " + userId);
       request.getContext().put(JsonKey.USER_ID, userId);
 
       String managedFor = null;
@@ -57,13 +58,13 @@ public class RequestMapper {
       if (httpReq.attrs() != null && httpReq.attrs().containsKey(Attrs.START_TIME)) {
         startTime = (String) httpReq.attrs().get(Attrs.START_TIME);
       }
-      logger.info(JsonKey.MANAGED_FOR + " in RequestMapper.createSBRequest(): " + managedFor);
+      logger.info(request.getContext(),JsonKey.MANAGED_FOR + " in RequestMapper.createSBRequest(): " + managedFor);
       request.getContext().put(JsonKey.MANAGED_FOR, managedFor);
       request.setPath(httpReq.path());
       request.setTs(startTime);
       return request;
     } catch (Exception ex) {
-      logger.error("Error process set request context" + ex.getMessage());
+      logger.error("Error process set request context" ,ex);
       throw new BaseException(
           IResponseMessage.SERVER_ERROR,
           IResponseMessage.INTERNAL_ERROR,

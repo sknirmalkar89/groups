@@ -95,15 +95,15 @@ public interface IResponseMessage {
     String GS_CRT01 = "Failed to create group, unauthorised user. Contact your system administrator.";
     String GS_CRT02 = "Failed to create group, fields are missing or invalid in the request. Enter the required values and resend the request.";
     String GS_CRT03 = "Failed to create group, due to database error or there are too many concurrent calls to the server. Try again later.";
-    String GS_CRT04 = "Failed to create group, exceeded number of permissible groups.";
-    String GS_CRT05 = "Failed to add member, group, exceeded number of permissible members.";
-    String GS_CRT06 = "Failed to add activity in a group, exceeded the number of permissible activity in the group.";
+    String GS_CRT04 = "Failed to create group, exceeded number of permissible groups of {0}.";
+    String GS_CRT05 = "Failed to add member, group, exceeded number of permissible members of {0}.";
+    String GS_CRT06 = "Failed to add activity in a group, exceeded the number of permissible activity in the group {0}.";
 
     String GS_UDT01 = "Failed to update group, unauthorised user. Contact your system administrator.";
     String GS_UDT02 = "Failed to update group, mandatory  are missing or invalid fields value in the request. Enter the required values and resend the request.";
     String GS_UDT03= "Failed to update group, due to database error or there are too many concurrent calls to the server. Try again later.";
-    String GS_UDT05= "Failed to update the group,  exceeded permissible members count.";
-    String GS_UDT06 = "Failed to update group activity, exceeded permissible activities in a group.";
+    String GS_UDT05= "Failed to update the group,  exceeded permissible members count of {0}";
+    String GS_UDT06 = "Failed to update group activity, exceeded permissible activities of {0} in a group";
     String GS_UDT08 = "Failed to update, group inactive. Resend required values in request.";
     String GS_UDT07= "Failed to update, group does not exist. Contact your system administrator.";
     String GS_UDT09 = "Failed to update group, administrator rights required. Contact your system administrator.";

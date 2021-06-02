@@ -70,7 +70,7 @@ public class UpdateGroupMembershipActorTest extends BaseActorTest {
 
     try {
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
 
     } catch (BaseException be) {

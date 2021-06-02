@@ -1,5 +1,6 @@
 package org.sunbird.util;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class HttpClientUtil {
   private static CloseableHttpClient httpclient = null;
   private static HttpClientUtil httpClientUtil;
 
-  private static Logger logger = LoggerFactory.getLogger(HttpClientUtil.class);
+  private static LoggerUtil logger =new LoggerUtil(HttpClientUtil.class);
 
   private HttpClientUtil() {
     ConnectionKeepAliveStrategy keepAliveStrategy =
@@ -69,7 +70,7 @@ public class HttpClientUtil {
     return httpClientUtil;
   }
 
-  public static String get(String requestURL, Map<String, String> headers) {
+  public static String get(String requestURL, Map<String, String> headers, Map<String,Object> reqContext) {
     CloseableHttpResponse response = null;
     try {
       HttpGet httpGet = new HttpGet(requestURL);
@@ -85,30 +86,30 @@ public class HttpClientUtil {
         byte[] bytes = EntityUtils.toByteArray(httpEntity);
         StatusLine sl = response.getStatusLine();
         logger.info(
-            "Response from get call : " + sl.getStatusCode() + " - " + sl.getReasonPhrase(),
+                reqContext, "Response from get call : " + sl.getStatusCode() + " - " + sl.getReasonPhrase()+
             LoggerEnum.INFO.name());
         return new String(bytes);
       } else {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling get method: {}", ex.getMessage());
+      logger.error(reqContext,"Exception occurred while calling get method: "+ex.getMessage());
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing get response object: {}", ex.getMessage());
+          logger.error(reqContext,"Exception occurred while closing get response object: "+ex.getMessage());
         }
       }
     }
   }
 
-  public static String post(String requestURL, String params, Map<String, String> headers) {
+  public static String post(String requestURL, String params, Map<String, String> headers, Map<String,Object> reqContext) {
     CloseableHttpResponse response = null;
     try {
-      logger.info(
+      logger.info(reqContext,
           "Calling Request api: "
               + requestURL
               + " with request: "
@@ -130,29 +131,28 @@ public class HttpClientUtil {
         HttpEntity httpEntity = response.getEntity();
         byte[] bytes = EntityUtils.toByteArray(httpEntity);
         StatusLine sl = response.getStatusLine();
-        logger.info(
-            "Response from post call : " + sl.getStatusCode() + " - " + sl.getReasonPhrase(),
-            LoggerEnum.INFO.name());
+        logger.info(reqContext,
+            "Response from post call : " + sl.getStatusCode() + " - " + sl.getReasonPhrase()+LoggerEnum.INFO.name());
         return new String(bytes);
       } else {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling Post method: {}", ex.getMessage());
+      logger.error(reqContext,"Exception occurred while calling Post method: "+ ex.getMessage());
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing Post response object {}", ex.getMessage());
+          logger.error(reqContext,"Exception occurred while closing Post response object "+ ex.getMessage());
         }
       }
     }
   }
 
   public static String postFormData(
-      String requestURL, Map<String, String> params, Map<String, String> headers) {
+      String requestURL, Map<String, String> params, Map<String, String> headers, Map<String,Object> reqContext) {
     CloseableHttpResponse response = null;
     try {
       HttpPost httpPost = new HttpPost(requestURL);
@@ -176,26 +176,26 @@ public class HttpClientUtil {
         HttpEntity httpEntity = response.getEntity();
         byte[] bytes = EntityUtils.toByteArray(httpEntity);
         StatusLine sl = response.getStatusLine();
-        logger.info("Response from post call : {} - {}", sl.getStatusCode(), sl.getReasonPhrase());
+        logger.info(reqContext,MessageFormat.format("Response from post call : {0} - {1}", sl.getStatusCode(), sl.getReasonPhrase()));
         return new String(bytes);
       } else {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling Post method {}", ex.getMessage());
+      logger.error(reqContext,MessageFormat.format("Exception occurred while calling Post method {0}", ex.getMessage()));
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing Post response object: {}", ex.getMessage());
+          logger.error(reqContext,MessageFormat.format("Exception occurred while closing Post response object: {0}", ex.getMessage()));
         }
       }
     }
   }
 
-  public static String patch(String requestURL, String params, Map<String, String> headers) {
+  public static String patch(String requestURL, String params, Map<String, String> headers, Map<String,Object> reqContext) {
     CloseableHttpResponse response = null;
     try {
       HttpPatch httpPatch = new HttpPatch(requestURL);
@@ -213,21 +213,21 @@ public class HttpClientUtil {
         HttpEntity httpEntity = response.getEntity();
         byte[] bytes = EntityUtils.toByteArray(httpEntity);
         StatusLine sl = response.getStatusLine();
-        logger.error(
-            "Response from patch call : {} - {} ", sl.getStatusCode(), sl.getReasonPhrase());
+        logger.error(reqContext,
+            MessageFormat.format("Response from patch call : {0} - {1} ", sl.getStatusCode(), sl.getReasonPhrase()));
         return new String(bytes);
       } else {
         return "";
       }
     } catch (Exception ex) {
-      logger.error("Exception occurred while calling patch method {}", ex.getMessage());
+      logger.error(reqContext,MessageFormat.format("Exception occurred while calling patch method {0}", ex.getMessage()));
       return "";
     } finally {
       if (null != response) {
         try {
           response.close();
         } catch (Exception ex) {
-          logger.error("Exception occurred while closing patch response object {}", ex.getMessage());
+          logger.error(reqContext,MessageFormat.format("Exception occurred while closing patch response object {0}", ex.getMessage()));
         }
       }
     }

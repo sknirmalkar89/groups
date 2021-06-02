@@ -79,17 +79,18 @@ public class UpdateGroupActorTest extends BaseActorTest {
 
     try {
       when(cassandraOperation.updateRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchInsert(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateAddSetRecord(
               Mockito.anyString(),
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
           .thenReturn(getCassandraResponse())
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateRemoveSetRecord(
@@ -97,25 +98,28 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.executeSelectQuery(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject(),Mockito.any()))
           .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
           .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
@@ -165,17 +169,18 @@ public class UpdateGroupActorTest extends BaseActorTest {
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
       when(cassandraOperation.updateRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchInsert(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateAddSetRecord(
               Mockito.anyString(),
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
           .thenReturn(getCassandraResponse())
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateRemoveSetRecord(
@@ -183,25 +188,27 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.executeSelectQuery(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject(),Mockito.any()))
           .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
           .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
@@ -222,17 +229,18 @@ public class UpdateGroupActorTest extends BaseActorTest {
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
       when(cassandraOperation.updateRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchInsert(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateAddSetRecord(
               Mockito.anyString(),
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
           .thenReturn(getCassandraResponse())
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateRemoveSetRecord(
@@ -240,25 +248,27 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.executeSelectQuery(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject(),Mockito.any()))
           .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getSuspendedGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
@@ -282,17 +292,17 @@ public class UpdateGroupActorTest extends BaseActorTest {
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
       when(cassandraOperation.updateRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchInsert(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateAddSetRecord(
               Mockito.anyString(),
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),Mockito.any()))
               .thenReturn(getCassandraResponse())
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateRemoveSetRecord(
@@ -300,25 +310,25 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.executeSelectQuery(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject(),Mockito.any()))
               .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
               .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),Mockito.any()))
               .thenReturn(getMemberResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
               .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
@@ -339,17 +349,18 @@ public class UpdateGroupActorTest extends BaseActorTest {
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
     try {
       when(cassandraOperation.updateRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyObject(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchInsert(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateAddSetRecord(
               Mockito.anyString(),
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
               .thenReturn(getCassandraResponse())
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.updateRemoveSetRecord(
@@ -357,25 +368,27 @@ public class UpdateGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Mockito.anyMap(),
               Mockito.anyString(),
-              Mockito.anyObject()))
+              Mockito.anyObject(),
+              Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.executeSelectQuery(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyObject(),Mockito.any()))
               .thenReturn(memberSizeResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
               .thenThrow(DBException.class);
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
               .thenReturn(getMemberResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
               .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);

@@ -24,7 +24,9 @@ import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
 import org.sunbird.util.CacheUtil;
 import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.ExceptionHandler;
 import org.sunbird.util.JsonUtils;
+import org.sunbird.util.LoggerUtil;
 
 @ActorConfig(
   tasks = {"readGroup"},
@@ -33,7 +35,7 @@ import org.sunbird.util.JsonUtils;
 )
 public class ReadGroupActor extends BaseActor {
 
-  private Logger logger = LoggerFactory.getLogger(ReadGroupActor.class);
+  private LoggerUtil logger = new LoggerUtil(ReadGroupActor.class);
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -57,26 +59,26 @@ public class ReadGroupActor extends BaseActor {
     MemberService memberService = new MemberServiceImpl();
     String groupId = (String) actorMessage.getRequest().get(JsonKey.GROUP_ID);
     List<String> requestFields = (List<String>) actorMessage.getRequest().get(JsonKey.FIELDS);
-    logger.info("Reading group with groupId {} and required fields {}", groupId, requestFields);
+    logger.info(actorMessage.getContext(),MessageFormat.format("Reading group with groupId {0} and required fields {1}", groupId, requestFields));
     GroupResponse groupResponse;
     try {
-      String groupInfo = cacheUtil.getCache(groupId);
+      String groupInfo = cacheUtil.getCache(groupId,actorMessage.getContext());
       if (StringUtils.isNotEmpty(groupInfo)) {
         groupResponse = JsonUtils.deserialize(groupInfo, GroupResponse.class);
       } else {
         groupResponse = readGroupWithActivities(actorMessage, cacheUtil, groupService, groupId);
       }
       if (CollectionUtils.isNotEmpty(requestFields) && requestFields.contains(JsonKey.MEMBERS)) {
-        String groupMember = cacheUtil.getCache(constructRedisIdentifier(groupId));
+        String groupMember = cacheUtil.getCache(constructRedisIdentifier(groupId),actorMessage.getContext());
         List<MemberResponse> memberResponses = new ArrayList<>();
         if (StringUtils.isNotEmpty(groupMember)) {
           memberResponses =
                   JsonUtils.deserialize(groupMember, new TypeReference<List<MemberResponse>>() {
                   });
         } else {
-          logger.info(
-                  "read group member cache is empty. Fetching details from DB for groupId - {} ",
-                  groupId);
+          logger.info(actorMessage.getContext(),MessageFormat.format(
+                  "read group member cache is empty. Fetching details from DB for groupId - {0} ",
+                  groupId));
           memberResponses = memberService.readGroupMembers(groupId, actorMessage.getContext());
           cacheUtil.setCache(
                   constructRedisIdentifier(groupId),
@@ -92,22 +94,16 @@ public class ReadGroupActor extends BaseActor {
       Map<String, Object> map = JsonUtils.convert(groupResponse, Map.class);
       response.putAll(map);
       sender().tell(response, self());
-    } catch (BaseException ex){
-      logger.error(MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
-      throw  new BaseException(ex);
-    } catch (DBException ex){
-      logger.error(MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED03.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_RED03.getErrorCode(),ResponseCode.GS_RED03.getErrorMessage(),ex.getResponseCode());
-    }catch (Exception ex){
-      logger.error(MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED03.getErrorCode(),ex.getMessage()));
-      throw new BaseException(ResponseCode.GS_RED03.getErrorCode(),ResponseCode.GS_RED03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+    } catch (Exception ex){
+      logger.error(actorMessage.getContext(),MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED03.getErrorCode(),ex.getMessage()));
+      ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_RED03);
     }
   }
 
   private GroupResponse readGroupWithActivities(Request actorMessage, CacheUtil cacheUtil, GroupService groupService, String groupId) throws Exception {
     try {
       GroupResponse groupResponse;
-      logger.info("read group cache is empty. Fetching details from DB for groupId - {} ", groupId);
+      logger.info(actorMessage.getContext(),MessageFormat.format("read group cache is empty. Fetching details from DB for groupId - {0} ", groupId));
       groupResponse = groupService.readGroupWithActivities(groupId, actorMessage.getContext());
       cacheUtil.setCache(groupId, JsonUtils.serialize(groupResponse), CacheUtil.groupTtl);
       return groupResponse;

@@ -47,7 +47,7 @@ public class ContentSearchUtil implements SearchServiceUtil {
     request.getRequest().put(JsonKey.FILTERS, filters);
     setTraceIdInHeader(headers, reqContext);
     String response =
-        HttpClientUtil.post(contentSearchURL, objectMapper.writeValueAsString(request), headers);
+        HttpClientUtil.post(contentSearchURL, objectMapper.writeValueAsString(request), headers,reqContext);
     if (StringUtils.isNotBlank(response)) {
       JsonNode jsonNode = objectMapper.readTree(response);
       if (null != jsonNode.get(JsonKey.RESULT)

@@ -82,19 +82,20 @@ public class DeleteGroupActorTest extends BaseActorTest {
     try {
 
       when(cassandraOperation.batchDelete(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
@@ -114,19 +115,20 @@ public class DeleteGroupActorTest extends BaseActorTest {
     try {
 
       when(cassandraOperation.batchDelete(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
               .thenReturn(getCassandraResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
               .thenThrow(DBException.class);
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
               .thenThrow(DBException.class);
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
               .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);

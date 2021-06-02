@@ -69,16 +69,17 @@ public class ReadGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members"));
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup"),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
               Mockito.anyMap(),
-              Mockito.anyList()))
+              Mockito.anyList(),
+              Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
       PowerMockito.mockStatic(HttpClientUtil.class);
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getUserServiceResponse());
 
     } catch (BaseException | JsonProcessingException be) {
@@ -100,10 +101,10 @@ public class ReadGroupActorTest extends BaseActorTest {
 
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup"),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       PowerMockito.mockStatic(HttpClientUtil.class);
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getActivityInfoResponse());
       PowerMockito.mockStatic(ActivityConfigReader.class);
       when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))
@@ -135,18 +136,19 @@ public class ReadGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup"),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
               Mockito.anyMap(),
-              Mockito.anyList()))
+              Mockito.anyList(),
+              Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
       PowerMockito.mockStatic(HttpClientUtil.class);
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getUserServiceResponse());
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getActivityInfoResponse());
       PowerMockito.mockStatic(ActivityConfigReader.class);
       when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))

@@ -7,13 +7,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.sunbird.util.LoggerUtil;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Result;
 
 public class AccessLogFilter extends EssentialFilter {
-  private static final Logger logger = LoggerFactory.getLogger(AccessLogFilter.class);
+  private static final LoggerUtil logger = new LoggerUtil(AccessLogFilter.class);
 
   private final Executor executor;
   private ObjectMapper objectMapper = new ObjectMapper();

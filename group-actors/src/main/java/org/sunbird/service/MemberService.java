@@ -9,37 +9,38 @@ import org.sunbird.common.response.Response;
 
 public interface MemberService {
 
-  Response addMembers(List<Member> member, List<Map<String, Object>> userGroupsList)
+  Response addMembers(List<Member> member, List<Map<String, Object>> userGroupsList, Map<String, Object> reqContext)
       throws BaseException;
 
-  Response editMembers(List<Member> member) throws BaseException;
+  Response editMembers(List<Member> member, Map<String, Object> reqContext) throws BaseException;
 
-  Response removeMembers(List<Member> member) throws BaseException;
+  Response removeMembers(List<Member> member, Map<String, Object> reqContext) throws BaseException;
 
-  void handleMemberOperations(Map memberOperationMap, String groupId, String contextUserId)
+  void handleMemberOperations(Map memberOperationMap, String groupId, String contextUserId, Map<String, Object> reqContext)
       throws BaseException;
 
   Response handleMemberAddition(
       List<Map<String, Object>> memberList,
       String groupId,
       String contextUserId,
-      List<Map<String, Object>> userGroupsList)
+      List<Map<String, Object>> userGroupsList,
+      Map<String, Object> reqContext)
       throws BaseException;
 
   List<MemberResponse> readGroupMembers(String groupId, Map<String, Object> reqContext)
       throws BaseException;
 
-  List<MemberResponse> fetchMembersByGroupId(String groupId) throws BaseException;
+  List<MemberResponse> fetchMembersByGroupId(String groupId, Map<String, Object> reqContext) throws BaseException;
 
-  List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds) throws BaseException;
+  List<MemberResponse> fetchMembersByGroupIds(List<String> groupIds, Map<String, Object> reqContext) throws BaseException;
 
-  List<Map<String, Object>> fetchGroupByUser(List<String> groupIds, String userId)
+  List<Map<String, Object>> fetchGroupByUser(List<String> groupIds, String userId, Map<String, Object> reqContext)
       throws BaseException;
 
-  public List<Map<String, Object>> getGroupIdsforUserIds(List<String> memberList);
+  public List<Map<String, Object>> getGroupIdsforUserIds(List<String> memberList, Map<String, Object> reqContext);
 
   public void removeGroupInUserGroup(
-      List<Member> memberList, List<Map<String, Object>> dbResGroupIds) throws BaseException;
+      List<Member> memberList, List<Map<String, Object>> dbResGroupIds, Map<String, Object> reqContext) throws BaseException;
 
-  public void deleteGroupMembers(String groupId, List<String> members) throws BaseException;
+  public void deleteGroupMembers(String groupId, List<String> members, Map<String, Object> reqContext) throws BaseException;
 }

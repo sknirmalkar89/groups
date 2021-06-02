@@ -37,53 +37,53 @@ public class MemberDaoImpl implements MemberDao {
   }
 
   @Override
-  public Response addMembers(List<Member> member) throws BaseException {
+  public Response addMembers(List<Member> member, Map<String,Object> reqContext) throws BaseException {
     List<Map<String, Object>> memberList =
         mapper.convertValue(member, new TypeReference<List<Map<String, Object>>>() {});
     Response response =
-        cassandraOperation.batchInsert(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, memberList);
+        cassandraOperation.batchInsert(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, memberList, reqContext);
     return response;
   }
 
   @Override
-  public Response readGroupIdsByUserId(String userId) throws BaseException {
+  public Response readGroupIdsByUserId(String userId, Map<String,Object> reqContext) throws BaseException {
     List<String> userIds = new ArrayList<>();
     userIds.add(userId);
-    return readGroupIdsByUserIds(userIds);
+    return readGroupIdsByUserIds(userIds,reqContext);
   }
 
-  public Response readGroupIdsByUserIds(List<String> memberList) throws BaseException {
+  public Response readGroupIdsByUserIds(List<String> memberList, Map<String,Object> reqContext) throws BaseException {
     Response responseObj =
         cassandraOperation.getRecordsByPrimaryKeys(
-            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, memberList, JsonKey.USER_ID);
+            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, memberList, JsonKey.USER_ID, reqContext);
     return responseObj;
   }
 
-  public Response upsertGroupInUserGroup(Map<String, Object> userGroupMap) throws BaseException {
+  public Response upsertGroupInUserGroup(Map<String, Object> userGroupMap, Map<String,Object> reqContext) throws BaseException {
     Response responseObj =
-        cassandraOperation.upsertRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap);
+        cassandraOperation.upsertRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap, reqContext);
     return responseObj;
   }
 
-  public Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId)
+  public Response updateGroupInUserGroup(Map<String, Object> userGroupMap, String userId, Map<String,Object> reqContext)
       throws BaseException {
     Map<String, Object> compositeKeyMap = new HashMap<>();
     compositeKeyMap.put(JsonKey.USER_ID, userId);
 
     Response responseObj =
         cassandraOperation.updateRecord(
-            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap, compositeKeyMap);
+            DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, userGroupMap, compositeKeyMap,reqContext);
     return responseObj;
   }
 
-  public void deleteFromUserGroup(String userId) throws BaseException {
+  public void deleteFromUserGroup(String userId, Map<String,Object> reqContext) throws BaseException {
     Map<String, String> compositeKeyMap = new HashMap<>();
     compositeKeyMap.put(JsonKey.USER_ID, userId);
-    cassandraOperation.deleteRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, compositeKeyMap);
+    cassandraOperation.deleteRecord(DBUtil.KEY_SPACE_NAME, USER_GROUP_TABLE, compositeKeyMap,reqContext);
   }
 
   @Override
-  public void deleteMemberFromGroup(String groupId, List<String> members) throws BaseException {
+  public void deleteMemberFromGroup(String groupId, List<String> members, Map<String,Object> reqContext) throws BaseException {
     List<Map<String, Object>> compositeKeyMap = new ArrayList<>();
     members.forEach(
         memberId -> {
@@ -92,11 +92,11 @@ public class MemberDaoImpl implements MemberDao {
           primaryKeys.put(JsonKey.USER_ID, memberId);
           compositeKeyMap.add(primaryKeys);
         });
-    cassandraOperation.batchDelete(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, compositeKeyMap);
+    cassandraOperation.batchDelete(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, compositeKeyMap,reqContext);
   }
 
   @Override
-  public Response editMembers(List<Member> member) throws BaseException {
+  public Response editMembers(List<Member> member, Map<String,Object> reqContext) throws BaseException {
     List<Map<String, Map<String, Object>>> list = new ArrayList<>();
     for (Member memberObj : member) {
       list.add(CassandraUtil.batchUpdateQuery(memberObj));
@@ -112,28 +112,28 @@ public class MemberDaoImpl implements MemberDao {
       record.put(Constants.NON_PRIMARY_KEY, filteredNonPKRecord);
     }
     Response response =
-        cassandraOperation.batchUpdate(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, list);
+        cassandraOperation.batchUpdate(DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, list,reqContext);
     return response;
   }
 
   @Override
-  public Response fetchMembersByGroupIds(List<String> groupIds) throws BaseException {
+  public Response fetchMembersByGroupIds(List<String> groupIds, Map<String,Object> reqContext) throws BaseException {
     Map<String, Object> properties = new HashMap<>();
     properties.put(JsonKey.GROUP_ID, groupIds);
     Response responseObj =
         cassandraOperation.getRecordsByPrimaryKeys(
-            DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, groupIds, JsonKey.GROUP_ID);
+            DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, groupIds, JsonKey.GROUP_ID,reqContext);
     return responseObj;
   }
 
   @Override
-  public Response fetchGroupByUser(List<String> groupIds, String userId) throws BaseException {
+  public Response fetchGroupByUser(List<String> groupIds, String userId, Map<String,Object> reqContext) throws BaseException {
     Map<String, Object> properties = new LinkedHashMap<>();
     properties.put(JsonKey.GROUP_ID, groupIds);
     properties.put(JsonKey.USER_ID, userId);
     Response responseObj =
         cassandraOperation.getRecordsByProperties(
-            DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties);
+            DBUtil.KEY_SPACE_NAME, GROUP_MEMBER_TABLE, properties,reqContext);
     return responseObj;
   }
 }

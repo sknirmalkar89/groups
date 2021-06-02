@@ -11,11 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.common.util.JsonKey;
 import org.sunbird.common.util.LoggerEnum;
+import org.sunbird.util.LoggerUtil;
 import org.sunbird.util.helper.PropertiesCache;
 
 public class AccessTokenValidator {
 
-  static Logger logger = LoggerFactory.getLogger(AccessTokenValidator.class);
+  static LoggerUtil logger = new LoggerUtil(AccessTokenValidator.class);
   private static ObjectMapper mapper = new ObjectMapper();
   private static PropertiesCache propertiesCache = PropertiesCache.getInstance();
 
@@ -73,7 +74,7 @@ public class AccessTokenValidator {
         }
       }
     } catch (Exception ex) {
-      logger.error("Exception in AccessTokenValidator: verify ", LoggerEnum.ERROR);
+      logger.error("Exception in AccessTokenValidator: verify "+ LoggerEnum.ERROR,ex);
       ex.printStackTrace();
     }
     return managedFor;

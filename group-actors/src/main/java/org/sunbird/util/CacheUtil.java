@@ -3,6 +3,7 @@ package org.sunbird.util;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import scala.concurrent.duration.Duration;
 
 public class CacheUtil {
 
-  private Logger logger = LoggerFactory.getLogger(CacheUtil.class);
+  private LoggerUtil logger = new LoggerUtil(CacheUtil.class);
 
   private Timeout timeout = new Timeout(Duration.create(10, TimeUnit.SECONDS));
 
@@ -77,7 +78,7 @@ public class CacheUtil {
    *
    * @param key
    */
-  public String getCache(String key) {
+  public String getCache(String key, Map<String,Object> reqContext) {
     String value = null;
     Request req = new Request();
     req.setOperation(ActorOperations.GET_CACHE.getValue());
@@ -86,24 +87,24 @@ public class CacheUtil {
     try {
       Object object =
           getResponse(
-              Application.getInstance().getActorRef(ActorOperations.GET_CACHE.getValue()), req);
+              Application.getInstance().getActorRef(ActorOperations.GET_CACHE.getValue()), req, reqContext);
       if (object instanceof Response) {
         Response response = (Response) object;
         value = (String) response.get(JsonKey.VALUE);
       } else if (object instanceof Exception) {
-        logger.error("getCache: Exception occurred with error message =  {}", object);
+        logger.error(reqContext, MessageFormat.format("getCache: Exception occurred with error message =  {0}", object));
       }
     } catch (Exception e) {
-      logger.error("getCache: Exception occurred with error message =  {}", e.getMessage());
+      logger.error(reqContext,MessageFormat.format("getCache: Exception occurred with error message =  {0}", e.getMessage()));
     }
     return value;
   }
 
-  private Object getResponse(ActorRef actorRef, Request request) {
+  private Object getResponse(ActorRef actorRef, Request request, Map<String,Object> reqContext) {
     try {
       return Await.result(getFuture(actorRef, request), timeout.duration());
     } catch (Exception e) {
-      logger.error("getResponse: Exception occurred with error message =  {}", e.getMessage());
+      logger.error(reqContext,MessageFormat.format("getResponse: Exception occurred with error message =  {0}", e.getMessage()));
     }
     return null;
   }
@@ -127,8 +128,8 @@ public class CacheUtil {
         .tell(req, ActorRef.noSender());
   }
 
-  public void deleteCacheSync(String key) {
-    logger.info("delete cache in sync from redis for the id {}", key);
+  public void deleteCacheSync(String key, Map<String,Object> reqContext) {
+    logger.info(reqContext,MessageFormat.format("delete cache in sync from redis for the id {0}", key));
     RedisCache.delete(
         JavaConverters.asScalaIteratorConverter(Arrays.asList(key).iterator()).asScala().toSeq());
   }

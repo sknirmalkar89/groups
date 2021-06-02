@@ -26,9 +26,7 @@ import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
 import org.sunbird.telemetry.TelemetryEnvKey;
 import org.sunbird.telemetry.util.TelemetryUtil;
-import org.sunbird.util.CacheUtil;
-import org.sunbird.util.GroupRequestHandler;
-import org.sunbird.util.GroupUtil;
+import org.sunbird.util.*;
 import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;
 
@@ -39,7 +37,7 @@ import org.sunbird.util.helper.PropertiesCache;
 )
 public class UpdateGroupActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
-  private Logger logger = LoggerFactory.getLogger(UpdateGroupActor.class);
+  private LoggerUtil logger = new LoggerUtil(UpdateGroupActor.class);
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
@@ -57,21 +55,21 @@ public class UpdateGroupActor extends BaseActor {
    * @param actorMessage
    */
   private void updateGroup(Request actorMessage) throws BaseException {
-    logger.info("UpdateGroup method call");
+    logger.info(actorMessage.getContext(),"UpdateGroup method call");
 
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     Group group = requestHandler.handleUpdateGroupRequest(actorMessage);
     GroupService groupService = new GroupServiceImpl();
 
-    logger.info("Update group for the groupId {}", group.getId());
+    logger.info(actorMessage.getContext(),MessageFormat.format("Update group for the groupId {0}", group.getId()));
     Map<String, Object> dbResGroup= null;
     String userId = group.getUpdatedBy();
     try {
       if (StringUtils.isEmpty(userId)) {
-        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT01.getErrorCode(),ResponseCode.GS_UDT01.getErrorMessage()));
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT01.getErrorCode(),ResponseCode.GS_UDT01.getErrorMessage()));
         throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT01);
       }
-      dbResGroup = readGroup(group.getId(), groupService);
+      dbResGroup = readGroup(group.getId(), groupService, actorMessage.getContext());
 
       // Check if it is an exit group request
       boolean isExitGroupRequest =
@@ -82,20 +80,20 @@ public class UpdateGroupActor extends BaseActor {
               && JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
               && (StringUtils.isBlank(group.getStatus())
               || JsonKey.SUSPENDED.equals(group.getStatus()))) {
-        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} {2}",ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage()),group.getId());
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} {2}",ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage(),group.getId()));
         throw new ValidationException.GroupNotActive(group.getId());
       }
 
       Map<String, List<Map<String, String>>> responseMap = new HashMap<>();
       // member validation and updates to group
       MemberService memberService = new MemberServiceImpl();
-      List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId());
+      List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId(),actorMessage.getContext());
 
       // Check if user is authorized to delete ,suspend and re-activate operation
       // Allow all member to exit the group
       if (!isExitGroupRequest) {
         checkUserAuthorization(
-                dbResGroup, membersInDB, group.getStatus(), userId, actorMessage.getRequest());
+                dbResGroup, membersInDB, group.getStatus(), userId, actorMessage.getRequest(),actorMessage.getContext());
       }
 
       if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
@@ -105,7 +103,7 @@ public class UpdateGroupActor extends BaseActor {
                         group.getId(),
                         (Map) actorMessage.getRequest().get(JsonKey.MEMBERS),
                         userId,
-                        membersInDB));
+                        membersInDB,actorMessage.getContext()));
       }
       // Activity validation
       if (MapUtils.isNotEmpty(
@@ -113,7 +111,7 @@ public class UpdateGroupActor extends BaseActor {
         responseMap.put(
                 JsonKey.ACTIVITIES,
                 validateActivityList(
-                        group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)));
+                        group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES),actorMessage.getContext()));
       }
       boolean deleteFromUserCache = false;
       // Group and activity updates
@@ -124,16 +122,16 @@ public class UpdateGroupActor extends BaseActor {
               || StringUtils.isNotEmpty(group.getStatus())
               || MapUtils.isNotEmpty(
               (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)))) {
-        cacheUtil.deleteCacheSync(group.getId());
+        cacheUtil.deleteCacheSync(group.getId(),actorMessage.getContext());
         // if name, description and status update happens in group , delete cache for all the members
         // belongs to that group
         deleteFromUserCache = true;
         // if inactive status then delete group included to support backward compatability for old
         // mobile apps
         if (JsonKey.INACTIVE.equals(group.getStatus())) {
-          Response response = groupService.deleteGroup(group.getId(), membersInDB);
+          Response response = groupService.deleteGroup(group.getId(), membersInDB,actorMessage.getContext());
         } else {
-          Response response = groupService.updateGroup(group);
+          Response response = groupService.updateGroup(group,actorMessage.getContext());
         }
       }
 
@@ -142,7 +140,7 @@ public class UpdateGroupActor extends BaseActor {
               Boolean.parseBoolean(
                       PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
       if (isUseridRedisEnabled) {
-        cacheUtil.deleteCacheSync(userId);
+        cacheUtil.deleteCacheSync(userId,actorMessage.getContext());
         // Remove group list user cache from redis
         deleteUserCache(
                 (Map) actorMessage.getRequest().get(JsonKey.MEMBERS), membersInDB, deleteFromUserCache);
@@ -156,30 +154,19 @@ public class UpdateGroupActor extends BaseActor {
         response.put(JsonKey.ERROR, responseMap);
       }
       sender().tell(response, self());
-
-      logTelemetry(actorMessage, group, dbResGroup,true);
-    }catch (DBException ex){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
-      logTelemetry(actorMessage, group,dbResGroup,false);
-      throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ex.getResponseCode());
-    }catch (BaseException ex){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
-      logTelemetry(actorMessage, group,dbResGroup,false);
-      throw  new BaseException(ex);
+      TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group, dbResGroup,true);
     }catch (Exception ex){
-       logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
-       logTelemetry(actorMessage, group,dbResGroup,false);
-      throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
-   }finally {
-
+       logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+       TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group,dbResGroup,false);
+       ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_UDT03);
     }
   }
 
-  private Map<String, Object> readGroup(String groupId, GroupService groupService) throws BaseException {
+  private Map<String, Object> readGroup(String groupId, GroupService groupService, Map<String,Object> reqContext) throws BaseException {
     try {
-      return groupService.readGroup(groupId);
+      return groupService.readGroup(groupId, reqContext);
     }catch (BaseException ex){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getCode(),ex.getMessage()));
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getCode(),ex.getMessage()));
       throw new BaseException(ResponseCode.GS_UDT07.getErrorCode(),ResponseCode.GS_UDT07.getErrorMessage(),ex.getResponseCode());
     }
   }
@@ -208,19 +195,20 @@ public class UpdateGroupActor extends BaseActor {
       List<MemberResponse> membersInDB,
       String status,
       String userId,
-      Map<String, Object> groupRequest) {
+      Map<String, Object> groupRequest,
+      Map<String,Object> reqContext) {
     MemberResponse member =
         membersInDB.stream().filter(x -> x.getUserId().equals(userId)).findAny().orElse(null);
     // Check User is authorized Suspend , Re-activate or delete the group .
     if ((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status))
         && (member == null || !JsonKey.ADMIN.equals(member.getRole()))) {
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
       throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
     }
 
     if (JsonKey.INACTIVE.equals(status)
         && !userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
       throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
     }
 
@@ -232,7 +220,7 @@ public class UpdateGroupActor extends BaseActor {
         || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
         || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
       if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
-        logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+        logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
         throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
       }
     }
@@ -240,9 +228,9 @@ public class UpdateGroupActor extends BaseActor {
   }
 
   private List<Map<String, String>> validateActivityList(
-      Group group, Map<String, Object> activityOperationMap) {
+      Group group, Map<String, Object> activityOperationMap, Map<String,Object> reqContext) {
     List<Map<String, Object>> updateActivityList =
-        new GroupServiceImpl().handleActivityOperations(group.getId(), activityOperationMap);
+        new GroupServiceImpl().handleActivityOperations(group.getId(), activityOperationMap,reqContext);
     List<Map<String, String>> activityErrorList = new ArrayList<>();
     boolean isActivityLimitExceeded =
         GroupUtil.checkMaxActivityLimit(updateActivityList.size());
@@ -250,7 +238,7 @@ public class UpdateGroupActor extends BaseActor {
     if (!isActivityLimitExceeded) {
       group.setActivities(updateActivityList);
     }else{
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT06.getErrorCode(),ResponseCode.GS_UDT06.getErrorMessage()));
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT06.getErrorCode(),ResponseCode.GS_UDT06.getErrorMessage()));
       Map<String, String> errorMap = new HashMap<>();
       errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT06.getErrorMessage());
       errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT06.getErrorCode());
@@ -263,7 +251,8 @@ public class UpdateGroupActor extends BaseActor {
       String groupId,
       Map memberOperationMap,
       String requestedBy,
-      List<MemberResponse> membersInDB) {
+      List<MemberResponse> membersInDB,
+      Map<String,Object> reqContext) {
     List<Map<String, String>> memberErrorList = new ArrayList<>();
 
     MemberService memberService = new MemberServiceImpl();
@@ -286,7 +275,7 @@ public class UpdateGroupActor extends BaseActor {
     int totalMemberCount = GroupUtil.totalMemberCount(memberOperationMap, membersInDB);
     boolean memberLimit = GroupUtil.checkMaxMemberLimit(totalMemberCount);
     if(memberLimit){
-      logger.error(MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
       Map<String, String> errorMap = new HashMap<>();
       errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT05.getErrorMessage());
       errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT05.getErrorCode());
@@ -295,7 +284,7 @@ public class UpdateGroupActor extends BaseActor {
 
     cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
     if (!memberLimit) {
-      memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
+      memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy,reqContext);
     }
     return memberErrorList;
   }
@@ -325,88 +314,5 @@ public class UpdateGroupActor extends BaseActor {
   }
 
 
-  private void logTelemetry(Request actorMessage, Group group, Map<String, Object> dbResGroup, boolean isSuccess) {
-    Map<String, Object> targetObject = null;
-    List<Map<String, Object>> correlatedObject = new ArrayList<>();
-    if (isSuccess) {
-      if (null != dbResGroup && null != dbResGroup.get(JsonKey.STATUS)) {
-        switch ((String) dbResGroup.get(JsonKey.STATUS)) {
-          case JsonKey.ACTIVE:
-            targetObject = generateTargetForActiveGroup(actorMessage, group, dbResGroup);
-            break;
-          case JsonKey.SUSPENDED:
-            targetObject =
-                    TelemetryUtil.generateTargetObject(
-                            group.getId(),
-                            TelemetryEnvKey.ACTIVATE_GROUP,
-                            null,
-                            group.getStatus(),
-                            (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
-            break;
 
-          default:
-            targetObject =
-                    TelemetryUtil.generateTargetObject(
-                            group.getId(), TelemetryEnvKey.GROUP, null, null, null, TelemetryEnvKey.GROUP_DETAIL);
-        }
-
-      }
-    }else{
-      targetObject =
-              TelemetryUtil.generateTargetObject(
-                      group.getId(),
-                      TelemetryEnvKey.GROUP_ERROR,
-                      JsonKey.UPDATE,
-                      null,
-                      null != dbResGroup ?(String) dbResGroup.get(JsonKey.STATUS): null, TelemetryEnvKey.GROUP_DETAIL);
-    }
-    TelemetryUtil.generateCorrelatedObject(
-            (String) actorMessage.getContext().get(JsonKey.USER_ID),
-            TelemetryEnvKey.USER,
-            null,
-            correlatedObject);
-    // Add group info information to Cdata
-    TelemetryUtil.generateCorrelatedObject(
-            group.getId(),
-            TelemetryEnvKey.GROUPID,
-            null,
-            correlatedObject);
-    TelemetryUtil.telemetryProcessingCall(
-            actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
-  }
-
-  private Map<String, Object> generateTargetForActiveGroup(Request actorMessage, Group group, Map<String, Object> dbResGroup) {
-    Map<String, Object> targetObject;
-    if (!CollectionUtils.isEmpty(group.getActivities())) {
-      targetObject = TelemetryUtil.generateTargetObject(
-              group.getId(),
-              TelemetryEnvKey.ACTIVITY,
-              null,
-              JsonKey.ACTIVE,
-              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
-    } else if (!MapUtils.isEmpty((Map<String, Object>) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
-      targetObject = TelemetryUtil.generateTargetObject(
-              group.getId(),
-              TelemetryEnvKey.ADD_MEMBER,
-              null,
-              JsonKey.ACTIVE,
-              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
-    } else if(JsonKey.SUSPENDED.equals(group.getStatus())){
-      targetObject = TelemetryUtil.generateTargetObject(
-              group.getId(),
-              TelemetryEnvKey.DEACTIVATE_GROUP,
-              null,
-              JsonKey.ACTIVE,
-              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
-
-    } else {
-      targetObject = TelemetryUtil.generateTargetObject(
-              group.getId(),
-              TelemetryEnvKey.UPDATE_GROUP,
-              null,
-              JsonKey.ACTIVE,
-              (String) dbResGroup.get(JsonKey.STATUS), TelemetryEnvKey.GROUP_DETAIL);
-    }
-    return targetObject;
-  }
 }

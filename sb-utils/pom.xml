@@ -18,6 +18,11 @@
             <version>0.9.10</version>
         </dependency>
         <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.sunbird</groupId>
             <artifactId>sb-telemetry-utils</artifactId>
             <version>${project.version}</version>

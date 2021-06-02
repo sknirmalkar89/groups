@@ -1,5 +1,6 @@
 package org.sunbird.util;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ import org.sunbird.common.request.Request;
 
 public class GroupRequestHandler {
 
-  Logger logger = LoggerFactory.getLogger(GroupRequestHandler.class);
+  LoggerUtil logger = new LoggerUtil(GroupRequestHandler.class);
 
   public Group handleCreateGroupRequest(Request actorMessage) {
     Group group = new Group();
@@ -34,7 +35,7 @@ public class GroupRequestHandler {
     List<Map<String, Object>> activityList =
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.ACTIVITIES);
     if (CollectionUtils.isNotEmpty(activityList)) {
-      logger.info("adding activities to the group {} are {}", group.getId(), activityList.size());
+      logger.info(actorMessage.getContext(), MessageFormat.format("adding activities to the group {0} are {1}", group.getId(), activityList.size()));
       group.setActivities(activityList);
     }
     return group;
@@ -64,8 +65,8 @@ public class GroupRequestHandler {
     String contextUserId = (String) actorMessage.getContext().get(JsonKey.USER_ID);
     String managedFor = (String) actorMessage.getContext().get(JsonKey.MANAGED_FOR);
 
-    logger.info(JsonKey.USER_ID + " in getRequestedBy(): " + contextUserId);
-    logger.info(JsonKey.MANAGED_FOR + " in getRequestedBy(): " + managedFor);
+    logger.info(actorMessage.getContext(),JsonKey.USER_ID + " in getRequestedBy(): " + contextUserId);
+    logger.info(actorMessage.getContext(), JsonKey.MANAGED_FOR + " in getRequestedBy(): " + managedFor);
 
     // If MUA, then use that userid for createdby and updateby
     if (StringUtils.isNotEmpty(managedFor)) {

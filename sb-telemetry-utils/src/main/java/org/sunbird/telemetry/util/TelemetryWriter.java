@@ -56,8 +56,8 @@ public class TelemetryWriter {
   }
 
   private static void processErrorEvent(Request request) {
-    Map<String, Object> context = (Map<String, Object>) request.get(JsonKey.CONTEXT);
-    Map<String, Object> params = (Map<String, Object>) request.get(JsonKey.PARAMS);
+    Map<String, Object> context = (Map<String, Object>) request.getRequest().get(JsonKey.CONTEXT);
+    Map<String, Object> params = (Map<String, Object>) request.getRequest().get(JsonKey.PARAMS);
     String telemetry = telemetryDataAssembler.error(context, params);
     if (StringUtils.isNotBlank(telemetry) && telemetryObjectValidator.validateError(telemetry)) {
       telemetryEventLogger.info(telemetry);

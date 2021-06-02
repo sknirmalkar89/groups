@@ -1,5 +1,6 @@
 package utils.module;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.ResponseHandler;
 import java.lang.reflect.Method;
@@ -16,6 +17,7 @@ import org.sunbird.common.message.IResponseMessage;
 import org.sunbird.common.message.ResponseCode;
 import org.sunbird.common.request.HeaderParam;
 import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
 import play.http.ActionCreator;
@@ -25,7 +27,7 @@ import play.mvc.Result;
 
 public class OnRequestHandler implements ActionCreator {
 
-  private static Logger logger = LoggerFactory.getLogger(OnRequestHandler.class);
+  private static LoggerUtil logger = new LoggerUtil(OnRequestHandler.class);
   private static String custodianOrgHashTagId;
   private ObjectMapper mapper = new ObjectMapper();
 
@@ -81,12 +83,29 @@ public class OnRequestHandler implements ActionCreator {
    * @return
    */
   public CompletionStage<Result> getAuthorizedResult(Http.Request request, String errorMessage) {
-    logger.error("Data error found--" + errorMessage);
-    ResponseCode responseCode = ResponseCode.unAuthorized;
-    Result result =
-        ResponseHandler.handleFailureResponse(new AuthorizationException.NotAuthorized(responseCode), request);
-    return CompletableFuture.completedFuture(result);
-  }
+    String contextStr= null;
+    if (request.attrs() != null && request.attrs().containsKey(Attrs.CONTEXT)) {
+      contextStr = (String) request.attrs().get(Attrs.CONTEXT);
+    }
+    try {
+      Map<String, Object> contextObject = new HashMap<>();
+      if (StringUtils.isNotBlank(contextStr)) {
+        contextObject = mapper.readValue(contextStr, Map.class);
+      }
+      logger.error((Map<String, Object>) contextObject.get(JsonKey.CONTEXT), "Data error found--" + errorMessage);
+      ResponseCode responseCode = ResponseCode.unAuthorized;
+      Result result =
+              ResponseHandler.handleFailureResponse(new AuthorizationException.NotAuthorized(responseCode), request);
+      return CompletableFuture.completedFuture(result);
+    }catch (Exception ex){
+        logger.error("Error process set request context" ,ex);
+        throw new BaseException(
+                IResponseMessage.SERVER_ERROR,
+                IResponseMessage.INTERNAL_ERROR,
+                ResponseCode.SERVER_ERROR.getCode());
+      }
+   }
+
 
   /**
    * Set the Context paramter to the request
@@ -95,8 +114,8 @@ public class OnRequestHandler implements ActionCreator {
    * @param userId
    */
   Http.Request initializeContext(Http.Request httpReq, String userId, String requestId) {
+    Map<String, Object> requestContext = new WeakHashMap<>();
     try {
-      Map<String, Object> requestContext = new WeakHashMap<>();
       String env = getEnv(httpReq);
       requestContext.put(JsonKey.ENV, env);
       requestContext.put(JsonKey.REQUEST_TYPE, JsonKey.API_CALL);
@@ -156,7 +175,7 @@ public class OnRequestHandler implements ActionCreator {
       map.put(JsonKey.CONTEXT, requestContext);
       return httpReq.addAttr(Attrs.CONTEXT, mapper.writeValueAsString(map));
     } catch (Exception ex) {
-      logger.error("Error process set request context" + ex.getMessage());
+      logger.error(requestContext,"Error process set request context" + ex.getMessage());
       throw new BaseException(
           IResponseMessage.SERVER_ERROR,
           IResponseMessage.INTERNAL_ERROR,

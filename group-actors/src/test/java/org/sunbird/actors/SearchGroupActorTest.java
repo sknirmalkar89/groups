@@ -70,22 +70,24 @@ public class SearchGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Matchers.eq("user_group"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupSetByUserId());
 
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq(GROUP_TABLE_NAME),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
 
     } catch (BaseException be) {
@@ -117,22 +119,24 @@ public class SearchGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Matchers.eq("user_group"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
               .thenReturn(getGroupSetByUserId());
 
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq(GROUP_TABLE_NAME),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
               .thenThrow(DBException.class);
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap(),Mockito.any()))
               .thenReturn(getMemberResponseByGroupIds());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap(),Mockito.any()))
               .thenReturn(getGroupsDetailsResponse());
 
     } catch (BaseException be) {

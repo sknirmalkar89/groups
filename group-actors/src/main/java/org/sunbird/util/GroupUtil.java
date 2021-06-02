@@ -22,7 +22,7 @@ import org.sunbird.util.helper.PropertiesCache;
 
 public class GroupUtil {
 
-  private static Logger logger = LoggerFactory.getLogger(GroupUtil.class);
+  private static LoggerUtil logger = new LoggerUtil(GroupUtil.class);
   /**
    * Update Group details in the group of a user
    *
@@ -54,8 +54,8 @@ public class GroupUtil {
   }
 
   public static Map<SearchServiceUtil, Map<String, String>> groupActivityIdsBySearchUtilClass(
-      List<Map<String, Object>> activities) {
-    logger.info("groupActivityIdsBySearchUtilClass");
+      List<Map<String, Object>> activities, Map<String,Object> reqContext) {
+    logger.info(reqContext,"groupActivityIdsBySearchUtilClass");
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap = new HashMap<>();
     for (Map<String, Object> activity : activities) {
       SearchServiceUtil searchUtil =
@@ -74,8 +74,9 @@ public class GroupUtil {
     return idClassTypeMap;
   }
 
-  public static void checkMaxGroupLimit(List<Map<String, Object>> userGroupsList, String userId) {
+  public static boolean checkMaxGroupLimit(List<Map<String, Object>> userGroupsList, String userId) {
     int groupCount = 0;
+    boolean maxGroupLimitExceed =false;
     if (CollectionUtils.isNotEmpty(userGroupsList)) {
       Map<String, Object> userInfo =
           userGroupsList
@@ -90,12 +91,9 @@ public class GroupUtil {
     int maxGroupLimit =
         Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT));
     if (groupCount >= maxGroupLimit) {
-      logger.error("List of groups exceeded the max limit:{}", groupCount);
-      throw new BaseException(
-          IResponseMessage.Key.EXCEEDED_GROUP_MAX_LIMIT,
-          IResponseMessage.Message.EXCEEDED_GROUP_MAX_LIMIT,
-          ResponseCode.CLIENT_ERROR.getCode());
+      maxGroupLimitExceed = true;
     }
+    return maxGroupLimitExceed;
   }
 
   public static boolean checkMaxActivityLimit(
@@ -104,7 +102,6 @@ public class GroupUtil {
     int activityLimit =
         Integer.parseInt(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT));
     if (totalActivityCount > activityLimit) {
-      logger.error("List of activities exceeded the activity size limit:{}", totalActivityCount);
       isExceeded = true;
     }
     return isExceeded;
@@ -117,7 +114,6 @@ public class GroupUtil {
         Integer.parseInt(
             PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT));
     if (totalMemberCount > memberLimit) {
-      logger.error("List of members exceeded the member size limit:{}", totalMemberCount);
       isExceeded = true;
     }
     return isExceeded;

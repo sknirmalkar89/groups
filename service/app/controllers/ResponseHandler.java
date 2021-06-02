@@ -1,13 +1,12 @@
 package controllers;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.common.exception.BaseException;
 import org.sunbird.common.request.Request;
 import org.sunbird.common.response.Response;
@@ -15,6 +14,7 @@ import org.sunbird.common.response.ResponseFactory;
 import org.sunbird.telemetry.util.TelemetryEvents;
 import org.sunbird.telemetry.util.TelemetryWriter;
 import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -27,7 +27,7 @@ import utils.module.RequestMapper;
  * success and failure to user.
  */
 public class ResponseHandler {
-  private static Logger logger = LoggerFactory.getLogger(ResponseHandler.class);
+  private static LoggerUtil logger = new LoggerUtil(ResponseHandler.class);
 
   private ResponseHandler() {}
 
@@ -118,7 +118,7 @@ public class ResponseHandler {
                 TelemetryEvents.LOG.getName(), params, request.getContext()));
         TelemetryWriter.write(req);
       } catch (Exception ex) {
-        logger.info("AccessLogFilter:apply Exception in writing telemetry", ex);
+        logger.info(request.getContext(), MessageFormat.format("AccessLogFilter:apply Exception in writing telemetry: {0}", ex));
       }
     }
   }

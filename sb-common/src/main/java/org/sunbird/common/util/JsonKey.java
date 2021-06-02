@@ -1,4 +1,4 @@
-package org.sunbird.util;
+package org.sunbird.common.util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +70,6 @@ public interface JsonKey {
   String CREATED_ON = "createdOn";
   String CREATED_BY = "createdBy";
   String UPDATED_ON = "updatedOn";
-  String UPDATE = "update";
   String USER_SERVICE_BASE_URL = "LEARNER_SERVICE_PORT";
   String USER_SERVICE_SEARCH_URL = "sunbird_user_service_search_url";
   String SUNBIRD_CS_BASE_URL = "CONTENT_SERVICE_PORT";
@@ -100,6 +99,8 @@ public interface JsonKey {
   String ACTOR_ID = "actorId";
   String DEFAULT_CONSUMER_ID = "internal";
   String CONSUMER = "consumer";
+  String UPDATE = "update";
+  String CREATE = "create";
   String DELETE = "delete";
   String REQUEST_SOURCE = "source";
   String CHANNEL = "channel";
@@ -126,5 +127,4 @@ public interface JsonKey {
   String GROUPS = "groups";
   String X_TRACE_ENABLED = "x-trace-enabled";
   String FAILED = "failed";
-  String DEBUG_ENABLED="debug-enabled";
 }
