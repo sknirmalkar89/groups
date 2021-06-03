@@ -958,8 +958,9 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
                 IResponseMessage.SERVER_ERROR);
     }finally {
       logQueryElapseTime("getRecordsByPrimaryKeys", startTime,selectBuilder.toString(),reqContext);
-      return response;
     }
+    return response;
+
   }
 
   @Override

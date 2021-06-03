@@ -144,7 +144,7 @@ public enum ResponseCode {
         ResponseCode[] arr = ResponseCode.values();
         if (null != arr) {
           for (ResponseCode rc : arr) {
-            if (rc.getErrorCode() == errorCode) return rc;
+            if (rc.getErrorCode().equals(errorCode)) return rc;
           }
         }
       } catch (Exception e) {
