@@ -3,8 +3,6 @@ package org.sunbird.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.common.util.JsonKey;
 import org.sunbird.common.response.Response;
 import org.sunbird.service.UserService;

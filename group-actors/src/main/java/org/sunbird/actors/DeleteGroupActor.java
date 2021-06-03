@@ -1,16 +1,12 @@
 package org.sunbird.actors;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.common.exception.AuthorizationException;
 import org.sunbird.common.exception.BaseException;
-import org.sunbird.common.exception.DBException;
 import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.MemberResponse;
 import org.sunbird.common.request.Request;
@@ -19,8 +15,6 @@ import org.sunbird.service.GroupService;
 import org.sunbird.service.GroupServiceImpl;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
-import org.sunbird.telemetry.TelemetryEnvKey;
-import org.sunbird.telemetry.util.TelemetryUtil;
 import org.sunbird.util.*;
 import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;

@@ -8,12 +8,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.common.exception.AuthorizationException;
-import org.sunbird.common.exception.DBException;
-import org.sunbird.common.exception.BaseException;
 import org.sunbird.common.exception.ValidationException;
 import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.Member;
@@ -21,13 +17,9 @@ import org.sunbird.common.request.Request;
 import org.sunbird.common.response.Response;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
-import org.sunbird.telemetry.TelemetryEnvKey;
-import org.sunbird.telemetry.util.TelemetryUtil;
 import org.sunbird.util.*;
 import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;
-
-import javax.management.ObjectName;
 
 @ActorConfig(
   tasks = {"updateGroupMembership"},

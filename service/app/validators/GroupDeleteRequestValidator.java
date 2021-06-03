@@ -1,8 +1,6 @@
 package validators;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.common.exception.BaseException;
 import org.sunbird.common.message.ResponseCode;
 import org.sunbird.common.request.Request;

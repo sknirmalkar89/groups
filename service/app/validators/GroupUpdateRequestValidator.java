@@ -8,8 +8,6 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.common.exception.BaseException;
 import org.sunbird.common.exception.ValidationException;
 import org.sunbird.common.message.ResponseCode;

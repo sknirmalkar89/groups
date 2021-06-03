@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.dao.MemberDao;
 import org.sunbird.dao.MemberDaoImpl;
 import org.sunbird.common.exception.BaseException;

@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.dao.GroupDao;
 import org.sunbird.dao.GroupDaoImpl;
 import org.sunbird.dao.MemberDao;

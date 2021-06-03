@@ -7,8 +7,6 @@ import java.util.Map;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.keycloak.common.util.Time;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.common.util.JsonKey;
 import org.sunbird.common.util.LoggerEnum;
 import org.sunbird.util.LoggerUtil;
