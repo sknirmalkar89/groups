@@ -8,13 +8,14 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
 
 public class RequestIdAddFilter extends Filter {
-  private static final Logger log = LoggerFactory.getLogger(RequestIdAddFilter.class);
+  private static final LoggerUtil log = new LoggerUtil(RequestIdAddFilter.class);
 
   @Inject
   public RequestIdAddFilter(Materializer materializer) {

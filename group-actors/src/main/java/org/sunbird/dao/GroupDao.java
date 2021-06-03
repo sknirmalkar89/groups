@@ -1,9 +1,11 @@
 package org.sunbird.dao;
 
 import java.util.List;
-import org.sunbird.exception.BaseException;
+import java.util.Map;
+
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.models.Group;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 
 /** This interface will have all methods required for group service api. */
 public interface GroupDao {
@@ -14,7 +16,7 @@ public interface GroupDao {
    * @param groupObj Group Details.
    * @return group ID.
    */
-  String createGroup(Group groupObj) throws BaseException;
+  String createGroup(Group groupObj, Map<String,Object> reqContext) throws BaseException;
 
   /**
    * This method will read group based on Id and return response Object as success response or throw
@@ -23,7 +25,7 @@ public interface GroupDao {
    * @param groupId
    * @return responseObj with Group Details.
    */
-  Response readGroup(String groupId) throws BaseException;
+  Response readGroup(String groupId, Map<String,Object> reqContext) throws BaseException;
 
   /**
    * This method will read group based on Id and return response Object as success response or throw
@@ -32,7 +34,7 @@ public interface GroupDao {
    * @param groupIds
    * @return responseObj with Group Details.
    */
-  Response readGroups(List<String> groupIds) throws BaseException;
+  Response readGroups(List<String> groupIds, Map<String,Object> reqContext) throws BaseException;
 
   /**
    * This method will update group and return success response or throw BaseException.
@@ -40,7 +42,7 @@ public interface GroupDao {
    * @param groupObj Group Details.
    * @return Response.
    */
-  Response updateGroup(Group groupObj) throws BaseException;
+  Response updateGroup(Group groupObj, Map<String,Object> reqContext) throws BaseException;
 
   /**
    * This method will delete group and return success response or throw BaseException.
@@ -48,5 +50,5 @@ public interface GroupDao {
    * @param groupId Group Id.
    * @return Response.
    */
-  Response deleteGroup(String groupId) throws BaseException;
+  Response deleteGroup(String groupId, Map<String,Object> reqContext) throws BaseException;
 }

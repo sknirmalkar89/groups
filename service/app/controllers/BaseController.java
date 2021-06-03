@@ -12,18 +12,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.Application;
-import org.sunbird.exception.ActorServiceException;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.request.Request;
+import org.sunbird.common.exception.ActorServiceException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.request.Request;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
 import utils.module.PrintEntryExitLog;
 import utils.module.RequestMapper;
-import org.sunbird.message.IResponseMessage;
+
 /**
  * This controller we can use for writing some common method to handel api request.
  * CompletableFuture: A Future that may be explicitly completed (setting its value and status), and

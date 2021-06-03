@@ -1,19 +1,20 @@
 package validators;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
+
+import java.text.MessageFormat;
 
 public class GroupDeleteRequestValidator implements IRequestValidator {
-  private static Logger logger = LoggerFactory.getLogger(GroupDeleteRequestValidator.class);
+  private static LoggerUtil logger = new LoggerUtil(GroupDeleteRequestValidator.class);
 
   @Override
   public boolean validate(Request request) throws BaseException {
-    logger.info("Validating the update request {}", request.getRequest());
+    logger.info(request.getContext(), "Validating the update request" + request.getRequest());
     try {
       ValidationUtil.validateRequestObject(request);
       ValidationUtil.validateMandatoryParamsWithType(
@@ -21,10 +22,10 @@ public class GroupDeleteRequestValidator implements IRequestValidator {
               Lists.newArrayList(JsonKey.GROUP_ID),
               String.class,
               true,
-              JsonKey.REQUEST);
+              JsonKey.REQUEST,request.getContext());
       return true;
     }catch (BaseException ex){
-      logger.error("GroupDeleteRequestValidator:Error Code: {}, ErrMsg {}",ResponseCode.GS_DLT02.getErrorCode(),ex.getMessage());
+      logger.error(request.getContext(), MessageFormat.format("GroupDeleteRequestValidator:Error Code: {0}, ErrMsg {1}",ResponseCode.GS_DLT02.getErrorCode(),ex.getMessage()),ex);
       throw new BaseException(ResponseCode.GS_DLT02.getErrorCode(),ResponseCode.GS_DLT02.getErrorMessage(),ex.getResponseCode());
     }
   }

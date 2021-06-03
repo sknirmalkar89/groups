@@ -8,8 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.auth.verifier.AccessTokenValidator;
-import org.sunbird.request.HeaderParam;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.HeaderParam;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import play.mvc.Http;
 
 /**
@@ -18,7 +19,7 @@ import play.mvc.Http;
  * @author Amit Kumar, Hari kumar
  */
 public class RequestInterceptor {
-  static Logger logger = LoggerFactory.getLogger(RequestInterceptor.class);
+  static LoggerUtil logger = new LoggerUtil(RequestInterceptor.class);
   private static ConcurrentHashMap<String, Short> apiHeaderIgnoreMap = new ConcurrentHashMap<>();
 
   private RequestInterceptor() {}

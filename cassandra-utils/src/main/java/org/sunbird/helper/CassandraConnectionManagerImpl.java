@@ -11,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.common.Constants;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.util.helper.PropertiesCache;
 
 public class CassandraConnectionManagerImpl implements CassandraConnectionManager {

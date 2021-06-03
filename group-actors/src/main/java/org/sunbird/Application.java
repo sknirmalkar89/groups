@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sunbird.actor.core.ActorCache;
 import org.sunbird.actor.core.ActorService;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 
 /** this class is used to instantiate the actor system. */
 public class Application {

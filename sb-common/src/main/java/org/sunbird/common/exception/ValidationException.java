@@ -1,8 +1,8 @@
-package org.sunbird.exception;
+package org.sunbird.common.exception;
 
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.message.ResponseCode;
 
 import java.text.MessageFormat;
 import java.util.Locale;

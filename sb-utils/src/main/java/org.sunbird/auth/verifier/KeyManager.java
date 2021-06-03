@@ -12,14 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import org.sunbird.util.helper.PropertiesCache;
 
 public class KeyManager {
 
-  private static Logger logger = LoggerFactory.getLogger(KeyManager.class);
+  private static LoggerUtil logger = new LoggerUtil(KeyManager.class);
   private static PropertiesCache propertiesCache = PropertiesCache.getInstance();
 
   private static Map<String, KeyData> keyMap = new HashMap<String, KeyData>();

@@ -1,4 +1,4 @@
-package org.sunbird.util;
+package org.sunbird.common.util;
 
 public enum LoggerEnum {
   INFO,

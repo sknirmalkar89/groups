@@ -1,7 +1,7 @@
-package org.sunbird.message;
+package org.sunbird.common.message;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 public enum ResponseCode {
   unAuthorized(IResponseMessage.Key.UNAUTHORIZED, IResponseMessage.Message.UNAUTHORIZED, JsonKey.FAILED),
   keyCloakDefaultError(
@@ -144,7 +144,7 @@ public enum ResponseCode {
         ResponseCode[] arr = ResponseCode.values();
         if (null != arr) {
           for (ResponseCode rc : arr) {
-            if (rc.getErrorCode() == errorCode) return rc;
+            if (rc.getErrorCode().equals(errorCode)) return rc;
           }
         }
       } catch (Exception e) {

@@ -1,21 +1,22 @@
 package validators;
 
 import com.google.common.collect.Lists;
+
+import java.text.MessageFormat;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 
 public class GroupMembershipUpdateRequestValidator implements IRequestValidator {
-  private static Logger logger =
-      LoggerFactory.getLogger(GroupMembershipUpdateRequestValidator.class);
+  private static LoggerUtil logger =
+    new LoggerUtil(GroupMembershipUpdateRequestValidator.class);
 
   @Override
   public boolean validate(Request request) throws BaseException {
-    logger.info("Validating the update group membership request {}", request.getRequest());
+    logger.info(request.getContext(),"Validating the update group membership request" + request.getRequest());
     try {
       ValidationUtil.validateRequestObject(request);
 
@@ -24,17 +25,17 @@ public class GroupMembershipUpdateRequestValidator implements IRequestValidator 
               Lists.newArrayList(JsonKey.USER_ID),
               String.class,
               true,
-              JsonKey.REQUEST);
+              JsonKey.REQUEST,request.getContext());
       ValidationUtil.validateMandatoryParamsWithType(
               request.getRequest(),
               Lists.newArrayList(JsonKey.GROUPS),
               List.class,
               true,
-              JsonKey.REQUEST);
+              JsonKey.REQUEST,request.getContext());
 
       return true;
     }catch (BaseException ex){
-      logger.error("GroupMembershipUpdateRequestValidator: Error Code: {}, ErrMsg {}",ResponseCode.GS_MBRSHP_UDT02.getErrorCode(),ex.getMessage());
+      logger.error(request.getContext(), MessageFormat.format("GroupMembershipUpdateRequestValidator: Error Code: {0}, ErrMsg {1}",ResponseCode.GS_MBRSHP_UDT02.getErrorCode(),ex.getMessage()),ex);
       throw new BaseException(ResponseCode.GS_MBRSHP_UDT02.getErrorCode(),ResponseCode.GS_MBRSHP_UDT02.getErrorMessage(),ex.getResponseCode());
     }
   }

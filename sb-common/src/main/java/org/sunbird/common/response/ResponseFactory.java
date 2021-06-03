@@ -1,13 +1,13 @@
-package org.sunbird.response;
+package org.sunbird.common.response;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.Localizer;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
 
 public class ResponseFactory {
   private static final String msgKeyStr = "message";

@@ -9,12 +9,11 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sunbird.common.util.JsonKey;
 
 public class ActivityConfigReader {
 
-  private static Logger logger = LoggerFactory.getLogger(ActivityConfigReader.class);
+  private static LoggerUtil logger = new LoggerUtil(ActivityConfigReader.class);
 
   private static final String ACTIVITY_CONFIG_FILE = "activityConfig.json";
 
@@ -28,11 +27,11 @@ public class ActivityConfigReader {
     try {
       loadActivityConfigMap(in);
     } catch (IOException | InstantiationException e) {
-      logger.error("File does not exist" + e);
+      logger.error("File does not exist",e);
     } catch (ClassNotFoundException e) {
-      logger.error("Service class not configured" + e);
+      logger.error("Service class not configured" ,e);
     } catch (IllegalAccessException e) {
-      logger.error("Illegal action" + e);
+      logger.error("Illegal action" , e);
     }
   }
 

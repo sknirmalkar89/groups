@@ -13,7 +13,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.Await;

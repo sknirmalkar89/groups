@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import play.mvc.Result;
 
 public class ReadGroupControllerTest extends BaseApplicationTest {

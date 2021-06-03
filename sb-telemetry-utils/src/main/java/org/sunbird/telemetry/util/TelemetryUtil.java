@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import org.apache.commons.lang3.StringUtils;
-import org.sunbird.request.Request;
+import org.sunbird.common.request.Request;
 import org.sunbird.telemetry.JsonKey;
 
 /** @author arvind */

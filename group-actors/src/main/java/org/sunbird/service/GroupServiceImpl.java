@@ -2,34 +2,31 @@ package org.sunbird.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.dao.GroupDao;
 import org.sunbird.dao.GroupDaoImpl;
 import org.sunbird.dao.MemberDao;
 import org.sunbird.dao.MemberDaoImpl;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.GroupResponse;
 import org.sunbird.models.Member;
 import org.sunbird.models.MemberResponse;
-import org.sunbird.response.Response;
-import org.sunbird.util.ActivityConfigReader;
-import org.sunbird.util.GroupUtil;
-import org.sunbird.util.JsonKey;
-import org.sunbird.util.JsonUtils;
-import org.sunbird.util.SearchServiceUtil;
+import org.sunbird.common.response.Response;
+import org.sunbird.util.*;
+import org.sunbird.common.util.JsonKey;
 
 public class GroupServiceImpl implements GroupService {
-  private static Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
+  private static LoggerUtil logger = new LoggerUtil(GroupServiceImpl.class);
 
   private static GroupDao groupDao = GroupDaoImpl.getInstance();
   private static MemberService memberService = new MemberServiceImpl();
@@ -37,28 +34,28 @@ public class GroupServiceImpl implements GroupService {
   private static MemberDao memberDao = MemberDaoImpl.getInstance();
 
   @Override
-  public String createGroup(Group groupObj) throws BaseException {
-    String groupId = groupDao.createGroup(groupObj);
+  public String createGroup(Group groupObj, Map<String,Object> reqContext) throws BaseException {
+    String groupId = groupDao.createGroup(groupObj, reqContext);
     return groupId;
   }
 
   public GroupResponse readGroupWithActivities(String groupId, Map<String, Object> reqContext)
       throws Exception {
-    Map<String, Object> dbResGroup = readGroup(groupId);
-    logger.info("readGroupActivities started");
+    Map<String, Object> dbResGroup = readGroup(groupId, reqContext);
+    logger.info(reqContext,"readGroupActivities started");
     readGroupActivities(dbResGroup, reqContext);
-    logger.info("readGroupActivities ended");
+    logger.info(reqContext,"readGroupActivities ended");
     return JsonUtils.convert(dbResGroup, GroupResponse.class);
   }
 
-  public Map<String, Object> readGroup(String groupId) throws BaseException {
+  public Map<String, Object> readGroup(String groupId, Map<String,Object> reqContext) throws BaseException {
     Map<String, Object> dbResGroup;
-    Response responseObj = groupDao.readGroup(groupId);
+    Response responseObj = groupDao.readGroup(groupId, reqContext);
     if (null != responseObj && null != responseObj.getResult()) {
       List<Map<String, Object>> dbGroupDetails =
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);
       if (CollectionUtils.isNotEmpty(dbGroupDetails)) {
-        logger.info("Group details fetched for groupId :{}", groupId);
+        logger.info(reqContext, MessageFormat.format("Group details fetched for groupId :{0}", groupId));
         dbResGroup = dbGroupDetails.get(0);
         // update createdOn, updatedOn format to utc "yyyy-MM-dd HH:mm:ss:SSSZ
         dbResGroup.put(
@@ -99,9 +96,9 @@ public class GroupServiceImpl implements GroupService {
    */
   private void addActivityInfoDetails(
       List<Map<String, Object>> dbResActivities, Map<String, Object> reqContext) {
-    logger.info("Fetching activityInfo for activity count: {}", dbResActivities.size());
+    logger.info(reqContext,MessageFormat.format("Fetching activityInfo for activity count: {0}", dbResActivities.size()));
     Map<SearchServiceUtil, Map<String, String>> idClassTypeMap =
-        GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities);
+        GroupUtil.groupActivityIdsBySearchUtilClass(dbResActivities,reqContext);
     for (Map.Entry<SearchServiceUtil, Map<String, String>> itr : idClassTypeMap.entrySet()) {
       try {
         SearchServiceUtil searchServiceUtil = itr.getKey();
@@ -115,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
           }
         }
       } catch (JsonProcessingException e) {
-        logger.error("No Service Class Configured");
+        logger.error(reqContext,"No Service Class Configured");
       }
     }
   }
@@ -128,23 +125,23 @@ public class GroupServiceImpl implements GroupService {
    * @return dbGroupDetails.
    */
   @Override
-  public List<GroupResponse> searchGroup(Map<String, Object> searchFilter) throws BaseException {
+  public List<GroupResponse> searchGroup(Map<String, Object> searchFilter, Map<String,Object> reqContext) throws BaseException {
     List<GroupResponse> groups = new ArrayList<>();
     String userId = (String) searchFilter.get(JsonKey.USER_ID);
     if (StringUtils.isNotBlank(userId)) {
-      List<String> groupIds = fetchAllGroupIdsByUserId(userId);
+      List<String> groupIds = fetchAllGroupIdsByUserId(userId, reqContext);
       if (!groupIds.isEmpty()) {
-        List<Map<String, Object>> dbResMembers = memberService.fetchGroupByUser(groupIds, userId);
-        logger.info("group count {} for userId {}", dbResMembers.size(), userId);
+        List<Map<String, Object>> dbResMembers = memberService.fetchGroupByUser(groupIds, userId, reqContext);
+        logger.info(reqContext,MessageFormat.format("group count {0} for userId {1}", dbResMembers.size(), userId));
         Map<String, Map<String, Object>> groupMemberRelationMap =
             getGroupDetailsMapByUser(dbResMembers);
-        groups = readGroupDetailsByGroupIds(groupIds);
+        groups = readGroupDetailsByGroupIds(groupIds, reqContext);
         GroupUtil.updateGroupDetails(groups, groupMemberRelationMap);
       }
 
     } else {
       String errorMsg ="Bad Request UserId is Mandatory";
-      logger.error(errorMsg);
+      logger.error(reqContext,errorMsg);
       throw new BaseException(
           ResponseCode.GS_LST02.getErrorCode(),
              errorMsg,
@@ -173,14 +170,14 @@ public class GroupServiceImpl implements GroupService {
    * @return groupIdsList
    * @throws BaseException
    */
-  private List<String> fetchAllGroupIdsByUserId(String userId) throws BaseException {
-    Response groupIdsResponse = memberDao.readGroupIdsByUserId(userId);
+  private List<String> fetchAllGroupIdsByUserId(String userId, Map<String,Object> reqContext) throws BaseException {
+    Response groupIdsResponse = memberDao.readGroupIdsByUserId(userId, reqContext);
     if (null != groupIdsResponse && null != groupIdsResponse.getResult()) {
       List<Map<String, Object>> dbResGroupIds =
           (List<Map<String, Object>>) groupIdsResponse.getResult().get(JsonKey.RESPONSE);
       if (null != dbResGroupIds && !dbResGroupIds.isEmpty()) {
         Set<String> groupIdsSet = (Set<String>) dbResGroupIds.get(0).get(JsonKey.GROUP_ID);
-        logger.info("UserId {} has groupIds {}", userId, groupIdsSet.size());
+        logger.info(reqContext,MessageFormat.format("UserId {0} has groupIds {1}", userId, groupIdsSet.size()));
         return new ArrayList<>(groupIdsSet);
       }
     }
@@ -212,15 +209,15 @@ public class GroupServiceImpl implements GroupService {
    * @return
    * @throws BaseException
    */
-  private List<GroupResponse> readGroupDetailsByGroupIds(List<String> groupIds)
+  private List<GroupResponse> readGroupDetailsByGroupIds(List<String> groupIds, Map<String,Object> reqContext)
       throws BaseException {
     List<GroupResponse> groups = new ArrayList<>();
-    Response response = groupDao.readGroups(groupIds);
+    Response response = groupDao.readGroups(groupIds, reqContext);
     if (null != response && null != response.getResult()) {
       List<Map<String, Object>> dbGroupDetails =
           (List<Map<String, Object>>) response.getResult().get(JsonKey.RESPONSE);
       if (null != dbGroupDetails) {
-        logger.info("Group details fetched - count : {} ", dbGroupDetails.size());
+        logger.info(reqContext,MessageFormat.format("Group details fetched - count : {0} ", dbGroupDetails.size()));
         dbGroupDetails.forEach(
             map -> {
               Group group = objectMapper.convertValue(map, Group.class);
@@ -233,25 +230,25 @@ public class GroupServiceImpl implements GroupService {
   }
 
   @Override
-  public Response updateGroup(Group groupObj) throws BaseException {
-    return groupDao.updateGroup(groupObj);
+  public Response updateGroup(Group groupObj, Map<String,Object> reqContext) throws BaseException {
+    return groupDao.updateGroup(groupObj, reqContext);
   }
 
   @Override
-  public Response deleteGroup(String groupId, List<MemberResponse> members) throws BaseException {
-    Response responseObj = groupDao.deleteGroup(groupId);
+  public Response deleteGroup(String groupId, List<MemberResponse> members, Map<String,Object> reqContext) throws BaseException {
+    Response responseObj = groupDao.deleteGroup(groupId, reqContext);
     // Remove member mapping to the deleted group
     if (null != responseObj) {
       // Create member list
       List<String> memberIds = new ArrayList<>();
       List<Member> memberList = createDeleteMemberList(members, memberIds);
-      List<Map<String, Object>> dbResGroupIds = memberService.getGroupIdsforUserIds(memberIds);
-      memberService.removeGroupInUserGroup(memberList, dbResGroupIds);
-      memberService.deleteGroupMembers(groupId, memberIds);
+      List<Map<String, Object>> dbResGroupIds = memberService.getGroupIdsforUserIds(memberIds, reqContext);
+      memberService.removeGroupInUserGroup(memberList, dbResGroupIds, reqContext);
+      memberService.deleteGroupMembers(groupId, memberIds, reqContext);
       return responseObj;
     }
 
-    logger.error("Error while deleting group {}", groupId);
+    logger.error(reqContext,MessageFormat.format("Error while deleting group {0}", groupId));
     throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
   }
 
@@ -292,13 +289,13 @@ public class GroupServiceImpl implements GroupService {
   // TODO should be private function : break into 2 functions add and remove
   @Override
   public List<Map<String, Object>> handleActivityOperations(
-      String groupId, Map<String, Object> activityOperationMap) throws BaseException {
+      String groupId, Map<String, Object> activityOperationMap, Map<String,Object> reqContext) throws BaseException {
     List<Map<String, Object>> activityAddList =
         (List<Map<String, Object>>) activityOperationMap.get(JsonKey.ADD);
     List<String> activityRemoveList = (List<String>) activityOperationMap.get(JsonKey.REMOVE);
 
     // Fetching the activities from DB
-    List<Map<String, Object>> dbActivityList = readActivityFromDb(groupId);
+    List<Map<String, Object>> dbActivityList = readActivityFromDb(groupId, reqContext);
 
     if (CollectionUtils.isNotEmpty(activityAddList)) {
       // Check if activities in add request is already existing, if not append
@@ -336,9 +333,9 @@ public class GroupServiceImpl implements GroupService {
     return finalList;
   }
 
-  private List<Map<String, Object>> readActivityFromDb(String groupId) throws BaseException {
+  private List<Map<String, Object>> readActivityFromDb(String groupId, Map<String,Object> reqContext) throws BaseException {
     List<Map<String, Object>> dbActivityList = null;
-    Response responseObj = groupDao.readGroup(groupId);
+    Response responseObj = groupDao.readGroup(groupId, reqContext);
     if (null != responseObj && MapUtils.isNotEmpty(responseObj.getResult())) {
       List<Map<String, Object>> groupDetails =
           (List<Map<String, Object>>) responseObj.getResult().get(JsonKey.RESPONSE);

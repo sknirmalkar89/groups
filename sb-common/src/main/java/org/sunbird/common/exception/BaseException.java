@@ -1,4 +1,4 @@
-package org.sunbird.exception;
+package org.sunbird.common.exception;
 
 public class BaseException extends RuntimeException {
 

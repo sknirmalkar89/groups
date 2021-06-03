@@ -126,5 +126,5 @@ public interface JsonKey {
   String GROUPS = "groups";
   String X_TRACE_ENABLED = "x-trace-enabled";
   String FAILED = "failed";
-
+  String DEBUG_ENABLED="debug-enabled";
 }

@@ -6,6 +6,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunbird.util.LoggerUtil;
 import play.Environment;
 import play.api.OptionalSourceMapper;
 import play.api.routing.Router;
@@ -14,7 +15,7 @@ import play.http.DefaultHttpErrorHandler;
 /** This class will be called when exception is not handle by application. */
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
-  Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
+  LoggerUtil logger = new LoggerUtil(ErrorHandler.class);
 
   @Inject
   public ErrorHandler(
@@ -23,6 +24,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes) {
     super(config, environment, sourceMapper, routes);
-    logger.error("Error handler called");
+    logger.error("Error handler called",null);
   }
 }

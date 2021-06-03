@@ -6,25 +6,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.EntryExitLogEvent;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.response.ResponseParams;
-import org.sunbird.util.JsonKey;
-import org.sunbird.message.IResponseMessage;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.response.ResponseParams;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.util.LoggerUtil;
 
 
 public class PrintEntryExitLog {
 
-  static Logger logger = LoggerFactory.getLogger(PrintEntryExitLog.class);
+  static LoggerUtil logger = new LoggerUtil(PrintEntryExitLog.class);
   private static ObjectMapper objectMapper = new ObjectMapper();
 
   public static void printEntryLog(Request request) {
@@ -40,7 +39,7 @@ public class PrintEntryExitLog {
       entryLogEvent.setEdataParams(params);
       logger.info(objectMapper.writeValueAsString(entryLogEvent));
     } catch (Exception ex) {
-      logger.error("Exception occurred while logging entry log: {}", ex.getMessage());
+      logger.error(request.getContext(),"Exception occurred while logging entry log: "+ex.getMessage());
     }
   }
 
@@ -67,7 +66,7 @@ public class PrintEntryExitLog {
       exitLogEvent.setEdataParams(params);
       logger.info(objectMapper.writeValueAsString(exitLogEvent));
     } catch (Exception ex) {
-      logger.error("Exception occurred while logging exit log: {}", ex.getMessage());
+      logger.error(request.getContext(),"Exception occurred while logging exit log: "+ ex.getMessage());
     }
   }
 
@@ -123,7 +122,7 @@ public class PrintEntryExitLog {
       exitLogEvent.setEdataParams(params);
       logger.info(objectMapper.writeValueAsString(exitLogEvent));
     } catch (Exception e) {
-      logger.error("Exception occurred while logging exit log: {}", e);
+      logger.error(request.getContext(),"Exception occurred while logging exit log: "+ e);
     }
   }
 

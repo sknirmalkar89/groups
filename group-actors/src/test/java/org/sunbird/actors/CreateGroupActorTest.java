@@ -27,15 +27,15 @@ import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
@@ -66,18 +66,18 @@ public class CreateGroupActorTest extends BaseActorTest {
 
     // when inserting record to cassandra insert record in to EmbeddedCassandra
     when(cassandraOperation.insertRecord(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
         .thenReturn(CassandraMocker.getCreateGroupResponse(reqObj));
 
     when(cassandraOperation.batchInsert(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
         .thenReturn(CassandraMocker.addMembersToGroup(reqObj));
 
     List<Map<String, Object>> members =
         (List<Map<String, Object>>) reqObj.getRequest().get(JsonKey.MEMBERS);
 
     when(cassandraOperation.upsertRecord(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
         .thenReturn(
             CassandraMocker.updateUserGroup(members, (String) reqObj.getRequest().get(JsonKey.ID)));
 

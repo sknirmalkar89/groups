@@ -2,7 +2,7 @@ package org.sunbird;
 
 import java.util.Map;
 import org.slf4j.MDC;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 
 public class BaseLogger {
 

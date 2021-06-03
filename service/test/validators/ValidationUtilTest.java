@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
-import org.sunbird.exception.BaseException;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
 
 public class ValidationUtilTest {
 
+  Map<String,Object> reqContext = new HashMap<>();
   @Test
   public void validateRequestObjectThrowValidationException() {
     Request request = createRequestObject();
@@ -43,7 +44,7 @@ public class ValidationUtilTest {
     request.put("name", "group1");
     try {
       ValidationUtil.validateMandatoryParamsWithType(
-          request.getRequest(), Lists.newArrayList("name"), String.class, true, JsonKey.REQUEST);
+          request.getRequest(), Lists.newArrayList("name"), String.class, true, JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -56,7 +57,7 @@ public class ValidationUtilTest {
     request.put("name", 1);
     try {
       ValidationUtil.validateMandatoryParamsWithType(
-          request.getRequest(), Lists.newArrayList("name"), String.class, true, JsonKey.REQUEST);
+          request.getRequest(), Lists.newArrayList("name"), String.class, true, JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(true);
       Assert.assertEquals("request.name PARAM SHOULD BE OF TYPE java.lang.String", ex.getMessage());
@@ -69,7 +70,7 @@ public class ValidationUtilTest {
     request.put("name", "");
     try {
       ValidationUtil.validateMandatoryParamsWithType(
-          request.getRequest(), Lists.newArrayList("name"), String.class, true, JsonKey.REQUEST);
+          request.getRequest(), Lists.newArrayList("name"), String.class, true, JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(true);
       Assert.assertEquals("MANDATORY PARAM request.name IS MISSING", ex.getMessage());
@@ -83,7 +84,7 @@ public class ValidationUtilTest {
     request.put("id", 1);
     try {
       ValidationUtil.validateMandatoryParamsWithType(
-          request.getRequest(), Lists.newArrayList("id"), Integer.class, true, JsonKey.REQUEST);
+          request.getRequest(), Lists.newArrayList("id"), Integer.class, true, JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -101,7 +102,7 @@ public class ValidationUtilTest {
           Lists.newArrayList(JsonKey.FILTERS),
           Map.class,
           false,
-          JsonKey.REQUEST);
+          JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -120,7 +121,7 @@ public class ValidationUtilTest {
           Lists.newArrayList(JsonKey.FILTERS),
           Map.class,
           true,
-          JsonKey.REQUEST);
+          JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -137,7 +138,7 @@ public class ValidationUtilTest {
           Lists.newArrayList(JsonKey.FILTERS),
           Map.class,
           true,
-          JsonKey.REQUEST);
+          JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(true);
       Assert.assertEquals("MANDATORY PARAM request.filters IS MISSING", ex.getMessage());
@@ -155,7 +156,7 @@ public class ValidationUtilTest {
           Lists.newArrayList(JsonKey.FILTERS),
           List.class,
           false,
-          JsonKey.REQUEST);
+          JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -172,7 +173,7 @@ public class ValidationUtilTest {
           Lists.newArrayList(JsonKey.FILTERS),
           List.class,
           true,
-          JsonKey.REQUEST);
+          JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -189,7 +190,7 @@ public class ValidationUtilTest {
           Lists.newArrayList(JsonKey.FILTERS),
           List.class,
           true,
-          JsonKey.REQUEST);
+          JsonKey.REQUEST,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(true);
       Assert.assertEquals("MANDATORY PARAM request.filters IS MISSING", ex.getMessage());
@@ -206,7 +207,7 @@ public class ValidationUtilTest {
     member.put(JsonKey.ROLE, JsonKey.ADMIN);
     try {
       ValidationUtil.validateParamValue(
-          member, Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE), paramValue, JsonKey.MEMBERS);
+          member, Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE), paramValue, JsonKey.MEMBERS,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(false);
     }
@@ -221,7 +222,7 @@ public class ValidationUtilTest {
     member.put(JsonKey.STATUS, "notValid");
     try {
       ValidationUtil.validateParamValue(
-          member, Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE), paramValue, JsonKey.MEMBERS);
+          member, Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE), paramValue, JsonKey.MEMBERS,reqContext);
     } catch (BaseException ex) {
       Assert.assertTrue(true);
       Assert.assertEquals("INVALID_PARAMETER_VALUE", ex.getCode());
@@ -235,7 +236,7 @@ public class ValidationUtilTest {
     request.put("members",new ArrayList<>());
     try {
       ValidationUtil.validateParamsWithType(request,Lists.newArrayList(JsonKey.MEMBERS,JsonKey.ACTIVITIES),
-              Map.class,JsonKey.REQUEST);
+              Map.class,JsonKey.REQUEST,reqContext);
       Assert.assertTrue(false);
 
     } catch (BaseException ex) {

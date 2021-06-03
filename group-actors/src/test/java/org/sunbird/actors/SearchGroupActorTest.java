@@ -25,16 +25,15 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.DBException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Localizer.class, ServiceFactory.class})
@@ -71,22 +70,24 @@ public class SearchGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Matchers.eq("user_group"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupSetByUserId());
 
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq(GROUP_TABLE_NAME),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
 
     } catch (BaseException be) {
@@ -118,22 +119,24 @@ public class SearchGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Matchers.eq("user_group"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
               .thenReturn(getGroupSetByUserId());
 
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq(GROUP_TABLE_NAME),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
               .thenThrow(DBException.class);
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap(),Mockito.any()))
               .thenReturn(getMemberResponseByGroupIds());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap(),Mockito.any()))
               .thenReturn(getGroupsDetailsResponse());
 
     } catch (BaseException be) {

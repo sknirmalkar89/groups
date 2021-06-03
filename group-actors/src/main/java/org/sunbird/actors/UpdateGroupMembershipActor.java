@@ -8,27 +8,18 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sunbird.actor.core.ActorConfig;
-import org.sunbird.exception.AuthorizationException;
-import org.sunbird.exception.DBException;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.exception.AuthorizationException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.Member;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
-import org.sunbird.telemetry.TelemetryEnvKey;
-import org.sunbird.telemetry.util.TelemetryUtil;
-import org.sunbird.util.CacheUtil;
-import org.sunbird.util.GroupRequestHandler;
-import org.sunbird.util.JsonKey;
+import org.sunbird.util.*;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;
-
-import javax.management.ObjectName;
 
 @ActorConfig(
   tasks = {"updateGroupMembership"},
@@ -37,7 +28,7 @@ import javax.management.ObjectName;
 )
 public class UpdateGroupMembershipActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
-  private Logger logger = LoggerFactory.getLogger(UpdateGroupMembershipActor.class);
+  private LoggerUtil logger = new LoggerUtil(UpdateGroupMembershipActor.class);
 
   @Override
   public void onReceive(Request request) throws Throwable {
@@ -53,18 +44,18 @@ public class UpdateGroupMembershipActor extends BaseActor {
   }
 
   private void updateGroupMembership(Request actorMessage) {
-    logger.info("updateGroupMembership method call");
+    logger.info(actorMessage.getContext(),"updateGroupMembership method call");
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     String requestedBy = requestHandler.getRequestedBy(actorMessage);
     String userId = (String) actorMessage.getRequest().get(JsonKey.USER_ID);
     try {
       if (StringUtils.isEmpty(requestedBy) || !requestedBy.equals(userId)) {
-        logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",
                 ResponseCode.GS_MBRSHP_UDT01.getErrorCode(),ResponseCode.GS_MBRSHP_UDT01.getErrorMessage()));
         throw new AuthorizationException.NotAuthorized(ResponseCode.GS_MBRSHP_UDT01);
       }
 
-    logger.info("Update groups details for the userId {}", userId);
+    logger.info(actorMessage.getContext(),MessageFormat.format("Update groups details for the userId {0}", userId));
     List<Map<String, Object>> groups =
         (List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.GROUPS);
 
@@ -73,7 +64,7 @@ public class UpdateGroupMembershipActor extends BaseActor {
 
       if (CollectionUtils.isNotEmpty(members)) {
         MemberService memberService = new MemberServiceImpl();
-        response = memberService.editMembers(members);
+        response = memberService.editMembers(members,actorMessage.getContext());
       }
       boolean isUseridRedisEnabled =
               Boolean.parseBoolean(
@@ -90,19 +81,11 @@ public class UpdateGroupMembershipActor extends BaseActor {
         cacheUtil.delCache(userId);
       }
       sender().tell(response, self());
-      logTelemetry(actorMessage, userId,true);
-    }catch (DBException ex){
-      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_MBRSHP_UDT03.getErrorCode(),ex.getMessage()));
-      logTelemetry(actorMessage, userId,false);
-      throw new BaseException(ResponseCode.GS_MBRSHP_UDT03.getErrorCode(),ResponseCode.GS_MBRSHP_UDT03.getErrorMessage(),ex.getResponseCode());
-    }catch (BaseException ex){
-      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ex.getCode(),ex.getMessage()));
-      logTelemetry(actorMessage, userId,false);
-      throw  new BaseException(ex);
+      TelemetryHandler.logGroupMembershipUpdateTelemetry(actorMessage, userId,true);
     }catch (Exception ex){
-      logger.error(MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
-      logTelemetry(actorMessage, userId,false);
-      throw new BaseException(ResponseCode.GS_UDT03.getErrorCode(),ResponseCode.GS_UDT03.getErrorMessage(),ResponseCode.SERVER_ERROR.getCode());
+      logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+      TelemetryHandler.logGroupMembershipUpdateTelemetry(actorMessage, userId,false);
+      ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_MBRSHP_UDT03);
     }
   }
 
@@ -127,42 +110,4 @@ public class UpdateGroupMembershipActor extends BaseActor {
     return members;
   }
 
-  private void logTelemetry(Request actorMessage, String userId, boolean isSuccess) {
-    String source =
-        actorMessage.getContext().get(JsonKey.REQUEST_SOURCE) != null
-            ? (String) actorMessage.getContext().get(JsonKey.REQUEST_SOURCE)
-            : "";
-
-    List<Map<String, Object>> correlatedObject = new ArrayList<>();
-    if (StringUtils.isNotBlank(source)) {
-      TelemetryUtil.generateCorrelatedObject(
-          source, StringUtils.capitalize(JsonKey.REQUEST_SOURCE), null, correlatedObject);
-    }
-    List<Map<String,Object>> groups =(List<Map<String, Object>>) actorMessage.getRequest().get(JsonKey.GROUPS);
-    for (Map<String,Object> group:groups) {
-      // Add group info information to Cdata
-      TelemetryUtil.generateCorrelatedObject(
-              (String) group.get(JsonKey.GROUP_ID),
-              TelemetryEnvKey.GROUPID,
-              null,
-              correlatedObject);
-    }
-    Map<String, Object> targetObject = null;
-    if(isSuccess) {
-      targetObject =
-              TelemetryUtil.generateTargetObject(
-                      userId, TelemetryEnvKey.MEMBER_UPDATE, null, null, null, TelemetryEnvKey.GROUP_DETAIL);
-    }else{
-      targetObject =
-              TelemetryUtil.generateTargetObject(
-                      userId, TelemetryEnvKey.GROUP_ERROR, TelemetryEnvKey.MEMBER_UPDATE, null, null, TelemetryEnvKey.GROUP_DETAIL);
-    }
-    TelemetryUtil.generateCorrelatedObject(
-        (String) actorMessage.getContext().get(JsonKey.USER_ID),
-        TelemetryEnvKey.USER,
-        null,
-        correlatedObject);
-    TelemetryUtil.telemetryProcessingCall(
-        actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
-  }
 }
