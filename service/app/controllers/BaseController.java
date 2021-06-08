@@ -68,9 +68,6 @@ public class BaseController extends Controller {
         return invoke(request);
       } catch (Exception  ex) {
 
-        PrintEntryExitLog.printExitLogOnFailure(
-                request,
-                ex);
         return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
                 .thenApply(result -> {
                   return ResponseHandler.handleFailureResponse(ex, request);
