@@ -161,7 +161,7 @@ public class UpdateGroupActor extends BaseActor {
     try {
       return groupService.readGroup(groupId, reqContext);
     }catch (BaseException ex){
-      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getCode(),ex.getMessage()));
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getCode(),ex.getMessage()),ex);
       throw new BaseException(ResponseCode.GS_UDT07.getErrorCode(),ResponseCode.GS_UDT07.getErrorMessage(),ex.getResponseCode());
     }
   }

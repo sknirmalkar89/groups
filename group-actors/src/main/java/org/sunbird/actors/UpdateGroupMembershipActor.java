@@ -83,7 +83,7 @@ public class UpdateGroupMembershipActor extends BaseActor {
       sender().tell(response, self());
       TelemetryHandler.logGroupMembershipUpdateTelemetry(actorMessage, userId,true);
     }catch (Exception ex){
-      logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+      logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()),ex);
       TelemetryHandler.logGroupMembershipUpdateTelemetry(actorMessage, userId,false);
       ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_MBRSHP_UDT03);
     }
