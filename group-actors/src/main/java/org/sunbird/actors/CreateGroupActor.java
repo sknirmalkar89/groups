@@ -123,7 +123,9 @@ public class CreateGroupActor extends BaseActor {
         sender().tell(response, self());
 
     }catch (Exception ex){
-        logger.error(actorMessage.getContext(),
+      logger.info(actorMessage.getContext(),MessageFormat.format("CreateGroupActor: Request: {0}",actorMessage.getRequest()));
+
+      logger.error(actorMessage.getContext(),
                 MessageFormat.format("CreateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_CRT03.getErrorCode(),ex.getMessage()),
                 ex);
         ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_CRT03);

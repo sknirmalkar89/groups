@@ -84,6 +84,8 @@ public class DeleteGroupActor extends BaseActor {
      sender().tell(response, self());
      TelemetryHandler.logGroupDeleteTelemetry(actorMessage, groupId, dbResGroup,true);
    }catch (Exception ex){
+     logger.info(actorMessage.getContext(),MessageFormat.format("DeleteGroupActor: Request: {0}",actorMessage.getRequest()));
+
      logger.error(actorMessage.getContext(),MessageFormat.format("DeleteGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_DLT03.getErrorCode(),ex.getMessage()),ex);
      TelemetryHandler.logGroupDeleteTelemetry(actorMessage, groupId, dbResGroup,false);
      ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_DLT03);
