@@ -25,6 +25,7 @@ public class GroupDeleteRequestValidator implements IRequestValidator {
               JsonKey.REQUEST,request.getContext());
       return true;
     }catch (BaseException ex){
+      logger.info(request.getContext(),MessageFormat.format("GroupDeleteRequestValidator: Request: {0}",request.getRequest()));
       logger.error(request.getContext(), MessageFormat.format("GroupDeleteRequestValidator:Error Code: {0}, ErrMsg {1}",ResponseCode.GS_DLT02.getErrorCode(),ex.getMessage()),ex);
       throw new BaseException(ResponseCode.GS_DLT02.getErrorCode(),ResponseCode.GS_DLT02.getErrorMessage(),ex.getResponseCode());
     }
