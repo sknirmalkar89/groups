@@ -152,7 +152,7 @@ public class UpdateGroupActor extends BaseActor {
       TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group, dbResGroup,true);
     }catch (Exception ex){
        logger.info(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Request: {0}",actorMessage.getRequest()));
-       logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT03.getErrorCode(),ex.getMessage()));
+       logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor:  Error Msg: {0} ",ex.getMessage()),ex);
        TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group,dbResGroup,false);
        ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_UDT03);
     }
@@ -162,7 +162,6 @@ public class UpdateGroupActor extends BaseActor {
     try {
       return groupService.readGroup(groupId, reqContext);
     }catch (BaseException ex){
-      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT07.getCode(),ex.getMessage()),ex);
       throw new BaseException(ResponseCode.GS_UDT07.getErrorCode(),ResponseCode.GS_UDT07.getErrorMessage(),ex.getResponseCode());
     }
   }

@@ -95,9 +95,10 @@ public class LoggerUtil {
         telemetryInfo.put(JsonKey.TELEMETRY_EVENT_TYPE, TelemetryEvents.ERROR.getName());
         telemetryInfo.put(org.sunbird.util.JsonKey.CONTEXT,requestContext);
         Map<String, Object> params = new HashMap<>();
-        params.put(JsonKey.ERROR, baseException.getMessage());
-        params.put(JsonKey.ERR_TYPE,baseException.getCode());
+        params.put(JsonKey.ERR, baseException.getCode());
+        params.put(JsonKey.ERR_TYPE,JsonKey.SYSTEM);
         params.put(JsonKey.STACKTRACE, generateStackTrace(e.getStackTrace()));
+        params.put(JsonKey.REQUEST_ID,requestContext.get(JsonKey.REQUEST_ID));
         telemetryInfo.put(org.sunbird.util.JsonKey.PARAMS,params);
         request.setRequest(telemetryInfo);
         TelemetryWriter.write(request);

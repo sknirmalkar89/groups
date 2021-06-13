@@ -105,8 +105,8 @@ public class SearchGroupActor extends BaseActor {
       Response response = new Response(result, ResponseCode.OK.getCode());
       sender().tell(response, self());
     }catch (Exception ex){
-      logger.info(request.getContext(),MessageFormat.format("SearchGroupActor: Request: {0}",request.getRequest()));
-      logger.error(request.getContext(),MessageFormat.format("SearchGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_LST03.getErrorCode(),ex.getMessage()),ex);
+      logger.debug(request.getContext(),MessageFormat.format("SearchGroupActor: Request: {0}",request.getRequest()));
+      logger.error(request.getContext(),MessageFormat.format("SearchGroupActor: Error Msg: {0} ",ex.getMessage()),ex);
       ExceptionHandler.handleExceptions(request, ex, ResponseCode.GS_LST03);
     }
   }

@@ -32,6 +32,7 @@ public class EntryExitLogEvent {
     this.edata.put(JsonKey.TYPE, type);
     this.edata.put(JsonKey.LEVEL, level);
     this.edata.put(JsonKey.MESSAGE, message);
+    this.edata.put(JsonKey.REQUEST_ID,requestid);
     this.edata.put(JsonKey.PARAMS, params);
     this.edata.put(JsonKey.CONTEXT, context);
   }
