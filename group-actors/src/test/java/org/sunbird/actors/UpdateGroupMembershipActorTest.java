@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
 import org.sunbird.Application;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.Localizer;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
 
@@ -47,30 +48,24 @@ import org.sunbird.util.helper.PropertiesCache;
 })
 @PowerMockIgnore({"javax.management.*", "jdk.internal.reflect.*"})
 public class UpdateGroupMembershipActorTest extends BaseActorTest {
-  private final Props props = Props.create(UpdateGroupMembershipActor.class);
   private Logger logger = LoggerFactory.getLogger(UpdateGroupMembershipActor.class);
-  public static CassandraOperation cassandraOperation;
+  Props props = Props.create(UpdateGroupMembershipActor.class);
 
-  @Before
-  public void setUp() throws Exception {
+  @Test
+  public void testUpdateGroupMembership() throws Exception {
+    TestKit probe = new TestKit(system);
     PowerMockito.mockStatic(Localizer.class);
     when(Localizer.getInstance()).thenReturn(null);
-
+    mockCacheActor();
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+    ActorRef subject = system.actorOf(props);
+    CassandraOperation cassandraOperation;
     PowerMockito.mockStatic(ServiceFactory.class);
     cassandraOperation = mock(CassandraOperationImpl.class);
     when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
-    mockCacheActor();
-    PowerMockito.mockStatic(SystemConfigUtil.class);
-  }
-
-  @Test
-  public void testUpdateGroupMembership() {
-    TestKit probe = new TestKit(system);
-    ActorRef subject = system.actorOf(props);
-
     try {
       when(cassandraOperation.batchUpdate(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
 
     } catch (BaseException be) {
@@ -79,8 +74,37 @@ public class UpdateGroupMembershipActorTest extends BaseActorTest {
 
     Request reqObj = updateGroupMembershipReq();
     subject.tell(reqObj, probe.getRef());
-    Response res = probe.expectMsgClass(Duration.ofSeconds(2000), Response.class);
+    Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
+  }
+
+  @Test
+  public void testUpdateGroupMembershipDBException() throws Exception {
+    TestKit probe = new TestKit(system);
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
+    mockCacheActor();
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+    ActorRef subject = system.actorOf(props);
+    CassandraOperation cassandraOperation;
+    PowerMockito.mockStatic(ServiceFactory.class);
+    cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    try {
+      when(cassandraOperation.batchUpdate(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
+              .thenThrow(DBException.class);
+
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+
+    Request reqObj = updateGroupMembershipReq();
+    try {
+      subject.tell(reqObj, probe.getRef());
+    }catch (DBException ex){
+      Assert.assertTrue(true);
+    }
   }
 
   private static Request updateGroupMembershipReq() {

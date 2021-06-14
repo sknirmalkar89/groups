@@ -27,14 +27,15 @@ import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
 import org.sunbird.common.CassandraUtil;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
+import org.sunbird.common.exception.BaseException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
@@ -65,18 +66,18 @@ public class CreateGroupActorTest extends BaseActorTest {
 
     // when inserting record to cassandra insert record in to EmbeddedCassandra
     when(cassandraOperation.insertRecord(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
         .thenReturn(CassandraMocker.getCreateGroupResponse(reqObj));
 
     when(cassandraOperation.batchInsert(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
         .thenReturn(CassandraMocker.addMembersToGroup(reqObj));
 
     List<Map<String, Object>> members =
         (List<Map<String, Object>>) reqObj.getRequest().get(JsonKey.MEMBERS);
 
     when(cassandraOperation.upsertRecord(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
         .thenReturn(
             CassandraMocker.updateUserGroup(members, (String) reqObj.getRequest().get(JsonKey.ID)));
 
@@ -180,10 +181,36 @@ public class CreateGroupActorTest extends BaseActorTest {
     List activityErrorList = (List) error.get(JsonKey.ACTIVITIES);
     Assert.assertEquals(
         ((Map) memberErrorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_MEMBER_MAX_LIMIT);
+        IResponseMessage.Key.GS_CRT05);
     Assert.assertEquals(
         ((Map) activityErrorList.get(0)).get(JsonKey.ERROR_CODE),
-        IResponseMessage.Key.EXCEEDED_ACTIVITY_MAX_LIMIT);
+        IResponseMessage.Key.GS_CRT06);
+  }
+
+  @Test
+  public void testCreateGroupForMaxGroup() throws Exception {
+    mockCacheActor();
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
+    PowerMockito.mockStatic(SystemConfigUtil.class);
+
+    PowerMockito.mockStatic(PropertiesCache.class);
+    propertiesCache = mock(PropertiesCache.class);
+    when(PropertiesCache.getInstance()).thenReturn(propertiesCache);
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_MEMBERS_LIMIT))
+            .thenReturn("4");
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_ACTIVITY_LIMIT)).thenReturn("1");
+    when(PropertiesCache.getInstance().getProperty(JsonKey.MAX_GROUP_LIMIT)).thenReturn("0");
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = createGroupReq();
+    try {
+      subject.tell(reqObj, probe.getRef());
+    }catch (BaseException ex){
+      Assert.assertTrue(true);
+    }
+
+
   }
 
   private static Request createGroupReq() {

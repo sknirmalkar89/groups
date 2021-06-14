@@ -18,9 +18,9 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.sunbird.Application;
 import org.sunbird.cache.impl.RedisCache;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 
 @PrepareForTest({Application.class, RedisCache.class})
 public abstract class BaseActorTest {

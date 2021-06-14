@@ -7,19 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.IResponseMessage;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.IResponseMessage;
 import org.sunbird.models.SearchRequest;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 import org.sunbird.util.HttpClientUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 import org.sunbird.util.helper.PropertiesCache;
 
 public class UserServiceImpl implements UserService {
 
-  Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+  LoggerUtil logger = new LoggerUtil(UserServiceImpl.class);
 
   private static String userServiceSearchUrl;
   private static String userServiceBaseUrl;
@@ -76,10 +75,10 @@ public class UserServiceImpl implements UserService {
       String searchJsonStrReq = objectMapper.writeValueAsString(searchRequest);
       String response =
           HttpClientUtil.post(
-              userServiceBaseUrl + userServiceSearchUrl, searchJsonStrReq, requestHeader);
-      getResponseObject(responseObj, response);
+              userServiceBaseUrl + userServiceSearchUrl, searchJsonStrReq, requestHeader,reqContext);
+      getResponseObject(responseObj, response, reqContext);
     } catch (JsonProcessingException ex) {
-      logger.error("Error while fetching user details through user service" + ex.getMessage());
+      logger.error(reqContext,"Error while fetching user details through user service" + ex.getMessage());
       throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
     }
     return responseObj;
@@ -96,10 +95,10 @@ public class UserServiceImpl implements UserService {
     try {
 
       String response =
-          HttpClientUtil.get(userServiceBaseUrl + userServiceSystemSettingUrl, requestHeader);
-      getResponseObject(responseObj, response);
+          HttpClientUtil.get(userServiceBaseUrl + userServiceSystemSettingUrl, requestHeader, requestContext);
+      getResponseObject(responseObj, response,requestContext);
     } catch (JsonProcessingException ex) {
-      logger.error("Error while fetching system setting through user service" + ex.getMessage());
+      logger.error(requestContext, "Error while fetching system setting through user service" + ex.getMessage());
       throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
     }
     return responseObj;
@@ -120,22 +119,22 @@ public class UserServiceImpl implements UserService {
           HttpClientUtil.post(
               userServiceBaseUrl + userServiceOrgReadUrl,
               objectMapper.writeValueAsString(readRequest),
-              requestHeader);
-      getResponseObject(responseObj, response);
+              requestHeader,requestContext);
+      getResponseObject(responseObj, response, requestContext);
     } catch (Exception ex) {
-      logger.error("Error while fetching org details through user service" + ex.getMessage());
+      logger.error(requestContext,"Error while fetching org details through user service" + ex.getMessage());
       throw new BaseException(IResponseMessage.SERVER_ERROR, IResponseMessage.INTERNAL_ERROR);
     }
     return responseObj;
   }
 
-  private void getResponseObject(Response responseObj, String response)
+  private void getResponseObject(Response responseObj, String response, Map<String,Object> reqContext)
       throws JsonProcessingException {
     if (StringUtils.isNotBlank(response)) {
       Map<String, Object> responseMap = objectMapper.readValue(response, Map.class);
       responseObj.putAll((Map<String, Object>) responseMap.get(JsonKey.RESULT));
     } else {
-      logger.error("Empty response from the user service:" + response);
+      logger.error(reqContext,"Empty response from the user service:" + response);
     }
   }
 

@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Map;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.cache.impl.RedisCache;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import scala.collection.JavaConverters;
 
 @ActorConfig(

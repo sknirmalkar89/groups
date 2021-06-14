@@ -26,13 +26,14 @@ import org.slf4j.LoggerFactory;
 import org.sunbird.Application;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.Localizer;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.SystemConfigUtil;
 import org.sunbird.util.helper.PropertiesCache;
 
@@ -74,26 +75,27 @@ public class DeleteGroupActorTest extends BaseActorTest {
   }
 
   @Test
-  public void testUpdateGroup() {
+  public void testDeleteroup() {
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
 
     try {
 
       when(cassandraOperation.batchDelete(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
           .thenReturn(getCassandraResponse());
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq("group_member"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getMemberResponse());
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.deleteRecord(
-              Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
           .thenReturn(getCassandraResponse());
     } catch (BaseException be) {
       Assert.assertTrue(false);
@@ -104,6 +106,41 @@ public class DeleteGroupActorTest extends BaseActorTest {
     Response res = probe.expectMsgClass(Duration.ofSeconds(20), Response.class);
     Assert.assertTrue(null != res && res.getResponseCode() == 200);
   }
+
+  @Test
+  public void testDeleteGroupDBException() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+
+    try {
+
+      when(cassandraOperation.batchDelete(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString(),
+              Mockito.any()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
+              .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+    Request reqObj = deleteGroupReq();
+    try {
+       subject.tell(reqObj, probe.getRef());
+    }catch (DBException ex){
+      Assert.assertTrue(true);
+    }
+  }
+
 
   static Response getMemberResponse() {
     List<Map<String, Object>> members = new ArrayList<>();

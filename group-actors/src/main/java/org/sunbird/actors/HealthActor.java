@@ -1,8 +1,8 @@
 package org.sunbird.actors;
 
 import org.sunbird.actor.core.ActorConfig;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
 
 @ActorConfig(
   tasks = {"health"},

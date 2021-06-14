@@ -1,10 +1,10 @@
-package org.sunbird.request;
+package org.sunbird.common.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request implements Serializable {

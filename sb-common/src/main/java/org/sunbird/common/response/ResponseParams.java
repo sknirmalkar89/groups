@@ -1,4 +1,4 @@
-package org.sunbird.response;
+package org.sunbird.common.response;
 
 import java.io.Serializable;
 

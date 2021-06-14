@@ -1,4 +1,4 @@
-package org.sunbird.exception;
+package org.sunbird.common.exception;
 
 public class BaseException extends RuntimeException {
 
@@ -68,6 +68,12 @@ public class BaseException extends RuntimeException {
     this.responseCode = responseCode;
   }
 
+  public BaseException(BaseException ex){
+    super();
+    this.code=ex.code;
+    this.message=ex.getMessage();
+    this.responseCode=ex.getResponseCode();
+  }
   public BaseException(String code, String message) {
     super();
     this.code = code;

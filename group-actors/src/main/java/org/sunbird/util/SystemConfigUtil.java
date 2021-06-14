@@ -3,14 +3,14 @@ package org.sunbird.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.response.Response;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.common.response.Response;
 import org.sunbird.service.UserService;
 import org.sunbird.service.UserServiceImpl;
+import org.sunbird.common.util.LoggerEnum;
 
 public class SystemConfigUtil {
-  private static Logger logger = LoggerFactory.getLogger(SystemConfigUtil.class);
+  private static LoggerUtil logger = new LoggerUtil(SystemConfigUtil.class);
   private static UserService userService = UserServiceImpl.getInstance();
   private static Map<String, Object> custodianOrgDetails = new HashMap<>();
 
@@ -22,8 +22,7 @@ public class SystemConfigUtil {
     Map<String, String> systemSettingConfig = new HashMap<>();
     Response response = userService.getSystemSettings();
     logger.info(
-        "DataCacheHandler:cacheSystemConfig: Cache system setting fields" + response.getResult(),
-        LoggerEnum.INFO.name());
+        "DataCacheHandler:cacheSystemConfig: Cache system setting fields" + response.getResult()+LoggerEnum.INFO.name());
     List<Map<String, Object>> responseList =
         (List<Map<String, Object>>) response.get(JsonKey.RESPONSE);
     if (null != responseList && !responseList.isEmpty()) {
@@ -42,8 +41,7 @@ public class SystemConfigUtil {
     if (null != custodianOrgId) {
       Response response = userService.getOrganisationDetails(custodianOrgId);
       logger.info(
-          "DataCacheHandler:cacheSystemConfig: Cache system setting fields" + response.getResult(),
-          LoggerEnum.INFO.name());
+          "DataCacheHandler:cacheSystemConfig: Cache system setting fields" + response.getResult()+LoggerEnum.INFO.name());
       if (null != response
           && null != response.getResult()
           && null != response.getResult().get(JsonKey.RESPONSE)) {

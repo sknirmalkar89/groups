@@ -2,7 +2,7 @@ package org.sunbird.helper;
 
 import com.datastax.driver.core.Session;
 import java.util.List;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 
 /**
  * Interface for cassandra connection manager , implementation would be Standalone and Embedde

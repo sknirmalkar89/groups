@@ -12,11 +12,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.Application;
-import org.sunbird.exception.ActorServiceException;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.request.Request;
+import org.sunbird.common.exception.ActorServiceException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.request.Request;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.compat.java8.FutureConverters;
@@ -63,20 +62,19 @@ public class BaseController extends Controller {
    * @return
    */
   public CompletionStage<Result> handleRequest(Request request) {
-    try {
-      PrintEntryExitLog.printEntryLog(request);
-      validate(request);
-      return invoke(request);
-    } catch (Exception ex) {
-      PrintEntryExitLog.printExitLogOnFailure(
-          request,
-          new BaseException(
-              ResponseCode.CLIENT_ERROR.getErrorCode(),
-              ex.getMessage(),
-              ResponseCode.CLIENT_ERROR.getResponseCode()));
-      return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
-          .thenApply(result -> ResponseHandler.handleFailureResponse(ex, request));
-    }
+      try {
+        PrintEntryExitLog.printEntryLog(request);
+        validate(request);
+        return invoke(request);
+      } catch (Exception  ex) {
+
+        return CompletableFuture.supplyAsync(() -> StringUtils.EMPTY)
+                .thenApply(result -> {
+                  return ResponseHandler.handleFailureResponse(ex, request);
+                });
+
+      }
+
   }
 
   /**

@@ -6,8 +6,8 @@ import com.datastax.driver.core.querybuilder.Select.Builder;
 import com.google.common.util.concurrent.FutureCallback;
 import java.util.List;
 import java.util.Map;
-import org.sunbird.exception.BaseException;
-import org.sunbird.response.Response;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.response.Response;
 
 /**
  * @desc this interface will hold functions for cassandra db interaction
@@ -26,7 +26,7 @@ public interface CassandraOperation {
    * @param request Map<String,Object>(i.e map of column name and their value)
    * @return Response Response
    */
-  public Response upsertRecord(String keyspaceName, String tableName, Map<String, Object> request)
+  public Response upsertRecord(String keyspaceName, String tableName, Map<String, Object> request, Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -36,7 +36,7 @@ public interface CassandraOperation {
    * @param request Map<String,Object>(i.e map of column name and their value)
    * @return Response Response
    */
-  public Response insertRecord(String keyspaceName, String tableName, Map<String, Object> request)
+  public Response insertRecord(String keyspaceName, String tableName, Map<String, Object> request, Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -46,7 +46,7 @@ public interface CassandraOperation {
    * @param request Map<String,Object>(i.e map of column name and their value)
    * @return Response Response
    */
-  public Response updateRecord(String keyspaceName, String tableName, Map<String, Object> request)
+  public Response updateRecord(String keyspaceName, String tableName, Map<String, Object> request,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -56,7 +56,7 @@ public interface CassandraOperation {
    * @param identifier String
    * @return Response Response
    */
-  public Response deleteRecord(String keyspaceName, String tableName, String identifier)
+  public Response deleteRecord(String keyspaceName, String tableName, String identifier,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -66,7 +66,7 @@ public interface CassandraOperation {
    * @param compositeKeyMap Column map for composite primary key
    */
   public void deleteRecord(
-      String keyspaceName, String tableName, Map<String, String> compositeKeyMap)
+      String keyspaceName, String tableName, Map<String, String> compositeKeyMap,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -77,7 +77,7 @@ public interface CassandraOperation {
    * @param identifierList List of primary keys of records to be deleted
    * @return Status of delete records operation
    */
-  public boolean deleteRecords(String keyspaceName, String tableName, List<String> identifierList)
+  public boolean deleteRecords(String keyspaceName, String tableName, List<String> identifierList,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -90,7 +90,7 @@ public interface CassandraOperation {
    * @return Response Response
    */
   public Response getRecordsByProperty(
-      String keyspaceName, String tableName, String propertyName, Object propertyValue)
+      String keyspaceName, String tableName, String propertyName, Object propertyValue,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -108,7 +108,8 @@ public interface CassandraOperation {
       String tableName,
       String propertyName,
       Object propertyValue,
-      List<String> fields)
+      List<String> fields,
+      Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -121,7 +122,7 @@ public interface CassandraOperation {
    * @return Response Response
    */
   public Response getRecordsByProperty(
-      String keyspaceName, String tableName, String propertyName, List<Object> propertyValueList)
+      String keyspaceName, String tableName, String propertyName, List<Object> propertyValueList,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -140,7 +141,8 @@ public interface CassandraOperation {
       String tableName,
       String propertyName,
       List<Object> propertyValueList,
-      List<String> fields)
+      List<String> fields,
+      Map<String,Object> reqConext)
       throws BaseException;
 
   /**
@@ -153,7 +155,7 @@ public interface CassandraOperation {
    * @return Response consisting of fetched records
    */
   Response getRecordsByIndexedProperty(
-      String keyspaceName, String tableName, String propertyName, Object propertyValue)
+      String keyspaceName, String tableName, String propertyName, Object propertyValue,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -164,7 +166,7 @@ public interface CassandraOperation {
    * @return Response Response
    */
   public Response getRecordsByProperties(
-      String keyspaceName, String tableName, Map<String, Object> propertyMap) throws BaseException;
+      String keyspaceName, String tableName, Map<String, Object> propertyMap,  Map<String,Object> reqContext) throws BaseException;
 
   /**
    * Fetch records with specified columns (select all if null) for given column map (name, value
@@ -177,7 +179,7 @@ public interface CassandraOperation {
    * @return Response consisting of fetched records
    */
   Response getRecordsByProperties(
-      String keyspaceName, String tableName, Map<String, Object> propertyMap, List<String> fields)
+      String keyspaceName, String tableName, Map<String, Object> propertyMap, List<String> fields,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -189,7 +191,7 @@ public interface CassandraOperation {
    * @return Response.
    */
   public Response getPropertiesValueById(
-      String keyspaceName, String tableName, String id, String... properties) throws BaseException;
+      String keyspaceName, String tableName, String id,  Map<String,Object> reqContext, String... properties) throws BaseException;
 
   /**
    * @desc This method is used to fetch all records for table(i.e Select * from tableName)
@@ -197,7 +199,7 @@ public interface CassandraOperation {
    * @param tableName String
    * @return Response Response
    */
-  public Response getAllRecords(String keyspaceName, String tableName) throws BaseException;
+  public Response getAllRecords(String keyspaceName, String tableName,  Map<String,Object> reqContext) throws BaseException;
 
   /**
    * Method to update the record on basis of composite primary key.
@@ -212,7 +214,8 @@ public interface CassandraOperation {
       String keyspaceName,
       String tableName,
       Map<String, Object> updateAttributes,
-      Map<String, Object> compositeKey)
+      Map<String, Object> compositeKey,
+      Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -223,7 +226,7 @@ public interface CassandraOperation {
    * @param key Primary key
    * @return Response consisting of matched record
    */
-  Response getRecordById(String keyspaceName, String tableName, String key) throws BaseException;
+  Response getRecordById(String keyspaceName, String tableName, String key,  Map<String,Object> reqContext) throws BaseException;
 
   /**
    * Method to get record by composite primary key.
@@ -233,7 +236,7 @@ public interface CassandraOperation {
    * @param key Column map representing composite primary key
    * @return Response consisting of matched record
    */
-  Response getRecordById(String keyspaceName, String tableName, Map<String, Object> key)
+  Response getRecordById(String keyspaceName, String tableName, Map<String, Object> key,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -245,7 +248,7 @@ public interface CassandraOperation {
    * @param fields List of columns to be returned in each record
    * @return Response consisting of matched record
    */
-  Response getRecordById(String keyspaceName, String tableName, String key, List<String> fields)
+  Response getRecordById(String keyspaceName, String tableName, String key, List<String> fields,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -259,7 +262,7 @@ public interface CassandraOperation {
    * @return Response consisting of matched record
    */
   Response getRecordById(
-      String keyspaceName, String tableName, Map<String, Object> key, List<String> fields)
+      String keyspaceName, String tableName, Map<String, Object> key, List<String> fields,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -277,7 +280,8 @@ public interface CassandraOperation {
       String tableName,
       Map<String, Object> key,
       List<String> ttlFields,
-      List<String> fields)
+      List<String> fields,
+      Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -288,7 +292,7 @@ public interface CassandraOperation {
    * @param records List of records in the batch insert operation
    * @return Response indicating status of operation
    */
-  Response batchInsert(String keyspaceName, String tableName, List<Map<String, Object>> records)
+  Response batchInsert(String keyspaceName, String tableName, List<Map<String, Object>> records,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -301,10 +305,10 @@ public interface CassandraOperation {
    * @return Response indicating status of operation
    */
   Response batchUpdate(
-      String keyspaceName, String tableName, List<Map<String, Map<String, Object>>> records)
+      String keyspaceName, String tableName, List<Map<String, Map<String, Object>>> records,  Map<String,Object> reqContext)
       throws BaseException;
 
-  Response batchUpdateById(String keyspaceName, String tableName, List<Map<String, Object>> records)
+  Response batchUpdateById(String keyspaceName, String tableName, List<Map<String, Object>> records,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -316,7 +320,7 @@ public interface CassandraOperation {
    * @return Response consisting of fetched records
    */
   Response getRecordsByCompositeKey(
-      String keyspaceName, String tableName, Map<String, Object> compositeKeyMap)
+      String keyspaceName, String tableName, Map<String, Object> compositeKeyMap,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -329,7 +333,7 @@ public interface CassandraOperation {
    * @return Response consisting of fetched records
    */
   Response getRecordsByIdsWithSpecifiedColumns(
-      String keyspaceName, String tableName, List<String> properties, List<String> ids)
+      String keyspaceName, String tableName, List<String> properties, List<String> ids,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -342,7 +346,7 @@ public interface CassandraOperation {
    * @return Response consisting of fetched records
    */
   Response getRecordsByPrimaryKeys(
-      String keyspaceName, String tableName, List<String> primaryKeys, String primaryKeyColumnName)
+      String keyspaceName, String tableName, List<String> primaryKeys, String primaryKeyColumnName,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -355,7 +359,7 @@ public interface CassandraOperation {
    * @return Response indicating status of operation
    */
   public Response insertRecordWithTTL(
-      String keyspaceName, String tableName, Map<String, Object> request, int ttl)
+      String keyspaceName, String tableName, Map<String, Object> request, int ttl,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -373,7 +377,8 @@ public interface CassandraOperation {
       String tableName,
       Map<String, Object> request,
       Map<String, Object> compositeKey,
-      int ttl)
+      int ttl,
+      Map<String,Object> reqContext)
       throws BaseException;
   /**
    * Fetch records with specified columns that match given partition / primary key. Multiple records
@@ -391,7 +396,8 @@ public interface CassandraOperation {
       String tableName,
       Map<String, Object> primaryKeys,
       List<String> properties,
-      Map<String, String> ttlPropertiesWithAlias)
+      Map<String, String> ttlPropertiesWithAlias,
+      Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -405,11 +411,11 @@ public interface CassandraOperation {
    * @return Response indicating status of operation
    */
   Response batchInsertWithTTL(
-      String keyspaceName, String tableName, List<Map<String, Object>> records, List<Integer> ttls)
+      String keyspaceName, String tableName, List<Map<String, Object>> records, List<Integer> ttls,  Map<String,Object> reqContext)
       throws BaseException;
 
   public Response getRecords(
-      String keyspace, String table, Map<String, Object> filters, List<String> fields)
+      String keyspace, String table, Map<String, Object> filters, List<String> fields,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -426,7 +432,8 @@ public interface CassandraOperation {
       String table,
       Map<String, Object> filters,
       List<String> fields,
-      FutureCallback<ResultSet> callback)
+      FutureCallback<ResultSet> callback,
+      Map<String,Object> reqConext)
       throws BaseException;
 
   public Response getRecordByObjectType(
@@ -435,11 +442,12 @@ public interface CassandraOperation {
       String columnName,
       String key,
       int value,
-      String objectType)
+      String objectType,
+      Map<String,Object> reqConext)
       throws BaseException;
 
   public Response performBatchAction(
-      String keyspaceName, String tableName, Map<String, Object> inputData) throws BaseException;
+      String keyspaceName, String tableName, Map<String, Object> inputData,  Map<String,Object> reqContext) throws BaseException;
 
   /**
    * this method will be used to do CONTAINS query in list
@@ -450,7 +458,7 @@ public interface CassandraOperation {
    * @param Value
    * @return
    */
-  Response searchValueInList(String keyspace, String tableName, String key, String Value)
+  Response searchValueInList(String keyspace, String tableName, String key, String Value,  Map<String,Object> reqContext)
       throws BaseException;
 
   /**
@@ -464,10 +472,10 @@ public interface CassandraOperation {
    * @return
    */
   Response searchValueInList(
-      String keyspace, String tableName, String key, String Value, Map<String, Object> propertyMap)
+      String keyspace, String tableName, String key, String Value, Map<String, Object> propertyMap,  Map<String,Object> reqContext)
       throws BaseException;
 
-  /**
+  /** This method will update the Map record
    * @param keySpace
    * @param table
    * @param primaryKey
@@ -482,10 +490,11 @@ public interface CassandraOperation {
       Map<String, Object> primaryKey,
       String column,
       String key,
-      Object value)
+      Object value,
+      Map<String,Object> reqContext)
       throws BaseException;
 
-  /**
+  /** This method will remove map record
    * @param keySpace
    * @param table
    * @param primaryKey
@@ -494,21 +503,62 @@ public interface CassandraOperation {
    * @return
    */
   public Response updateRemoveMapRecord(
-      String keySpace, String table, Map<String, Object> primaryKey, String column, String key)
+      String keySpace, String table, Map<String, Object> primaryKey, String column, String key,  Map<String,Object> reqContext)
       throws BaseException;
 
+  /** This method will update set record
+   *
+   * @param keySpace
+   * @param table
+   * @param primaryKey
+   * @param column
+   * @param value
+   * @param reqConext
+   * @return
+   * @throws BaseException
+   */
   public Response updateAddSetRecord(
-      String keySpace, String table, Map<String, Object> primaryKey, String column, Object value)
+      String keySpace, String table, Map<String, Object> primaryKey, String column, Object value,  Map<String,Object> reqContext)
       throws BaseException;
 
+  /** This method will remove set record
+   *
+   * @param keySpace
+   * @param table
+   * @param primaryKey
+   * @param column
+   * @param value
+   * @param reqConext
+   * @return
+   * @throws BaseException
+   */
   public Response updateRemoveSetRecord(
-      String keySpace, String table, Map<String, Object> primaryKey, String column, Object value)
+      String keySpace, String table, Map<String, Object> primaryKey, String column, Object value,  Map<String,Object> reqContext)
       throws BaseException;
 
+  /**  This method will execute select query passed as parameter
+   *
+   * @param keyspaceName
+   * @param tableName
+   * @param properties
+   * @param selectBuilder
+   * @param reqConext
+   * @return
+   * @throws BaseException
+   */
   public Response executeSelectQuery(
-      String keyspaceName, String tableName, Map<String, Object> properties, Builder selectBuilder)
+      String keyspaceName, String tableName, Map<String, Object> properties, Builder selectBuilder,  Map<String,Object> reqContext)
       throws BaseException;
 
-  public Response batchDelete(String keyspaceName, String tableName, List<Map<String, Object>> list)
+  /** This method will delete the record in batches
+   *
+   * @param keyspaceName
+   * @param tableName
+   * @param list
+   * @param reqConext
+   * @return
+   * @throws BaseException
+   */
+  public Response batchDelete(String keyspaceName, String tableName, List<Map<String, Object>> list,  Map<String,Object> reqContext)
       throws BaseException;
 }

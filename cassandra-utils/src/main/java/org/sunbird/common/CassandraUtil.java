@@ -18,11 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunbird.cassandraannotation.ClusteringKey;
 import org.sunbird.cassandraannotation.PartitioningKey;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.helper.CassandraPropertyReader;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.ResponseCode;
-import org.sunbird.response.Response;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.response.Response;
 
 /**
  * @desc This class will provide all required helper method for cassandra db operation.

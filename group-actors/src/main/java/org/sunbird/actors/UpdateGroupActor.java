@@ -1,5 +1,6 @@
 package org.sunbird.actors;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,24 +9,20 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
-import org.sunbird.exception.AuthorizationException;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.message.ResponseCode;
+import org.sunbird.common.exception.AuthorizationException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.Group;
 import org.sunbird.models.MemberResponse;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
 import org.sunbird.service.GroupService;
 import org.sunbird.service.GroupServiceImpl;
 import org.sunbird.service.MemberService;
 import org.sunbird.service.MemberServiceImpl;
-import org.sunbird.telemetry.TelemetryEnvKey;
-import org.sunbird.telemetry.util.TelemetryUtil;
-import org.sunbird.util.CacheUtil;
-import org.sunbird.util.GroupRequestHandler;
-import org.sunbird.util.GroupUtil;
-import org.sunbird.util.JsonKey;
+import org.sunbird.util.*;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.util.helper.PropertiesCache;
 
 @ActorConfig(
@@ -35,7 +32,7 @@ import org.sunbird.util.helper.PropertiesCache;
 )
 public class UpdateGroupActor extends BaseActor {
   private CacheUtil cacheUtil = new CacheUtil();
-
+  private LoggerUtil logger = new LoggerUtil(UpdateGroupActor.class);
   @Override
   public void onReceive(Request request) throws Throwable {
     String operation = request.getOperation();
@@ -53,104 +50,120 @@ public class UpdateGroupActor extends BaseActor {
    * @param actorMessage
    */
   private void updateGroup(Request actorMessage) throws BaseException {
-    logger.info("UpdateGroup method call");
+    logger.info(actorMessage.getContext(),"UpdateGroup method call");
 
     GroupRequestHandler requestHandler = new GroupRequestHandler();
     Group group = requestHandler.handleUpdateGroupRequest(actorMessage);
     GroupService groupService = new GroupServiceImpl();
 
-    logger.info("Update group for the groupId {}", group.getId());
-
+    logger.info(actorMessage.getContext(),MessageFormat.format("Update group for the groupId {0}", group.getId()));
+    Map<String, Object> dbResGroup= null;
     String userId = group.getUpdatedBy();
-    if (StringUtils.isEmpty(userId)) {
-      throw new AuthorizationException.NotAuthorized();
-    }
-
-    Map<String, Object> dbResGroup = groupService.readGroup(group.getId());
-
-    // Check if it is an exit group request
-    boolean isExitGroupRequest =
-        isExitGroupRequest(
-            group, userId, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.MEMBERS));
-    // Only exit group and activate group request is allowed in suspended group state
-    if (!isExitGroupRequest
-        && JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
-        && (StringUtils.isBlank(group.getStatus())
-            || JsonKey.SUSPENDED.equals(group.getStatus()))) {
-      throw new ValidationException.GroupNotActive(group.getId());
-    }
-
-    Map<String, List<Map<String, String>>> responseMap = new HashMap<>();
-    // member validation and updates to group
-    MemberService memberService = new MemberServiceImpl();
-    List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId());
-
-    // Check if user is authorized to delete ,suspend and re-activate operation
-    // Allow all member to exit the group
-    if (!isExitGroupRequest) {
-      checkUserAuthorization(
-          dbResGroup, membersInDB, group.getStatus(), userId, actorMessage.getRequest());
-    }
-
-    if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
-      responseMap.put(
-          JsonKey.MEMBERS,
-          validateMembersAndSave(
-              group.getId(),
-              (Map) actorMessage.getRequest().get(JsonKey.MEMBERS),
-              userId,
-              membersInDB));
-    }
-    // Activity validation
-    if (MapUtils.isNotEmpty(
-        (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES))) {
-      responseMap.put(
-          JsonKey.ACTIVITIES,
-          validateActivityList(
-              group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)));
-    }
-    boolean deleteFromUserCache = false;
-    // Group and activity updates
-    if (group != null
-        && (StringUtils.isNotEmpty(group.getDescription())
-            || StringUtils.isNotEmpty(group.getName())
-            || StringUtils.isNotEmpty(group.getMembershipType())
-            || StringUtils.isNotEmpty(group.getStatus())
-            || MapUtils.isNotEmpty(
-                (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)))) {
-      cacheUtil.deleteCacheSync(group.getId());
-      // if name, description and status update happens in group , delete cache for all the members
-      // belongs to that group
-      deleteFromUserCache = true;
-      // if inactive status then delete group included to support backward compatability for old
-      // mobile apps
-      if (JsonKey.INACTIVE.equals(group.getStatus())) {
-        Response response = groupService.deleteGroup(group.getId(), membersInDB);
-      } else {
-        Response response = groupService.updateGroup(group);
+    try {
+      if (StringUtils.isEmpty(userId)) {
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_UDT01.getErrorCode(),ResponseCode.GS_UDT01.getErrorMessage()));
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT01);
       }
-    }
+      dbResGroup = readGroup(group.getId(), groupService, actorMessage.getContext());
 
-    boolean isUseridRedisEnabled =
-        Boolean.parseBoolean(
-            PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
-    if (isUseridRedisEnabled) {
-      cacheUtil.deleteCacheSync(userId);
-      // Remove group list user cache from redis
-      deleteUserCache(
-          (Map) actorMessage.getRequest().get(JsonKey.MEMBERS), membersInDB, deleteFromUserCache);
-    }
+      // Check if it is an exit group request
+      boolean isExitGroupRequest =
+              isExitGroupRequest(
+                      group, userId, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.MEMBERS));
+      // Only exit group and activate group request is allowed in suspended group state
+      if (!isExitGroupRequest
+              && JsonKey.SUSPENDED.equals(dbResGroup.get(JsonKey.STATUS))
+              && (StringUtils.isBlank(group.getStatus())
+              || JsonKey.SUSPENDED.equals(group.getStatus()))) {
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1} {2}",ResponseCode.GS_UDT08.getErrorCode(),ResponseCode.GS_UDT08.getErrorMessage(),group.getId()));
+        throw new ValidationException.GroupNotActive(group.getId());
+      }
 
-    Response response = new Response(ResponseCode.OK.getCode());
-    response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
-    if (MapUtils.isNotEmpty(responseMap)
-        && (CollectionUtils.isNotEmpty(responseMap.get(JsonKey.MEMBERS))
-            || CollectionUtils.isNotEmpty(responseMap.get(JsonKey.ACTIVITIES)))) {
-      response.put(JsonKey.ERROR, responseMap);
-    }
-    sender().tell(response, self());
+      Map<String, List<Map<String, String>>> responseMap = new HashMap<>();
+      // member validation and updates to group
+      MemberService memberService = new MemberServiceImpl();
+      List<MemberResponse> membersInDB = memberService.fetchMembersByGroupId(group.getId(),actorMessage.getContext());
 
-    logTelemetry(actorMessage, group, dbResGroup);
+      // Check if user is authorized to delete ,suspend and re-activate operation
+      // Allow all member to exit the group
+      if (!isExitGroupRequest) {
+        checkUserAuthorization(
+                dbResGroup, membersInDB, group.getStatus(), userId, actorMessage.getRequest(),actorMessage.getContext());
+      }
+
+      if (MapUtils.isNotEmpty((Map) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
+        responseMap.put(
+                JsonKey.MEMBERS,
+                validateMembersAndSave(
+                        group.getId(),
+                        (Map) actorMessage.getRequest().get(JsonKey.MEMBERS),
+                        userId,
+                        membersInDB,actorMessage.getContext()));
+      }
+      // Activity validation
+      if (MapUtils.isNotEmpty(
+              (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES))) {
+        responseMap.put(
+                JsonKey.ACTIVITIES,
+                validateActivityList(
+                        group, (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES),actorMessage.getContext()));
+      }
+      boolean deleteFromUserCache = false;
+      // Group and activity updates
+      if (group != null
+              && (StringUtils.isNotEmpty(group.getDescription())
+              || StringUtils.isNotEmpty(group.getName())
+              || StringUtils.isNotEmpty(group.getMembershipType())
+              || StringUtils.isNotEmpty(group.getStatus())
+              || MapUtils.isNotEmpty(
+              (Map<String, Object>) actorMessage.getRequest().get(JsonKey.ACTIVITIES)))) {
+        cacheUtil.deleteCacheSync(group.getId(),actorMessage.getContext());
+        // if name, description and status update happens in group , delete cache for all the members
+        // belongs to that group
+        deleteFromUserCache = true;
+        // if inactive status then delete group included to support backward compatability for old
+        // mobile apps
+        if (JsonKey.INACTIVE.equals(group.getStatus())) {
+          Response response = groupService.deleteGroup(group.getId(), membersInDB,actorMessage.getContext());
+        } else {
+          Response response = groupService.updateGroup(group,actorMessage.getContext());
+        }
+      }
+
+
+      boolean isUseridRedisEnabled =
+              Boolean.parseBoolean(
+                      PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
+      if (isUseridRedisEnabled) {
+        cacheUtil.deleteCacheSync(userId,actorMessage.getContext());
+        // Remove group list user cache from redis
+        deleteUserCache(
+                (Map) actorMessage.getRequest().get(JsonKey.MEMBERS), membersInDB, deleteFromUserCache);
+      }
+
+      Response response = new Response(ResponseCode.OK.getCode());
+      response.put(JsonKey.RESPONSE, JsonKey.SUCCESS);
+      if (MapUtils.isNotEmpty(responseMap)
+              && (CollectionUtils.isNotEmpty(responseMap.get(JsonKey.MEMBERS))
+              || CollectionUtils.isNotEmpty(responseMap.get(JsonKey.ACTIVITIES)))) {
+        response.put(JsonKey.ERROR, responseMap);
+      }
+      sender().tell(response, self());
+      TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group, dbResGroup,true);
+    }catch (Exception ex){
+       logger.info(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Request: {0}",actorMessage.getRequest()));
+       logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor:  Error Msg: {0} ",ex.getMessage()),ex);
+       TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group,dbResGroup,false);
+       ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_UDT03);
+    }
+  }
+
+  private Map<String, Object> readGroup(String groupId, GroupService groupService, Map<String,Object> reqContext) throws BaseException {
+    try {
+      return groupService.readGroup(groupId, reqContext);
+    }catch (BaseException ex){
+      throw new BaseException(ResponseCode.GS_UDT07.getErrorCode(),ResponseCode.GS_UDT07.getErrorMessage(),ex.getResponseCode());
+    }
   }
 
   private boolean isExitGroupRequest(Group group, String userId, Map<String, Object> members) {
@@ -177,18 +190,21 @@ public class UpdateGroupActor extends BaseActor {
       List<MemberResponse> membersInDB,
       String status,
       String userId,
-      Map<String, Object> groupRequest) {
+      Map<String, Object> groupRequest,
+      Map<String,Object> reqContext) {
     MemberResponse member =
         membersInDB.stream().filter(x -> x.getUserId().equals(userId)).findAny().orElse(null);
     // Check User is authorized Suspend , Re-activate or delete the group .
     if ((JsonKey.ACTIVE.equals(status) || JsonKey.SUSPENDED.equals(status))
         && (member == null || !JsonKey.ADMIN.equals(member.getRole()))) {
-      throw new AuthorizationException.NotAuthorized();
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
     }
 
     if (JsonKey.INACTIVE.equals(status)
         && !userId.equals((String) dbResGroup.get(JsonKey.CREATED_BY))) {
-      throw new AuthorizationException.NotAuthorized();
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+      throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
     }
 
     // check only admin should be able to update name, description, status ,add,edit or remove
@@ -199,20 +215,29 @@ public class UpdateGroupActor extends BaseActor {
         || StringUtils.isNotEmpty((String) groupRequest.get(JsonKey.GROUP_STATUS))
         || MapUtils.isNotEmpty((Map) groupRequest.get(JsonKey.MEMBERS))) {
       if (member == null || !JsonKey.ADMIN.equals(member.getRole())) {
-        throw new AuthorizationException.NotAuthorized();
+        logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT09.getErrorCode(),ResponseCode.GS_UDT09.getErrorMessage()));
+        throw new AuthorizationException.NotAuthorized(ResponseCode.GS_UDT09);
       }
     }
+
   }
 
   private List<Map<String, String>> validateActivityList(
-      Group group, Map<String, Object> activityOperationMap) {
+      Group group, Map<String, Object> activityOperationMap, Map<String,Object> reqContext) {
     List<Map<String, Object>> updateActivityList =
-        new GroupServiceImpl().handleActivityOperations(group.getId(), activityOperationMap);
+        new GroupServiceImpl().handleActivityOperations(group.getId(), activityOperationMap,reqContext);
     List<Map<String, String>> activityErrorList = new ArrayList<>();
     boolean isActivityLimitExceeded =
-        GroupUtil.checkMaxActivityLimit(updateActivityList.size(), activityErrorList);
+        GroupUtil.checkMaxActivityLimit(updateActivityList.size());
+
     if (!isActivityLimitExceeded) {
       group.setActivities(updateActivityList);
+    }else{
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT06.getErrorCode(),ResponseCode.GS_UDT06.getErrorMessage()));
+      Map<String, String> errorMap = new HashMap<>();
+      errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT06.getErrorMessage());
+      errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT06.getErrorCode());
+      activityErrorList.add(errorMap);
     }
     return activityErrorList;
   }
@@ -221,7 +246,8 @@ public class UpdateGroupActor extends BaseActor {
       String groupId,
       Map memberOperationMap,
       String requestedBy,
-      List<MemberResponse> membersInDB) {
+      List<MemberResponse> membersInDB,
+      Map<String,Object> reqContext) {
     List<Map<String, String>> memberErrorList = new ArrayList<>();
 
     MemberService memberService = new MemberServiceImpl();
@@ -242,10 +268,18 @@ public class UpdateGroupActor extends BaseActor {
       requestHandler.validateRemoveMembers(memberOperationMap, membersInDB, memberErrorList);
     }
     int totalMemberCount = GroupUtil.totalMemberCount(memberOperationMap, membersInDB);
-    boolean memberLimit = GroupUtil.checkMaxMemberLimit(totalMemberCount, memberErrorList);
+    boolean memberLimit = GroupUtil.checkMaxMemberLimit(totalMemberCount);
+    if(memberLimit){
+      logger.error(reqContext,MessageFormat.format("UpdateGroupActor: Error Code: {0}, Error Msg: {1}",ResponseCode.GS_UDT05.getErrorCode(),ResponseCode.GS_UDT05.getErrorMessage()));
+      Map<String, String> errorMap = new HashMap<>();
+      errorMap.put(JsonKey.ERROR_MESSAGE, ResponseCode.GS_UDT05.getErrorMessage());
+      errorMap.put(JsonKey.ERROR_CODE, ResponseCode.GS_UDT05.getErrorCode());
+      memberErrorList.add(errorMap);
+    }
+
     cacheUtil.delCache(groupId + "_" + JsonKey.MEMBERS);
     if (!memberLimit) {
-      memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy);
+      memberService.handleMemberOperations(memberOperationMap, groupId, requestedBy,reqContext);
     }
     return memberErrorList;
   }
@@ -274,36 +308,6 @@ public class UpdateGroupActor extends BaseActor {
     }
   }
 
-  private void logTelemetry(Request actorMessage, Group group, Map<String, Object> dbResGroup) {
-    Map<String, Object> targetObject = null;
-    List<Map<String, Object>> correlatedObject = new ArrayList<>();
-    if (null != group.getStatus()) {
-      switch (group.getStatus()) {
-        case JsonKey.ACTIVE:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(),
-                  TelemetryEnvKey.GROUP,
-                  JsonKey.ACTIVE,
-                  (String) dbResGroup.get(JsonKey.STATUS));
-          break;
 
-        case JsonKey.SUSPENDED:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(),
-                  TelemetryEnvKey.GROUP,
-                  JsonKey.SUSPENDED,
-                  (String) dbResGroup.get(JsonKey.STATUS));
-          break;
 
-        default:
-          targetObject =
-              TelemetryUtil.generateTargetObject(
-                  group.getId(), TelemetryEnvKey.GROUP, JsonKey.UPDATE, null);
-      }
-      TelemetryUtil.telemetryProcessingCall(
-          actorMessage.getRequest(), targetObject, correlatedObject, actorMessage.getContext());
-    }
-  }
 }

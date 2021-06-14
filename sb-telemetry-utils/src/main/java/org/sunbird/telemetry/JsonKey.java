@@ -6,10 +6,12 @@ public interface JsonKey {
   String CORRELATED_OBJECTS = "correlatedObjects";
   String REQUEST_ID = "requestId";
   String TYPE = "type";
+  String SUB_TYPE = "subtype";
   String TARGET_OBJECT = "targetObject";
   String ROLLUP = "rollup";
   String PROPS = "props";
   String CURRENT_STATE = "CURRENT_STATE";
+  String CURRENTSTATE = "currentstate";
   String STATE = "state";
   String UPDATE = "update";
   String CHANNEL = "channel";
@@ -39,4 +41,8 @@ public interface JsonKey {
   String STACKTRACE = "stackTrace";
   String ERROR = "error";
   String LOG_LEVEL = "logLevel";
+  String PAGE_ID = "pageid";
+  String L1="l1";
+  String ERR="err";
+  String SYSTEM = "SYSTEM";
 }

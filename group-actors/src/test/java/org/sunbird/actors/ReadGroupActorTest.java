@@ -22,12 +22,13 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.util.JsonKey;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.Localizer;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
 import org.sunbird.util.*;
 
 @RunWith(PowerMockRunner.class)
@@ -68,16 +69,17 @@ public class ReadGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members"));
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup"),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
               Mockito.anyMap(),
-              Mockito.anyList()))
+              Mockito.anyList(),
+              Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
       PowerMockito.mockStatic(HttpClientUtil.class);
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getUserServiceResponse());
 
     } catch (BaseException | JsonProcessingException be) {
@@ -99,10 +101,10 @@ public class ReadGroupActorTest extends BaseActorTest {
 
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup"),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       PowerMockito.mockStatic(HttpClientUtil.class);
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getActivityInfoResponse());
       PowerMockito.mockStatic(ActivityConfigReader.class);
       when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))
@@ -134,18 +136,19 @@ public class ReadGroupActorTest extends BaseActorTest {
     reqObj.getRequest().put(JsonKey.FIELDS, Arrays.asList("members", "activities"));
     try {
       when(cassandraOperation.getRecordById(
-              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup")))
+              Mockito.anyString(), Mockito.anyString(), Matchers.eq("TestGroup"),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
       when(cassandraOperation.getRecordsByProperties(
               Mockito.anyString(),
               Matchers.eq(GROUP_MEMBER_TABLE),
               Mockito.anyMap(),
-              Mockito.anyList()))
+              Mockito.anyList(),
+              Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
       PowerMockito.mockStatic(HttpClientUtil.class);
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getUserServiceResponse());
-      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+      when(HttpClientUtil.post(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getActivityInfoResponse());
       PowerMockito.mockStatic(ActivityConfigReader.class);
       when(ActivityConfigReader.getServiceUtilClassName(Mockito.anyString()))

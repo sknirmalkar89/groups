@@ -9,11 +9,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sunbird.exception.BaseException;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 import play.mvc.Result;
 
 public class BaseControllerTest extends BaseApplicationTest {

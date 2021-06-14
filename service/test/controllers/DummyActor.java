@@ -2,7 +2,7 @@ package controllers;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedAbstractActor;
-import org.sunbird.response.Response;
+import org.sunbird.common.response.Response;
 
 public class DummyActor extends UntypedAbstractActor {
 

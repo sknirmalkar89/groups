@@ -1,21 +1,21 @@
 package validators;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.request.Request;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.request.Request;
+import org.sunbird.util.LoggerUtil;
 
 public class ValidationUtil {
 
-  private static Logger logger = LoggerFactory.getLogger(ValidationUtil.class);
+  private static LoggerUtil logger = new LoggerUtil(ValidationUtil.class);
 
   public static void validateRequestObject(Request request) throws BaseException {
     if (request.getRequest().isEmpty()) {
-      logger.error("validateMandatoryParamsOfStringType:incorrect request provided");
+      logger.error(request.getContext(),"validateMandatoryParamsOfStringType:incorrect request provided");
       throw new ValidationException.InvalidRequestData();
     }
   }
@@ -25,7 +25,8 @@ public class ValidationUtil {
       List<String> mandatoryParamsList,
       Class<?> type,
       boolean validatePresence,
-      String parentKey)
+      String parentKey,
+      Map<String,Object> reqContext)
       throws BaseException {
     for (String param : mandatoryParamsList) {
       if (!reqMap.containsKey(param)) {
@@ -33,33 +34,49 @@ public class ValidationUtil {
       }
 
       if (!(isInstanceOf(reqMap.get(param).getClass(), type))) {
-        logger.error("validateMandatoryParamsOfStringType:incorrect request provided");
+        logger.error(reqContext,"validateMandatoryParamsOfStringType:incorrect request provided");
         throw new ValidationException.ParamDataTypeError(parentKey + "." + param, type.getName());
       }
 
       if (validatePresence) {
-        validatePresence(param, reqMap.get(param), type, parentKey);
+        validatePresence(param, reqMap.get(param), type, parentKey,reqContext);
       }
     }
   }
 
-  private static void validatePresence(String key, Object value, Class<?> type, String parentKey)
+    public static void validateParamsWithType(Map<String, Object> reqMap,
+            List<String> paramList,
+            Class<?> type,
+            String parentKey,
+            Map<String,Object> reqContext)
+      throws BaseException {
+      for (String param : paramList) {
+        if(reqMap.containsKey(param)) {
+          if (!(isInstanceOf(reqMap.get(param).getClass(), type))) {
+            logger.error(reqContext,"validateMandatoryParamsType:incorrect request provided");
+            throw new ValidationException.ParamDataTypeError(parentKey + "." + param, type.getName());
+          }
+        }
+      }
+  }
+
+  private static void validatePresence(String key, Object value, Class<?> type, String parentKey,Map<String,Object> reqContext)
       throws BaseException {
     if (type == String.class) {
       if (StringUtils.isBlank((String) value)) {
-        logger.error("validatePresence:incorrect request provided");
+        logger.error(reqContext,"validatePresence:incorrect request provided");
         throw new ValidationException.MandatoryParamMissing(key, parentKey);
       }
     } else if (type == Map.class) {
       Map<String, Object> map = (Map<String, Object>) value;
       if (map.isEmpty()) {
-        logger.error("validatePresence:incorrect request provided");
+        logger.error(reqContext,"validatePresence:incorrect request provided");
         throw new ValidationException.MandatoryParamMissing(key, parentKey);
       }
     } else if (type == List.class) {
       List<?> list = (List<?>) value;
       if (list.isEmpty()) {
-        logger.error("validatePresence:incorrect request provided");
+        logger.error(reqContext,"validatePresence:incorrect request provided");
         throw new ValidationException.MandatoryParamMissing(key, parentKey);
       }
     }
@@ -76,12 +93,13 @@ public class ValidationUtil {
       Map<String, Object> reqMap,
       List<String> params,
       Map<String, List<String>> paramsValue,
-      String parentKey)
+      String parentKey,
+      Map<String,Object> reqContext)
       throws BaseException {
-    logger.info(
-        "validateParamValue: validating Param Value for the params {} values {}",
+    logger.info(reqContext, MessageFormat.format(
+        "validateParamValue: validating Param Value for the params {0} values {1}",
         params,
-        paramsValue);
+        paramsValue));
     for (String param : params) {
       if (reqMap.containsKey(param) && StringUtils.isNotEmpty((String) reqMap.get(param))) {
         List<String> values = paramsValue.get(param);

@@ -1,33 +1,44 @@
 package validators;
 
 import com.google.common.collect.Lists;
+
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 
 public class GroupCreateRequestValidator implements IRequestValidator {
 
-  private static Logger logger = LoggerFactory.getLogger(GroupCreateRequestValidator.class);
+  private static LoggerUtil logger = new LoggerUtil(GroupCreateRequestValidator.class);
 
   @Override
   public boolean validate(Request request) throws BaseException {
-    logger.info("Validating the create group request {}", request.getRequest());
-    ValidationUtil.validateRequestObject(request);
-    ValidationUtil.validateMandatoryParamsWithType(
-        request.getRequest(),
-        Lists.newArrayList(JsonKey.GROUP_NAME),
-        String.class,
-        true,
-        JsonKey.REQUEST);
-    // validate value of status and role of members and userId if provided in request
-    validateRoleAndStatus(request);
-    validateActivityList(request);
+    logger.info(request.getContext(), MessageFormat.format("Validating the create group request {0}", request.getRequest()));
+    try {
+      ValidationUtil.validateRequestObject(request);
+      ValidationUtil.validateMandatoryParamsWithType(
+              request.getRequest(),
+              Lists.newArrayList(JsonKey.GROUP_NAME),
+              String.class,
+              true,
+              JsonKey.REQUEST,request.getContext());
+      ValidationUtil.validateParamsWithType(request.getRequest(),Lists.newArrayList(JsonKey.MEMBERS,JsonKey.ACTIVITIES),
+              List.class,JsonKey.REQUEST,request.getContext());
+      // validate value of status and role of members and userId if provided in request
+      validateRoleAndStatus(request);
+      validateActivityList(request);
+
+    }catch (BaseException ex){
+      logger.info(request.getContext(),MessageFormat.format("GroupCreateRequestValidator: Request: {0}",request.getRequest()));
+      logger.error(request.getContext(),MessageFormat.format("GroupCreateRequestValidator: Error Code: {0}, ErrMsg {1}",ResponseCode.GS_CRT02.getErrorCode(),ex.getMessage()),ex);
+      throw new BaseException(ResponseCode.GS_CRT02.getErrorCode(),ResponseCode.GS_CRT02.getErrorMessage(),ex.getResponseCode());
+    }
     return true;
   }
 
@@ -50,12 +61,12 @@ public class GroupCreateRequestValidator implements IRequestValidator {
             Lists.newArrayList(JsonKey.USER_ID),
             String.class,
             true,
-            JsonKey.MEMBERS + "[" + memberList.indexOf(member) + "]");
+            JsonKey.MEMBERS + "[" + memberList.indexOf(member) + "]",request.getContext());
         ValidationUtil.validateParamValue(
             member,
             Lists.newArrayList(JsonKey.STATUS, JsonKey.ROLE),
             paramValue,
-            JsonKey.MEMBERS + "[" + memberList.indexOf(member) + "]");
+            JsonKey.MEMBERS + "[" + memberList.indexOf(member) + "]",request.getContext());
       }
     }
   }
@@ -76,7 +87,7 @@ public class GroupCreateRequestValidator implements IRequestValidator {
             Lists.newArrayList(JsonKey.ID, JsonKey.TYPE),
             String.class,
             true,
-            JsonKey.ACTIVITIES + "[" + activityList.indexOf(activity) + "]");
+            JsonKey.ACTIVITIES + "[" + activityList.indexOf(activity) + "]", request.getContext());
       }
     }
   }

@@ -18,7 +18,7 @@ import org.sunbird.telemetry.dto.Context;
 import org.sunbird.telemetry.dto.Producer;
 import org.sunbird.telemetry.dto.Target;
 import org.sunbird.telemetry.dto.Telemetry;
-import org.sunbird.util.LoggerEnum;
+import org.sunbird.common.util.LoggerEnum;
 
 /**
  * class to transform the request data to telemetry events
@@ -66,7 +66,7 @@ public class TelemetryGenerator {
     Map<String, Object> edata = generateAuditEdata(params);
 
     Telemetry telemetry =
-        new Telemetry(TelemetryEvents.AUDIT.getName(), actor, eventContext, edata, targetObject);
+        new Telemetry(TelemetryEvents.AUDIT.getName(), actor, eventContext, edata);
     telemetry.setMid(reqId);
     return getTelemetry(telemetry);
   }
@@ -76,10 +76,12 @@ public class TelemetryGenerator {
     ArrayList<Map<String, Object>> targetList = new ArrayList<>();
     if (null != list && !list.isEmpty()) {
       for (Map<String, Object> m : list) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(JsonKey.ID, m.get(JsonKey.ID));
-        map.put(JsonKey.TYPE, StringUtils.capitalize((String) m.get(JsonKey.TYPE)));
-        targetList.add(map);
+        if(m.get(JsonKey.ID) != null) {
+          Map<String, Object> map = new HashMap<>();
+          map.put(JsonKey.ID, m.get(JsonKey.ID));
+          map.put(JsonKey.TYPE, StringUtils.capitalize((String) m.get(JsonKey.TYPE)));
+          targetList.add(map);
+        }
       }
     }
     eventContext.setCdata(targetList);
@@ -90,7 +92,7 @@ public class TelemetryGenerator {
     Target target =
         new Target(
             (String) targetObject.get(JsonKey.ID),
-            StringUtils.capitalize((String) targetObject.get(JsonKey.TYPE)));
+            (String) targetObject.get(JsonKey.TYPE));
     if (targetObject.get(JsonKey.ROLLUP) != null) {
       target.setRollup((Map<String, String>) targetObject.get(JsonKey.ROLLUP));
     }
@@ -107,20 +109,27 @@ public class TelemetryGenerator {
     }
 
     Map<String, Object> target = (Map<String, Object>) params.get(JsonKey.TARGET_OBJECT);
+    if (target.get(JsonKey.TYPE) != null) {
+      edata.put(JsonKey.TYPE,(String) target.get(JsonKey.TYPE ));
+    }
+    if (target.get(JsonKey.SUB_TYPE) != null) {
+      edata.put(JsonKey.SUB_TYPE,(String) target.get(JsonKey.SUB_TYPE ));
+    }
     if (target.get(JsonKey.CURRENT_STATE) != null) {
-      edata.put(JsonKey.STATE, StringUtils.capitalize((String) target.get(JsonKey.CURRENT_STATE)));
+      edata.put(JsonKey.CURRENTSTATE,(String) target.get(JsonKey.CURRENT_STATE));
       if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.CURRENT_STATE))
           && edata.get(props) != null) {
         removeAttributes((Map<String, Object>) edata.get(props), JsonKey.ID);
       }
     }
     if (target.get(JsonKey.PREV_STATE) != null) {
-      edata.put(JsonKey.PREVSTATE, StringUtils.capitalize((String) target.get(JsonKey.PREV_STATE)));
+      edata.put(JsonKey.PREVSTATE, (String) target.get(JsonKey.PREV_STATE));
       if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.PREV_STATE))
           && edata.get(props) != null) {
         removeAttributes((Map<String, Object>) edata.get(props), JsonKey.ID);
       }
     }
+    edata.put(JsonKey.PAGE_ID,target.get(JsonKey.PAGE_ID));
     return edata;
   }
 
@@ -159,11 +168,10 @@ public class TelemetryGenerator {
     String env = (String) context.get(JsonKey.ENV);
     String did = (String) context.get(JsonKey.DEVICE_ID);
     Producer producer = getProducer(context);
-    Context eventContext = new Context(channel, StringUtils.capitalize(env), producer);
+    Context eventContext = new Context(channel, env, producer);
     eventContext.setDid(did);
-    if (context.get(JsonKey.ROLLUP) != null
-        && !((Map<String, String>) context.get(JsonKey.ROLLUP)).isEmpty()) {
-      eventContext.setRollup((Map<String, String>) context.get(JsonKey.ROLLUP));
+    if (eventContext.getChannel() != null) {
+      eventContext.setRollup(new HashMap<String,String>(){{put(JsonKey.L1, eventContext.getChannel());}});
     }
     return eventContext;
   }

@@ -1,8 +1,8 @@
-package org.sunbird.exception;
+package org.sunbird.common.exception;
 
 import java.util.Locale;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.IResponseMessage;
+import org.sunbird.common.message.Localizer;
 
 public class ActorServiceException {
 

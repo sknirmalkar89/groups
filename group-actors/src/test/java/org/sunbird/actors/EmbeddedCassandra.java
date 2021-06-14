@@ -10,7 +10,7 @@ import org.cassandraunit.CQLDataLoader;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
 import org.cassandraunit.dataset.cql.FileCQLDataSet;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.util.JsonKey;
 
 public class EmbeddedCassandra {
 

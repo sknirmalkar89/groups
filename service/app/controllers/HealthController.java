@@ -1,8 +1,9 @@
 package controllers;
 
 import java.util.concurrent.CompletionStage;
-import org.sunbird.exception.BaseException;
-import org.sunbird.request.Request;
+
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
 
@@ -30,6 +31,6 @@ public class HealthController extends BaseController {
       throws BaseException {
     Request request = createSBRequest(req, "health");
     request.getContext().put("service", serviceName);
-    return handleRequest(request);
+    return handleRequest(request) ;
   }
 }

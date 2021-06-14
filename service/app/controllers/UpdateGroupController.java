@@ -1,14 +1,12 @@
 package controllers;
 
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
+import org.sunbird.common.request.Request;
 import play.mvc.Http;
 import play.mvc.Result;
-import validators.GroupCreateRequestValidator;
 import validators.GroupUpdateRequestValidator;
 import validators.IRequestValidator;
-
 import java.util.concurrent.CompletionStage;
 
 public class UpdateGroupController extends BaseController {

@@ -1,4 +1,4 @@
-package org.sunbird.request;
+package org.sunbird.common.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;

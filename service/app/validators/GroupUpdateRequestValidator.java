@@ -1,34 +1,45 @@
 package validators;
 
 import com.google.common.collect.Lists;
+
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sunbird.exception.BaseException;
-import org.sunbird.exception.ValidationException;
-import org.sunbird.request.Request;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.ValidationException;
+import org.sunbird.common.message.ResponseCode;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.util.JsonKey;
+import org.sunbird.util.LoggerUtil;
 
 public class GroupUpdateRequestValidator implements IRequestValidator {
 
-  private static Logger logger = LoggerFactory.getLogger(GroupUpdateRequestValidator.class);
+  private static LoggerUtil logger = new LoggerUtil(GroupUpdateRequestValidator.class);
 
   @Override
   public boolean validate(Request request) throws BaseException {
-    logger.info("Validating the update group request {}", request.getRequest());
-    ValidationUtil.validateRequestObject(request);
-    ValidationUtil.validateMandatoryParamsWithType(
-        request.getRequest(),
-        Lists.newArrayList(JsonKey.GROUP_ID),
-        String.class,
-        true,
-        JsonKey.REQUEST);
-    validateActivityList(request);
-    return true;
+    logger.info(request.getContext(),"Validating the update group request "+request.getRequest());
+    try {
+      ValidationUtil.validateRequestObject(request);
+      ValidationUtil.validateMandatoryParamsWithType(
+              request.getRequest(),
+              Lists.newArrayList(JsonKey.GROUP_ID),
+              String.class,
+              true,
+              JsonKey.REQUEST,request.getContext());
+      ValidationUtil.validateParamsWithType(request.getRequest(),Lists.newArrayList(JsonKey.MEMBERS,JsonKey.ACTIVITIES),
+              Map.class,JsonKey.REQUEST,request.getContext());
+      validateActivityList(request);
+
+      return true;
+    }catch (BaseException ex){
+      logger.info(request.getContext(),MessageFormat.format("GroupUpdateCreateRequestValidator: Request: {0}",request.getRequest()));
+      logger.error(request.getContext(), MessageFormat.format("GroupUpdateRequestValidator: Error Code: {0}, ErrMsg {1}",ResponseCode.GS_UDT02.getErrorCode(),ex.getMessage()),ex);
+      throw new BaseException(ResponseCode.GS_UDT02.getErrorCode(),ResponseCode.GS_UDT02.getErrorMessage(),ex.getResponseCode());
+    }
   }
 
   /**
@@ -43,7 +54,7 @@ public class GroupUpdateRequestValidator implements IRequestValidator {
           request.getRequest().get(JsonKey.ACTIVITIES),
           JsonKey.ACTIVITIES,
           JsonKey.REQUEST,
-          Map.class);
+          Map.class,request.getContext());
       Map<String, Object> activityList =
           (Map<String, Object>) request.getRequest().get(JsonKey.ACTIVITIES);
       if (MapUtils.isNotEmpty(activityList)) {
@@ -53,7 +64,7 @@ public class GroupUpdateRequestValidator implements IRequestValidator {
               activityList.get(JsonKey.ADD),
               JsonKey.ADD,
               JsonKey.REQUEST + "." + JsonKey.ACTIVITIES,
-              List.class);
+              List.class,request.getContext());
           List<Map<String, Object>> addActivity =
               (List<Map<String, Object>>) activityList.get(JsonKey.ADD);
           if (CollectionUtils.isNotEmpty(addActivity)) {
@@ -70,7 +81,7 @@ public class GroupUpdateRequestValidator implements IRequestValidator {
                       + JsonKey.ADD
                       + "["
                       + addActivity.indexOf(activity)
-                      + "]");
+                      + "]",request.getContext());
             }
           }
         }
@@ -80,15 +91,15 @@ public class GroupUpdateRequestValidator implements IRequestValidator {
               activityList.get(JsonKey.REMOVE),
               JsonKey.REMOVE,
               JsonKey.REQUEST + "." + JsonKey.ACTIVITIES,
-              List.class);
+              List.class,request.getContext());
         }
       }
     }
   }
 
-  private void checkDataTypeOfParam(Object object, String key, String parentKey, Class type) {
+  private void checkDataTypeOfParam(Object object, String key, String parentKey, Class type,Map<String,Object> reqCOntext) {
     if (ObjectUtils.isNotEmpty(object) && !(ValidationUtil.isInstanceOf(object.getClass(), type))) {
-      logger.error("validateMandatoryParamsOfStringType:incorrect request provided");
+      logger.error(reqCOntext,"validateMandatoryParamsOfStringType:incorrect request provided");
       throw new ValidationException.ParamDataTypeError(parentKey + "." + key, type.getName());
     }
   }

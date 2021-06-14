@@ -25,14 +25,15 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.cassandraimpl.CassandraOperationImpl;
-import org.sunbird.exception.BaseException;
+import org.sunbird.common.exception.BaseException;
+import org.sunbird.common.exception.DBException;
 import org.sunbird.helper.ServiceFactory;
-import org.sunbird.message.IResponseMessage;
-import org.sunbird.message.Localizer;
+import org.sunbird.common.message.Localizer;
+import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.ActorOperations;
-import org.sunbird.request.Request;
-import org.sunbird.response.Response;
-import org.sunbird.util.JsonKey;
+import org.sunbird.common.request.Request;
+import org.sunbird.common.response.Response;
+import org.sunbird.common.util.JsonKey;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Localizer.class, ServiceFactory.class})
@@ -41,20 +42,21 @@ public class SearchGroupActorTest extends BaseActorTest {
   private static final String GROUP_MEMBER_TABLE = "group_member";
   private static final String GROUP_TABLE_NAME = "group";
   private final Props props = Props.create(org.sunbird.actors.SearchGroupActor.class);
-  public CassandraOperation cassandraOperation;
+
 
   @Before
   public void setUp() throws Exception {
-    PowerMockito.mockStatic(Localizer.class);
-    when(Localizer.getInstance()).thenReturn(null);
-    PowerMockito.mockStatic(ServiceFactory.class);
-    cassandraOperation = mock(CassandraOperationImpl.class);
-    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
-    mockCacheActor();
+
   }
 
   @Test
-  public void searchByUserIdFiltersReturnSuccessResponse() {
+  public void searchByUserIdFiltersReturnSuccessResponse() throws Exception{
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    mockCacheActor();
     TestKit probe = new TestKit(system);
     ActorRef subject = system.actorOf(props);
     Request reqObj = new Request();
@@ -68,22 +70,24 @@ public class SearchGroupActorTest extends BaseActorTest {
               Mockito.anyString(),
               Matchers.eq("user_group"),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupSetByUserId());
 
       when(cassandraOperation.getRecordsByPrimaryKeys(
               Mockito.anyString(),
               Matchers.eq(GROUP_TABLE_NAME),
               Mockito.anyList(),
-              Mockito.anyString()))
+              Mockito.anyString(),
+              Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getMemberResponseByGroupIds());
 
       when(cassandraOperation.getRecordsByProperties(
-              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap()))
+              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap(),Mockito.any()))
           .thenReturn(getGroupsDetailsResponse());
 
     } catch (BaseException be) {
@@ -95,7 +99,65 @@ public class SearchGroupActorTest extends BaseActorTest {
   }
 
   @Test
-  public void searchByEmptyFiltersThrowsBaseException() {
+  public void searchByUserIdFiltersReturnDBException()  throws Exception{
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    mockCacheActor();
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+    Request reqObj = new Request();
+    reqObj.setHeaders(headerMap);
+    reqObj.setOperation(ActorOperations.SEARCH_GROUP.getValue());
+    Map<String, Object> filters = new HashMap<>();
+    filters.put(JsonKey.USER_ID, "userid1");
+    reqObj.getRequest().put(JsonKey.FILTERS, filters);
+    try {
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("user_group"),
+              Mockito.anyList(),
+              Mockito.anyString(),
+              Mockito.any()))
+              .thenReturn(getGroupSetByUserId());
+
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq(GROUP_TABLE_NAME),
+              Mockito.anyList(),
+              Mockito.anyString(),
+              Mockito.any()))
+              .thenThrow(DBException.class);
+
+      when(cassandraOperation.getRecordsByProperties(
+              Mockito.anyString(), Matchers.eq(GROUP_MEMBER_TABLE), Mockito.anyMap(),Mockito.any()))
+              .thenReturn(getMemberResponseByGroupIds());
+
+      when(cassandraOperation.getRecordsByProperties(
+              Mockito.anyString(), Matchers.eq("group"), Mockito.anyMap(),Mockito.any()))
+              .thenReturn(getGroupsDetailsResponse());
+
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+    try {
+      subject.tell(reqObj, probe.getRef());
+    }catch (BaseException ex){
+      Assert.assertTrue(true);
+    }
+
+  }
+
+  @Test
+  public void searchByEmptyFiltersThrowsBaseException() throws Exception{
+    PowerMockito.mockStatic(Localizer.class);
+    when(Localizer.getInstance()).thenReturn(null);
+    PowerMockito.mockStatic(ServiceFactory.class);
+    CassandraOperation cassandraOperation = mock(CassandraOperationImpl.class);
+    when(ServiceFactory.getInstance()).thenReturn(cassandraOperation);
+    mockCacheActor();
     TestKit probe = new TestKit(system);
 
     ActorRef subject = system.actorOf(props);
@@ -108,8 +170,9 @@ public class SearchGroupActorTest extends BaseActorTest {
     subject.tell(reqObj, probe.getRef());
 
     BaseException ex = probe.expectMsgClass(Duration.ofSeconds(10), BaseException.class);
-    Assert.assertEquals(IResponseMessage.MISSING_MANDATORY_PARAMS, ex.getMessage());
+    Assert.assertEquals(ResponseCode.GS_LST02.getErrorMessage(), ex.getMessage());
   }
+
 
   private Response getGroupsDetailsResponse() {
     Map<String, Object> result = new HashMap<>();
