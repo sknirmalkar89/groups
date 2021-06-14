@@ -92,9 +92,9 @@ public class ReadGroupActor extends BaseActor {
       response.putAll(map);
       sender().tell(response, self());
     } catch (Exception ex){
-      logger.info(actorMessage.getContext(),MessageFormat.format("ReadGroupActor: Request: {0}",actorMessage.getRequest()));
+      logger.debug(actorMessage.getContext(),MessageFormat.format("ReadGroupActor: Request: {0}",actorMessage.getRequest()));
 
-      logger.error(actorMessage.getContext(),MessageFormat.format("ReadGroupActor: Error Code: {0}, Error Msg: {1} ",ResponseCode.GS_RED03.getErrorCode(),ex.getMessage()),ex);
+      logger.error(actorMessage.getContext(),MessageFormat.format("ReadGroupActor:  Error Msg: {0} ",ex.getMessage()),ex);
       ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_RED03);
     }
   }

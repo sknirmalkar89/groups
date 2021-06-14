@@ -164,7 +164,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       }
       try {
         Response response = new Response();
-        logger.info(reqContext, "Remove Map-Key Query: " + update.toString());
+        logger.debug(reqContext, "Remove Map-Key Query: " + update.toString());
         connectionManager.getSession(keySpace).execute(update);
         response.put(Constants.RESPONSE, Constants.SUCCESS);
         return response;
@@ -204,7 +204,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       Map<String,Object> reqContext)
       throws DBException {
     long startTime = System.currentTimeMillis();
-    logger.info(reqContext,"Cassandra Service updateSetRecord method started at == +"+ startTime);
+    logger.debug(reqContext,"Cassandra Service updateSetRecord method started at == +"+ startTime);
 
     Update update = QueryBuilder.update(keySpace, table);
     if (add) {
@@ -231,7 +231,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
       }
       Response response = new Response();
       try {
-        logger.info("updateSetRecord: Update set Query:: " + update.toString());
+        logger.debug("updateSetRecord: Update set Query:: " + update.toString());
         connectionManager.getSession(keySpace).execute(update);
         response.put(Constants.RESPONSE, Constants.SUCCESS);
       } catch (Exception e) {
@@ -241,7 +241,7 @@ public class CassandraDACImpl extends CassandraOperationImpl {
                 IResponseMessage.SERVER_ERROR);
       }
       long stopTime = System.currentTimeMillis();
-      logger.info(reqContext,
+      logger.debug(reqContext,
               MessageFormat.format("Cassandra operation {0} started at {1} and completed at {2}. Total time elapsed is {3}",
               "updateSetRecord",
               startTime,

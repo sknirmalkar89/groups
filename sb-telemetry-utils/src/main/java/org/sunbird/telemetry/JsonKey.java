@@ -43,4 +43,6 @@ public interface JsonKey {
   String LOG_LEVEL = "logLevel";
   String PAGE_ID = "pageid";
   String L1="l1";
+  String ERR="err";
+  String SYSTEM = "SYSTEM";
 }
