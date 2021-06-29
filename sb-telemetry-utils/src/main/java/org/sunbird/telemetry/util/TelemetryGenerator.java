@@ -360,10 +360,10 @@ public class TelemetryGenerator {
 
   private static Map<String, Object> generateErrorEdata(Map<String, Object> params) {
     Map<String, Object> edata = new HashMap<>();
-    String error = (String) params.get(JsonKey.ERROR);
+    String error = (String) params.get(JsonKey.ERR);
     String errorType = (String) params.get(JsonKey.ERR_TYPE);
     String stackTrace = (String) params.get(JsonKey.STACKTRACE);
-    edata.put(JsonKey.ERROR, error);
+    edata.put(JsonKey.ERR, error);
     edata.put(JsonKey.ERR_TYPE, errorType);
     edata.put(JsonKey.STACKTRACE, getFirstNCharacterString(stackTrace, 100));
     return edata;
