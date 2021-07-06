@@ -112,9 +112,6 @@ public class TelemetryGenerator {
     if (target.get(JsonKey.TYPE) != null) {
       edata.put(JsonKey.TYPE,(String) target.get(JsonKey.TYPE ));
     }
-    if (target.get(JsonKey.SUB_TYPE) != null) {
-      edata.put(JsonKey.SUB_TYPE,(String) target.get(JsonKey.SUB_TYPE ));
-    }
     if (target.get(JsonKey.CURRENT_STATE) != null) {
       edata.put(JsonKey.CURRENTSTATE,(String) target.get(JsonKey.CURRENT_STATE));
       if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.CURRENT_STATE))
@@ -129,7 +126,6 @@ public class TelemetryGenerator {
         removeAttributes((Map<String, Object>) edata.get(props), JsonKey.ID);
       }
     }
-    edata.put(JsonKey.PAGE_ID,target.get(JsonKey.PAGE_ID));
     return edata;
   }
 

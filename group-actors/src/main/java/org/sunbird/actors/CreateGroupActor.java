@@ -105,10 +105,6 @@ public class CreateGroupActor extends BaseActor {
           if (!memberLimitExceeded) {
             Response addMembersRes =
                     memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList, actorMessage.getContext());
-            logger.info(actorMessage.getContext(), MessageFormat.format(
-                    "Adding members to the group : {0} ended , response {1}",
-                    groupId,
-                    addMembersRes.getResult()));
           }
         }
 
@@ -121,14 +117,16 @@ public class CreateGroupActor extends BaseActor {
         }
         logger.info(actorMessage.getContext(), MessageFormat.format("group created successfully with groupId {0}", groupId));
         sender().tell(response, self());
-
     }catch (Exception ex){
       logger.debug(actorMessage.getContext(),MessageFormat.format("CreateGroupActor: Request: {0}",actorMessage.getRequest()));
-
-      logger.error(actorMessage.getContext(),
-                MessageFormat.format("CreateGroupActor:Error Msg: {0} ",ex.getMessage()),
-                ex);
+      try {
         ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_CRT03);
+      }catch (BaseException e){
+        logger.error(actorMessage.getContext(),
+                MessageFormat.format("CreateGroupActor:Error Msg: {0} ",e.getMessage()),
+                e);
+        throw e;
+      }
     } finally {
       TelemetryHandler.logGroupCreateTelemetry(actorMessage, groupId);
     }
@@ -136,7 +134,6 @@ public class CreateGroupActor extends BaseActor {
 
 
     private boolean validateMaxActivitiesLimitation(Group group, Map<String, List<Map<String, String>>> validationErrors, Map<String,Object> reqContext) throws BaseException {
-
       List<Map<String, String>> activityErrorList = new ArrayList<>();
       validationErrors.put(JsonKey.ACTIVITIES, activityErrorList);
       boolean maxActivityLimit = GroupUtil.checkMaxActivityLimit(group.getActivities() != null ? group.getActivities().size() : 0);
