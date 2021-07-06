@@ -88,12 +88,14 @@ public class CreateGroupActor extends BaseActor {
          // if activity limit exceeded, we should not add into the db
         group.setActivities(null);
       }
+      
       groupId = groupService.createGroup(group, actorMessage.getContext());
       if (CollectionUtils.isNotEmpty(memberList)) {
           logger.info(actorMessage.getContext(), MessageFormat.format("Adding members to the group: {0} started", groupId));
           boolean isUseridRedisEnabled =
                   Boolean.parseBoolean(
                           PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
+
           if (isUseridRedisEnabled) {
             // Remove group list user cache from redis
             cacheUtil.deleteCacheSync(userId,actorMessage.getContext());
