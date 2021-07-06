@@ -124,11 +124,14 @@ public class CreateGroupActor extends BaseActor {
 
     }catch (Exception ex){
       logger.debug(actorMessage.getContext(),MessageFormat.format("CreateGroupActor: Request: {0}",actorMessage.getRequest()));
-
-      logger.error(actorMessage.getContext(),
-                MessageFormat.format("CreateGroupActor:Error Msg: {0} ",ex.getMessage()),
-                ex);
+      try {
         ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_CRT03);
+      }catch (BaseException e){
+        logger.error(actorMessage.getContext(),
+                MessageFormat.format("CreateGroupActor:Error Msg: {0} ",e.getMessage()),
+                e);
+        throw e;
+      }
     } finally {
       TelemetryHandler.logGroupCreateTelemetry(actorMessage, groupId);
     }

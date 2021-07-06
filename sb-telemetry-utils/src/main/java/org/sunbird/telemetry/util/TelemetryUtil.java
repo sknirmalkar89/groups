@@ -15,7 +15,7 @@ public final class TelemetryUtil {
   private TelemetryUtil() {}
 
   public static Map<String, Object> generateTargetObject(
-      String id, String type,String subtype, String currentState, String prevState,String pageId) {
+      String id, String type,String subtype, String currentState, String prevState) {
 
     Map<String, Object> target = new HashMap<>();
     target.put(JsonKey.ID, id);
@@ -23,7 +23,6 @@ public final class TelemetryUtil {
     target.put(JsonKey.SUB_TYPE,subtype);
     target.put(JsonKey.CURRENT_STATE, currentState);
     target.put(JsonKey.PREV_STATE, prevState);
-    target.put(JsonKey.PAGE_ID,pageId);
     return target;
   }
 
