@@ -88,14 +88,12 @@ public class CreateGroupActor extends BaseActor {
          // if activity limit exceeded, we should not add into the db
         group.setActivities(null);
       }
-      
       groupId = groupService.createGroup(group, actorMessage.getContext());
       if (CollectionUtils.isNotEmpty(memberList)) {
           logger.info(actorMessage.getContext(), MessageFormat.format("Adding members to the group: {0} started", groupId));
           boolean isUseridRedisEnabled =
                   Boolean.parseBoolean(
                           PropertiesCache.getInstance().getConfigValue(JsonKey.ENABLE_USERID_REDIS_CACHE));
-
           if (isUseridRedisEnabled) {
             // Remove group list user cache from redis
             cacheUtil.deleteCacheSync(userId,actorMessage.getContext());
@@ -123,7 +121,6 @@ public class CreateGroupActor extends BaseActor {
         }
         logger.info(actorMessage.getContext(), MessageFormat.format("group created successfully with groupId {0}", groupId));
         sender().tell(response, self());
-
     }catch (Exception ex){
       logger.debug(actorMessage.getContext(),MessageFormat.format("CreateGroupActor: Request: {0}",actorMessage.getRequest()));
       try {
@@ -141,7 +138,6 @@ public class CreateGroupActor extends BaseActor {
 
 
     private boolean validateMaxActivitiesLimitation(Group group, Map<String, List<Map<String, String>>> validationErrors, Map<String,Object> reqContext) throws BaseException {
-
       List<Map<String, String>> activityErrorList = new ArrayList<>();
       validationErrors.put(JsonKey.ACTIVITIES, activityErrorList);
       boolean maxActivityLimit = GroupUtil.checkMaxActivityLimit(group.getActivities() != null ? group.getActivities().size() : 0);
