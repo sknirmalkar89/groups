@@ -105,7 +105,6 @@ public class CreateGroupActor extends BaseActor {
           if (!memberLimitExceeded) {
             Response addMembersRes =
                     memberService.handleMemberAddition(memberList, groupId, userId, userGroupsList, actorMessage.getContext());
-            
           }
         }
 
