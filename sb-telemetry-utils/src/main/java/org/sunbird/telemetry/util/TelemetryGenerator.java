@@ -112,9 +112,9 @@ public class TelemetryGenerator {
     if (target.get(JsonKey.TYPE) != null) {
       edata.put(JsonKey.TYPE,(String) target.get(JsonKey.TYPE ));
     }
-    if (target.get(JsonKey.CURRENT_STATE) != null) {
-      edata.put(JsonKey.CURRENTSTATE,(String) target.get(JsonKey.CURRENT_STATE));
-      if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.CURRENT_STATE))
+    if (target.get(JsonKey.STATE) != null) {
+      edata.put(JsonKey.STATE,(String) target.get(JsonKey.STATE));
+      if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.STATE))
           && edata.get(props) != null) {
         removeAttributes((Map<String, Object>) edata.get(props), JsonKey.ID);
       }

@@ -29,8 +29,8 @@ public class TelemetryHandler {
         }
         Map<String, Object> targetObject = null;
         targetObject = groupId != null ?
-                TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP_CREATED,null, org.sunbird.common.util.JsonKey.ACTIVE, null)
-                : TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP_CREATE_ERROR, TelemetryEnvKey.CREATION,null, null);
+                TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP_CREATED, org.sunbird.common.util.JsonKey.ACTIVE, null)
+                : TelemetryUtil.generateTargetObject(groupId, TelemetryEnvKey.GROUP_CREATE_ERROR, null, null);
 
         // Add user information to Cdata
         TelemetryUtil.generateCorrelatedObject(
@@ -57,14 +57,12 @@ public class TelemetryHandler {
                             groupId,
                             TelemetryEnvKey.DELETE_GROUP,
                             null,
-                            null,
                             (String) dbResGroup.get(JsonKey.STATUS));
         }else{
             targetObject =
                     TelemetryUtil.generateTargetObject(
                             groupId,
                             TelemetryEnvKey.GROUP_DELETE_ERROR,
-                            JsonKey.DELETE,
                             null,
                             null != dbResGroup ? (String) dbResGroup.get(JsonKey.STATUS):null);
         }
@@ -97,7 +95,6 @@ public class TelemetryHandler {
                                 TelemetryUtil.generateTargetObject(
                                         group.getId(),
                                         TelemetryEnvKey.ACTIVATE_GROUP,
-                                        null,
                                         group.getStatus(),
                                         (String) dbResGroup.get(JsonKey.STATUS));
                         break;
@@ -105,7 +102,7 @@ public class TelemetryHandler {
                     default:
                         targetObject =
                                 TelemetryUtil.generateTargetObject(
-                                        group.getId(), TelemetryEnvKey.GROUP, null, null, null);
+                                        group.getId(), TelemetryEnvKey.GROUP,  null, null);
                 }
 
             }
@@ -114,7 +111,6 @@ public class TelemetryHandler {
                     TelemetryUtil.generateTargetObject(
                             group.getId(),
                             TelemetryEnvKey.GROUP_UPDATE_ERROR,
-                            JsonKey.UPDATE,
                             null,
                             null != dbResGroup ?(String) dbResGroup.get(JsonKey.STATUS): null);
         }
@@ -157,11 +153,11 @@ public class TelemetryHandler {
         if(isSuccess) {
             targetObject =
                     TelemetryUtil.generateTargetObject(
-                            userId, TelemetryEnvKey.MEMBER_UPDATE, null, null, null);
+                            userId, TelemetryEnvKey.MEMBER_UPDATE,  null, null);
         }else{
             targetObject =
                     TelemetryUtil.generateTargetObject(
-                            userId, TelemetryEnvKey.GROUP_MEMBER_UPDATE_ERROR, TelemetryEnvKey.MEMBER_UPDATE, null, null);
+                            userId, TelemetryEnvKey.GROUP_MEMBER_UPDATE_ERROR, null, null);
         }
         TelemetryUtil.generateCorrelatedObject(
                 (String) actorMessage.getContext().get(JsonKey.USER_ID),
@@ -178,21 +174,18 @@ public class TelemetryHandler {
             targetObject = TelemetryUtil.generateTargetObject(
                     group.getId(),
                     TelemetryEnvKey.ACTIVITY,
-                    null,
                     JsonKey.ACTIVE,
                     (String) dbResGroup.get(JsonKey.STATUS));
         } else if (!MapUtils.isEmpty((Map<String, Object>) actorMessage.getRequest().get(JsonKey.MEMBERS))) {
             targetObject = TelemetryUtil.generateTargetObject(
                     group.getId(),
                     TelemetryEnvKey.ADD_MEMBER,
-                    null,
                     JsonKey.ACTIVE,
                     (String) dbResGroup.get(JsonKey.STATUS));
         } else if(JsonKey.SUSPENDED.equals(group.getStatus())){
             targetObject = TelemetryUtil.generateTargetObject(
                     group.getId(),
                     TelemetryEnvKey.DEACTIVATE_GROUP,
-                    null,
                     JsonKey.ACTIVE,
                     (String) dbResGroup.get(JsonKey.STATUS));
 
@@ -200,7 +193,6 @@ public class TelemetryHandler {
             targetObject = TelemetryUtil.generateTargetObject(
                     group.getId(),
                     TelemetryEnvKey.UPDATE_GROUP,
-                    null,
                     JsonKey.ACTIVE,
                     (String) dbResGroup.get(JsonKey.STATUS));
         }
