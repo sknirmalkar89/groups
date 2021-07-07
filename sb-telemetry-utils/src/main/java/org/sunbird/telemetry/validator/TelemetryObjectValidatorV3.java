@@ -192,8 +192,8 @@ public class TelemetryObjectValidatorV3 implements TelemetryObjectValidator {
     if (edata == null || edata.isEmpty()) {
       missingFields.add("edata");
     } else {
-      if (StringUtils.isBlank((String) edata.get(JsonKey.ERROR))) {
-        missingFields.add(JsonKey.ERROR);
+      if (StringUtils.isBlank((String) edata.get(JsonKey.ERR))) {
+        missingFields.add(JsonKey.ERR);
       }
       if (StringUtils.isBlank((String) edata.get(JsonKey.ERR_TYPE))) {
         missingFields.add(JsonKey.ERR_TYPE);

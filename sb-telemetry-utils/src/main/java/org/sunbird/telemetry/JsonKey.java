@@ -38,10 +38,9 @@ public interface JsonKey {
   String ID = "id";
   String LEVEL = "level";
   String MESSAGE = "message";
-  String STACKTRACE = "stackTrace";
+  String STACKTRACE = "stacktrace";
   String ERROR = "error";
   String LOG_LEVEL = "logLevel";
-  String PAGE_ID = "pageid";
   String L1="l1";
   String ERR="err";
   String SYSTEM = "SYSTEM";
