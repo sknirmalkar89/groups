@@ -141,6 +141,39 @@ public class DeleteGroupActorTest extends BaseActorTest {
     }
   }
 
+  @Test
+  public void testDeleteGroupException() {
+    TestKit probe = new TestKit(system);
+    ActorRef subject = system.actorOf(props);
+
+    try {
+
+      when(cassandraOperation.batchDelete(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyList(),Mockito.any()))
+              .thenReturn(getCassandraResponse());
+      when(cassandraOperation.getRecordsByPrimaryKeys(
+              Mockito.anyString(),
+              Matchers.eq("group_member"),
+              Mockito.anyList(),
+              Mockito.anyString(),
+              Mockito.any()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.getRecordById(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
+              .thenThrow(DBException.class);
+      when(cassandraOperation.deleteRecord(
+              Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.any()))
+              .thenReturn(getCassandraResponse());
+    } catch (BaseException be) {
+      Assert.assertTrue(false);
+    }
+    Request reqObj = deleteGroupReq();
+    try {
+      subject.tell(reqObj, probe.getRef());
+    }catch (BaseException ex){
+      Assert.assertTrue(true);
+    }
+  }
 
   static Response getMemberResponse() {
     List<Map<String, Object>> members = new ArrayList<>();

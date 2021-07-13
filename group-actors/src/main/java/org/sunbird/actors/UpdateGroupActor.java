@@ -152,9 +152,13 @@ public class UpdateGroupActor extends BaseActor {
       TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group, dbResGroup,true);
     }catch (Exception ex){
        logger.info(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor: Request: {0}",actorMessage.getRequest()));
-       logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor:  Error Msg: {0} ",ex.getMessage()),ex);
        TelemetryHandler.logGroupUpdateTelemetry(actorMessage, group,dbResGroup,false);
-       ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_UDT03);
+      try{
+        ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_UDT03);
+      }catch (BaseException e){
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupActor:  Error Msg: {0} ",e.getMessage()),e);
+        throw e;
+      }
     }
   }
 

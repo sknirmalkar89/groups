@@ -10,8 +10,6 @@ public interface JsonKey {
   String TARGET_OBJECT = "targetObject";
   String ROLLUP = "rollup";
   String PROPS = "props";
-  String CURRENT_STATE = "CURRENT_STATE";
-  String CURRENTSTATE = "currentstate";
   String STATE = "state";
   String UPDATE = "update";
   String CHANNEL = "channel";
@@ -38,10 +36,9 @@ public interface JsonKey {
   String ID = "id";
   String LEVEL = "level";
   String MESSAGE = "message";
-  String STACKTRACE = "stackTrace";
+  String STACKTRACE = "stacktrace";
   String ERROR = "error";
   String LOG_LEVEL = "logLevel";
-  String PAGE_ID = "pageid";
   String L1="l1";
   String ERR="err";
   String SYSTEM = "SYSTEM";

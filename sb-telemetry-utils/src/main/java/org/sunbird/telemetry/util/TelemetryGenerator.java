@@ -112,12 +112,10 @@ public class TelemetryGenerator {
     if (target.get(JsonKey.TYPE) != null) {
       edata.put(JsonKey.TYPE,(String) target.get(JsonKey.TYPE ));
     }
-    if (target.get(JsonKey.SUB_TYPE) != null) {
-      edata.put(JsonKey.SUB_TYPE,(String) target.get(JsonKey.SUB_TYPE ));
-    }
-    if (target.get(JsonKey.CURRENT_STATE) != null) {
-      edata.put(JsonKey.CURRENTSTATE,(String) target.get(JsonKey.CURRENT_STATE));
-      if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.CURRENT_STATE))
+
+    if (target.get(JsonKey.STATE) != null) {
+      edata.put(JsonKey.STATE,(String) target.get(JsonKey.STATE));
+      if (JsonKey.UPDATE.equalsIgnoreCase((String) target.get(JsonKey.STATE))
           && edata.get(props) != null) {
         removeAttributes((Map<String, Object>) edata.get(props), JsonKey.ID);
       }
@@ -129,7 +127,6 @@ public class TelemetryGenerator {
         removeAttributes((Map<String, Object>) edata.get(props), JsonKey.ID);
       }
     }
-    edata.put(JsonKey.PAGE_ID,target.get(JsonKey.PAGE_ID));
     return edata;
   }
 
@@ -360,10 +357,10 @@ public class TelemetryGenerator {
 
   private static Map<String, Object> generateErrorEdata(Map<String, Object> params) {
     Map<String, Object> edata = new HashMap<>();
-    String error = (String) params.get(JsonKey.ERROR);
+    String error = (String) params.get(JsonKey.ERR);
     String errorType = (String) params.get(JsonKey.ERR_TYPE);
     String stackTrace = (String) params.get(JsonKey.STACKTRACE);
-    edata.put(JsonKey.ERROR, error);
+    edata.put(JsonKey.ERR , error);
     edata.put(JsonKey.ERR_TYPE, errorType);
     edata.put(JsonKey.STACKTRACE, getFirstNCharacterString(stackTrace, 100));
     return edata;

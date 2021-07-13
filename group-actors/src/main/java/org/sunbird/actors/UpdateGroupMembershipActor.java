@@ -10,6 +10,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.ActorConfig;
 import org.sunbird.common.exception.AuthorizationException;
+import org.sunbird.common.exception.BaseException;
 import org.sunbird.common.exception.ValidationException;
 import org.sunbird.common.message.ResponseCode;
 import org.sunbird.models.Member;
@@ -84,9 +85,13 @@ public class UpdateGroupMembershipActor extends BaseActor {
       TelemetryHandler.logGroupMembershipUpdateTelemetry(actorMessage, userId,true);
     }catch (Exception ex){
       logger.debug(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor: Request: {0}",actorMessage.getRequest()));
-      logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor:  Error Msg: {0} ",ex.getMessage()),ex);
       TelemetryHandler.logGroupMembershipUpdateTelemetry(actorMessage, userId,false);
-      ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_MBRSHP_UDT03);
+      try{
+        ExceptionHandler.handleExceptions(actorMessage, ex, ResponseCode.GS_MBRSHP_UDT03);
+      }catch (BaseException e){
+        logger.error(actorMessage.getContext(),MessageFormat.format("UpdateGroupMembershipActor:  Error Msg: {0} ",e.getMessage()),e);
+        throw e;
+      }
     }
   }
 
